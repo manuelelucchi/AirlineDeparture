@@ -9,8 +9,9 @@ path = './data'
 
 
 def download_dataset():
-    if os.path.isdir(path):
-        if not os.listdir(path):
-            api = KaggleApi()
-            api.authenticate()
-            api.dataset_download_files(dataset, path, unzip=True, quiet=False)
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    if not os.listdir(path):
+        api = KaggleApi()
+        api.authenticate()
+        api.dataset_download_files(dataset, path, unzip=True, quiet=False)
