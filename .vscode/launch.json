@@ -5,11 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Airline Departure",
+            "name": "Canceled Flights",
             "type": "python",
             "request": "launch",
             "program": "./src/main.py",
             "console": "integratedTerminal",
+            "args": [
+                "canceled"
+            ],
             "justMyCode": true
         }
     ]
