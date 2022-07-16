@@ -26,6 +26,8 @@ def preprocess_for_canceled(data: DataFrame) -> DataFrame:
     # Remove useless columns
     data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
 
+    return data
+
 
 def preprocess(data: DataFrame) -> DataFrame:
     if sys.argv[1] == "canceled":
