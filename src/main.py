@@ -1,5 +1,4 @@
 import string
-import pandas
 import download
 import read
 import pandas as pd
@@ -40,3 +39,5 @@ columns_to_remove:list[
 ]
 
 data.drop(columns_to_remove, axis=1, inplace=True)
+
+print(data)

@@ -2,9 +2,9 @@ import os
 import pandas as pd
 
 path= './data'
-files:list = os.listdir('./data')
 
 def GetAllFrames():
+    files:list = os.listdir('./data')
     big_frame:pd.DataFrame = pd.DataFrame()
 
     for f in files:
@@ -17,4 +17,5 @@ def GetAllFrames():
     return big_frame
 
 def GetFirstFrame():
+    files:list = os.listdir('./data')
     return pd.read_csv(path + '/' + files[0])
