@@ -113,7 +113,21 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
 def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
-    raise NotImplementedError
+    multiplier:float = 1 / 2359
+
+    for c in time_columns_to_convert:
+        unique_values:ndarray = []
+        values_map:dict = {}
+
+        unique_values = data[c].unique()
+        unique_values = numpy.sort(unique_values)
+        
+        for v in unique_values:
+            values_map[v] = v * multiplier
+        
+        data[c].replace(to_replace=values_map, inplace=True)
+
+    return data
 
 
 # Division between training set and testing set
