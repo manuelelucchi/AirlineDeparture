@@ -1,5 +1,6 @@
 import datetime as dt
 import sys
+import read
 from numpy import ndarray
 import numpy
 from pandas import DataFrame
@@ -52,6 +53,8 @@ def preprocess_for_diverted(data: DataFrame) -> DataFrame:
 def preprocess(data: DataFrame) -> DataFrame:
 
     data = common_preprocess(data)
+    read.save_preprocessed_data(data)
+
     if sys.argv[1] == "canceled":
         return preprocess_for_canceled(data)
     if sys.argv[1] == "diverted":
@@ -134,6 +137,7 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
 # Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
+# Chiedere se la tempistica attuale è accettabile
 
 # Trasformare tutto in numeri
 
