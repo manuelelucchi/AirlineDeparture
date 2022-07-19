@@ -1,7 +1,8 @@
 import numpy as np
+from numpy import ndarray
 
 
-def sigmoid(x: float) -> float:
+def sigmoid(x: ndarray) -> ndarray:
     '''
     Calculates the sigmoid of the given data
     '''
@@ -9,7 +10,7 @@ def sigmoid(x: float) -> float:
     return g
 
 
-def binary_cross_entropy(y: float, y_hat: float) -> float:
+def binary_cross_entropy(y: ndarray, y_hat: ndarray):
     '''
     Calculates the binary cross entropy loss of the calculated y and the given y_hat
     '''
@@ -17,7 +18,7 @@ def binary_cross_entropy(y: float, y_hat: float) -> float:
     return loss
 
 
-def normalize(X: np.matrix) -> np.matrix:
+def normalize(X: ndarray) -> ndarray:
     '''
     Normalizes the data based on the number of features
     '''
@@ -31,7 +32,7 @@ def normalize(X: np.matrix) -> np.matrix:
     return X
 
 
-def gradients(X, y, y_hat):
+def gradients(X: ndarray, y: ndarray, y_hat: ndarray):
     '''
     Calculates the gradient w.r.t weights and bias
     '''
