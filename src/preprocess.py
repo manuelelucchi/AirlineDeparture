@@ -1,5 +1,9 @@
+from cgi import test
 import datetime as dt
 import sys
+
+import pandas
+import download
 import read
 from numpy import ndarray
 import numpy
@@ -34,31 +38,25 @@ time_columns_to_convert: list[str] = [
     'CRS_ELAPSED_TIME'
 ]
 
+def preprocess() -> DataFrame:
 
-def preprocess_for_canceled(data: DataFrame) -> DataFrame:
-
-    # Remove useless columns
-    data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
-
-    return data
-
-def preprocess_for_diverted(data: DataFrame) -> DataFrame:
-
-    # Remove useless columns
-    data.drop(columns_to_remove_for_diverted, axis=1, inplace=True)
-
-    return data
-
-
-def preprocess(data: DataFrame) -> DataFrame:
-
-    data = common_preprocess(data)
-    read.save_preprocessed_data(data)
+    if not read.check_preprocessed_data_exists():
+        download.download_dataset()
+        data = read.get_first_frame()
+        data = common_preprocess(data)
+        read.save_preprocessed_data(data)
+    else:
+        data = read.get_preprocessed_data()
 
     if sys.argv[1] == "canceled":
-        return preprocess_for_canceled(data)
+        data = preprocess_for_canceled(data)
+        train_data, test_data = split_data(data)
+        return train_data, ['CANCELLED'], test_data, ['CANCELLED']
+        
     if sys.argv[1] == "diverted":
-        return preprocess_for_diverted(data)
+        data = preprocess_for_diverted(data)
+        train_data, test_data = split_data(data)
+        return train_data, ['DIVERTED'], test_data, ['DIVERTED']
 
 
 def common_preprocess(data: DataFrame) -> DataFrame:
@@ -72,6 +70,20 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     convert_names_into_numbers(data)
     convert_dates_into_numbers(data)
     convert_times_into_numbers(data)
+
+    return data
+
+def preprocess_for_canceled(data: DataFrame) -> DataFrame:
+
+    # Remove useless columns
+    data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
+
+    return data
+
+def preprocess_for_diverted(data: DataFrame) -> DataFrame:
+
+    # Remove useless columns
+    data.drop(columns_to_remove_for_diverted, axis=1, inplace=True)
 
     return data
 
@@ -132,6 +144,11 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
     return data
 
+def split_data(data: DataFrame):
+    test_sample = data.sample(1000)
+    training_sample = data.drop(test_sample.index)
+    return training_sample, test_sample
+
 
 # Division between training set and testing set
 
@@ -141,4 +158,4 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
 # Trasformare tutto in numeri
 
-# Normalizzare i dati tra -1 e 1 (?)
+# Separare giorni dai mesi
