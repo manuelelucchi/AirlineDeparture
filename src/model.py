@@ -29,9 +29,10 @@ class Model():
 
     def train(self, X: ndarray, Y_hat: ndarray, iterations: int = 10):
         for i in range(iterations):
-            for b in range(X.shape[0]):
-                b_X = 0
-                b_Y_hat = 0
+            for b in range(X.shape[0]//self.batch_size):
+                b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]
+                b_Y_hat = Y_hat[b*self.batch_size:b *
+                                self.batch_size+self.batch_size]
                 Y = self.forward(b_X)
                 l = binary_cross_entropy(Y, b_Y_hat)
                 print("Loss {}|Iteration {}|Batch {}", l, i, b)
