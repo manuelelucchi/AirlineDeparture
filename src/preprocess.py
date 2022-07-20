@@ -7,7 +7,7 @@ import download
 import read
 from numpy import ndarray
 import numpy
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 default_values: dict = {
     'CANCELLED': 0,
@@ -38,7 +38,11 @@ time_columns_to_convert: list[str] = [
     'CRS_ELAPSED_TIME'
 ]
 
-def preprocess() -> DataFrame:
+numeric_columns_to_convert: list[str] = [
+    'DISTANCE'
+]
+
+def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
@@ -51,12 +55,12 @@ def preprocess() -> DataFrame:
     if sys.argv[1] == "canceled":
         data = preprocess_for_canceled(data)
         train_data, test_data = split_data(data)
-        return train_data, ['CANCELLED'], test_data, ['CANCELLED']
-        
+        return train_data, train_data['CANCELLED'], test_data, test_data['CANCELLED']
+
     if sys.argv[1] == "diverted":
         data = preprocess_for_diverted(data)
         train_data, test_data = split_data(data)
-        return train_data, ['DIVERTED'], test_data, ['DIVERTED']
+        return train_data, train_data['DIVERTED'], test_data, test_data['DIVERTED']
 
 
 def common_preprocess(data: DataFrame) -> DataFrame:
@@ -70,6 +74,7 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     convert_names_into_numbers(data)
     convert_dates_into_numbers(data)
     convert_times_into_numbers(data)
+    convert_numerics_into_numbers(data)
 
     return data
 
@@ -136,6 +141,23 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
         unique_values = data[c].unique()
         unique_values = numpy.sort(unique_values)
+        
+        for v in unique_values:
+            values_map[v] = v * multiplier
+        
+        data[c].replace(to_replace=values_map, inplace=True)
+
+    return data
+
+def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
+
+    for c in numeric_columns_to_convert:
+        unique_values:ndarray = []
+        values_map:dict = {}
+
+        unique_values = data[c].unique()
+        unique_values = numpy.sort(unique_values)
+        multiplier: float = 1 / unique_values.max()
         
         for v in unique_values:
             values_map[v] = v * multiplier

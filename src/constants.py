@@ -1,2 +1,2 @@
 
-columns_number = 10
+columns_number = 9

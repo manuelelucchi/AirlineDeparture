@@ -12,7 +12,7 @@ class Model():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
 
-        self.W = np.random.rand(columns_number, batch_size)
+        self.W = np.random.rand(columns_number)
         self.b = np.random.rand()
 
     def forward(self, X: ndarray):
