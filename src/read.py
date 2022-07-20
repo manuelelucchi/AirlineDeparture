@@ -17,6 +17,7 @@ columns_to_get: list[str] = [
     'DISTANCE'
 ]
 
+
 def get_all_frames() -> DataFrame:
     files = os.listdir('./data')
     big_frame = DataFrame()
@@ -24,16 +25,28 @@ def get_all_frames() -> DataFrame:
     for f in files:
         if f.endswith('.csv'):
             # Reading only data at disposal before departure
-            frame = pd.read_csv(filepath_or_buffer=path + '/' + f, usecols=columns_to_get)
+            frame = pd.read_csv(filepath_or_buffer=path +
+                                '/' + f, usecols=columns_to_get)
             big_frame = pd.concat([big_frame, frame])
             print('Frame ' + f + ' loaded')
     return big_frame
 
+
+def get_small() -> DataFrame:
+    files: list = os.listdir('./data')
+    big_frame = pd.read_csv(filepath_or_buffer=path +
+                            '/' + files[0], usecols=columns_to_get, nrows=1000000)
+    print('Small frame loaded')
+    return big_frame
+
+
 def get_first_frame() -> DataFrame:
     files: list = os.listdir('./data')
-    big_frame = pd.read_csv(filepath_or_buffer=path + '/' + files[0], usecols=columns_to_get)
+    big_frame = pd.read_csv(filepath_or_buffer=path +
+                            '/' + files[0], usecols=columns_to_get)
     print('First frame loaded')
     return big_frame
+
 
 def check_preprocessed_data_exists() -> bool:
     files = os.listdir('./data')
@@ -42,10 +55,12 @@ def check_preprocessed_data_exists() -> bool:
             return True
     return False
 
+
 def get_preprocessed_data() -> DataFrame:
     data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
     print('Preprocessed frame loaded')
     return data
+
 
 def save_preprocessed_data(data: DataFrame):
     data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)

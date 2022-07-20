@@ -42,6 +42,7 @@ numeric_columns_to_convert: list[str] = [
     'DISTANCE'
 ]
 
+
 def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
 
     if not read.check_preprocessed_data_exists():
@@ -78,12 +79,14 @@ def common_preprocess(data: DataFrame) -> DataFrame:
 
     return data
 
+
 def preprocess_for_canceled(data: DataFrame) -> DataFrame:
 
     # Remove useless columns
     data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
 
     return data
+
 
 def preprocess_for_diverted(data: DataFrame) -> DataFrame:
 
@@ -92,79 +95,84 @@ def preprocess_for_diverted(data: DataFrame) -> DataFrame:
 
     return data
 
+
 def convert_names_into_numbers(data: DataFrame) -> DataFrame:
 
     for c in names_columns_to_convert:
-        unique_values:ndarray = []
-        values_map:dict = {}
-        counter:float = 0
+        unique_values: ndarray = []
+        values_map: dict = {}
+        counter: float = 0
 
         unique_values = data[c].unique()
         unique_values = numpy.sort(unique_values)
-        adder:float = 1 / len(unique_values)
+        adder: float = 1 / len(unique_values)
 
         for v in unique_values:
             values_map[v] = counter
             counter += adder
-        
+
         data[c].replace(to_replace=values_map, inplace=True)
-    
+
     return data
+
 
 def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
-    multiplier:float = 1 / 365
+    multiplier: float = 1 / 365
 
     for c in date_columns_to_convert:
-        unique_values:ndarray = []
-        values_map:dict = {}
+        unique_values: ndarray = []
+        values_map: dict = {}
 
         unique_values = data[c].unique()
         unique_values = numpy.sort(unique_values)
-        
+
         for v in unique_values:
             date = dt.datetime.strptime(v, "%Y-%m-%d")
             day = date.timetuple().tm_yday
             values_map[v] = day * multiplier
-        
+
         data[c].replace(to_replace=values_map, inplace=True)
 
     return data
+
 
 def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
-    multiplier:float = 1 / 2359
+    multiplier: float = 1 / 2359
 
     for c in time_columns_to_convert:
-        unique_values:ndarray = []
-        values_map:dict = {}
+        unique_values: ndarray = []
+        values_map: dict = {}
 
         unique_values = data[c].unique()
         unique_values = numpy.sort(unique_values)
-        
+
         for v in unique_values:
             values_map[v] = v * multiplier
-        
+
         data[c].replace(to_replace=values_map, inplace=True)
 
     return data
+
 
 def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
 
     for c in numeric_columns_to_convert:
-        unique_values:ndarray = []
-        values_map:dict = {}
+        unique_values: ndarray = []
+        values_map: dict = {}
 
         unique_values = data[c].unique()
         unique_values = numpy.sort(unique_values)
         multiplier: float = 1 / unique_values.max()
-        
+
         for v in unique_values:
             values_map[v] = v * multiplier
-        
+
         data[c].replace(to_replace=values_map, inplace=True)
 
     return data
+
 
 def split_data(data: DataFrame):
     test_sample = data.sample(1000)

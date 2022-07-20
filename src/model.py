@@ -1,4 +1,3 @@
-import math
 from random import random
 from turtle import forward
 import numpy as np
@@ -8,7 +7,7 @@ from functions import binary_cross_entropy, gradients, sigmoid
 
 
 class Model():
-    def __init__(self, batch_size=20, learning_rate: float = 0.1):
+    def __init__(self, batch_size=20, learning_rate: float = 0.01):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
 
@@ -20,27 +19,30 @@ class Model():
         Z = sigmoid(Z)
         return Z
 
-    def backward(self, X: ndarray, Y: ndarray, Y_hat: ndarray):
-        return gradients(X, Y, Y_hat)
+    def backward(self, X: ndarray, Y: ndarray, Y_label: ndarray):
+        return gradients(X, Y, Y_label)
 
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
         self.b = self.b - self.learning_rate * db
 
-    def train(self, X: ndarray, Y_hat: ndarray, iterations: int = 10):
+    def train(self, X: ndarray, Y_label: ndarray, iterations: int = 10):
         for i in range(iterations):
             for b in range(X.shape[0]//self.batch_size):
                 b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]
-                b_Y_hat = Y_hat[b*self.batch_size:b *
-                                self.batch_size+self.batch_size]
+                b_Y_label = Y_label[b*self.batch_size:b *
+                                    self.batch_size+self.batch_size]
                 Y = self.forward(b_X)
-                l = binary_cross_entropy(Y, b_Y_hat)
-                print("Loss {}|Iteration {}|Batch {}", l, i, b)
-                (dW, db) = self.backward(b_X, b_Y_hat)
+                (dW, db) = self.backward(b_X, Y, b_Y_label)
                 self.update(dW, db)
+                if b % 10000 == 0:
+                    l = binary_cross_entropy(Y, b_Y_label)
+                    print("Loss {}|Iteration {}|Batch {}".format(l, i, b))
+
+            print("Iteration {}".format(i))
 
     def save(self):
         pass
 
     def eval(self, X: ndarray) -> int:
-        return round(forward(self, X))
+        return round(self.forward(X))
