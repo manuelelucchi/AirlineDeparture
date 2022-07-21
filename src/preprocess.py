@@ -47,21 +47,26 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_first_frame()
+        data = read.get_small()  # .get_first_frame()
         data = common_preprocess(data)
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
 
     if sys.argv[1] == "canceled":
+        index = 'CANCELLED'
         data = preprocess_for_canceled(data)
-        train_data, test_data = split_data(data)
-        return train_data, train_data['CANCELLED'], test_data, test_data['CANCELLED']
 
     if sys.argv[1] == "diverted":
+        index = 'DIVERTED'
         data = preprocess_for_diverted(data)
-        train_data, test_data = split_data(data)
-        return train_data, train_data['DIVERTED'], test_data, test_data['DIVERTED']
+
+    train_data, test_data = split_data(data)
+    train_data_labels = train_data[index]
+    train_data = train_data.drop(index, axis=1)
+    test_data_labels = test_data[index]
+    test_data = test_data.drop(index, axis=1)
+    return train_data, train_data_labels, test_data, test_data_labels
 
 
 def common_preprocess(data: DataFrame) -> DataFrame:
@@ -175,7 +180,7 @@ def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
 
 
 def split_data(data: DataFrame):
-    #Take 25% of the data set as test set
+    # Take 25% of the data set as test set
     test_sample = data.sample(round(len(data.index) / 4))
     training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
