@@ -3,6 +3,7 @@ from turtle import forward
 import numpy as np
 from numpy import ndarray
 from constants import columns_number
+from constants import path
 from functions import binary_cross_entropy, gradients, sigmoid
 
 
@@ -25,6 +26,7 @@ class Model():
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
         self.b = self.b - self.learning_rate * db
+        Model.load(self)
 
     def train(self, X: ndarray, Y_label: ndarray, iterations: int = 10):
         for i in range(iterations):
@@ -42,7 +44,21 @@ class Model():
             print("Iteration {}".format(i))
 
     def save(self):
-        pass
+        with open(path + '/model.txt', 'w') as f:
+            for n in self.W:
+                f.write(str(n) + '\n')
+            f.write(str(self.b) + '\n')
+
+    def load(self):
+        with open(path + '/model.txt', 'r') as f:
+            counter:int = 0
+            lines = f.readlines()
+            for l in lines:
+                if counter == columns_number:
+                    self.b = float(l)
+                else:
+                    self.W[counter] == float(l)
+                    counter += 1
 
     def eval(self, X: ndarray) -> int:
         return round(self.forward(X))

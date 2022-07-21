@@ -175,7 +175,8 @@ def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
 
 
 def split_data(data: DataFrame):
-    test_sample = data.sample(1000)
+    #Take 25% of the data set as test set
+    test_sample = data.sample(round(len(data.index) / 4))
     training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
 

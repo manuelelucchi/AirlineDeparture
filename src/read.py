@@ -2,8 +2,8 @@ import os
 from xmlrpc.client import Boolean, boolean
 import pandas as pd
 from pandas import DataFrame
+from constants import path
 
-path = './data'
 columns_to_get: list[str] = [
     'FL_DATE',
     'OP_CARRIER',
@@ -19,7 +19,7 @@ columns_to_get: list[str] = [
 
 
 def get_all_frames() -> DataFrame:
-    files = os.listdir('./data')
+    files = os.listdir(path)
     big_frame = DataFrame()
 
     for f in files:
@@ -33,7 +33,7 @@ def get_all_frames() -> DataFrame:
 
 
 def get_small() -> DataFrame:
-    files: list = os.listdir('./data')
+    files: list = os.listdir(path)
     big_frame = pd.read_csv(filepath_or_buffer=path +
                             '/' + files[0], usecols=columns_to_get, nrows=1000000)
     print('Small frame loaded')
@@ -41,7 +41,7 @@ def get_small() -> DataFrame:
 
 
 def get_first_frame() -> DataFrame:
-    files: list = os.listdir('./data')
+    files: list = os.listdir(path)
     big_frame = pd.read_csv(filepath_or_buffer=path +
                             '/' + files[0], usecols=columns_to_get)
     print('First frame loaded')
