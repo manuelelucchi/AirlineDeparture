@@ -1,3 +1,4 @@
+from turtle import forward
 from model import Model
 from preprocess import preprocess
 
@@ -8,7 +9,7 @@ print('Train Data {}, Train Labels {}, Test Data {}, Test Labels {}'.format(
 
 model = Model(batch_size=1000, learning_rate=0.01)
 
-model.train(train_data.to_numpy(), train_labels.to_numpy(), iterations=10)
+model.train(train_data.to_numpy(), train_labels.to_numpy(), iterations=50)
 
 predictions = []
 
@@ -19,5 +20,5 @@ for test_sample, test_label in zip(test_data.values, test_labels.values):
 print("{} correct predictions in {} total".format(
     len(list(filter(lambda x: x[1] == True, predictions))), len(predictions)))
 
-print("{} flights were canceled, {} flights were predicted canceled".format(
-    len(list(filter(lambda x: x[0] == True, predictions))), 0))
+print("{} flights were canceled".format(
+    len(list(filter(lambda x: x[0] == True, predictions)))))
