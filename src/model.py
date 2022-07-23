@@ -1,8 +1,8 @@
+from imp import init_builtin
 from random import random
 from turtle import forward
 import numpy as np
 from numpy import ndarray
-from constants import columns_number
 from constants import path
 from functions import binary_cross_entropy, gradients, sigmoid
 
@@ -12,6 +12,7 @@ class Model():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
 
+    def initialize(self, columns_number):
         self.W = np.random.rand(columns_number)
         self.b = np.random.rand()
 
@@ -28,6 +29,8 @@ class Model():
         self.b = self.b - self.learning_rate * db
 
     def train(self, X: ndarray, Y_label: ndarray, iterations: int = 10):
+        self.initialize(X.shape[1])
+
         for i in range(iterations):
             for b in range(X.shape[0]//self.batch_size):
                 b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]

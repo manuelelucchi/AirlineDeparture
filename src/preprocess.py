@@ -62,11 +62,15 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
         data = preprocess_for_diverted(data)
 
     train_data, test_data = split_data(data)
-    train_data_labels = train_data[index]
-    train_data = train_data.drop(index, axis=1)
-    test_data_labels = test_data[index]
-    test_data = test_data.drop(index, axis=1)
-    return train_data, train_data_labels, test_data, test_data_labels
+    (train_data, train_labels) = split_labels(train_data, index)
+    (test_data, test_labels) = split_labels(test_data, index)
+    return (train_data, train_labels, test_data, test_labels)
+
+
+def split_labels(data: DataFrame, index: str) -> DataFrame:
+    labels = data[index]
+    data = data.drop(index, axis=1)
+    return data, labels
 
 
 def common_preprocess(data: DataFrame) -> DataFrame:
