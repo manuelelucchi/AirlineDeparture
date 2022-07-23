@@ -129,19 +129,18 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
     multiplier: float = 1 / 365
 
-    for c in date_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
+    unique_values: ndarray = []
+    values_map: dict = {}
 
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
+    unique_values = data['FL_DATE'].unique()
+    unique_values = numpy.sort(unique_values)
 
-        for v in unique_values:
-            date = dt.datetime.strptime(v, "%Y-%m-%d")
-            day = date.timetuple().tm_yday
-            values_map[v] = day * multiplier
+    for v in unique_values:
+        date = dt.datetime.strptime(v, "%Y-%m-%d")
+        day = date.timetuple().tm_yday - 1
+        values_map[v] = day * multiplier
 
-        data[c].replace(to_replace=values_map, inplace=True)
+    data['FL_DATE'].replace(to_replace=values_map, inplace=True)
 
     return data
 
@@ -189,13 +188,8 @@ def split_data(data: DataFrame):
     training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
 
-
-# Division between training set and testing set
-
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
 # Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
 # Chiedere se la tempistica attuale è accettabile
-
-# Trasformare tutto in numeri
 
 # Separare giorni dai mesi
