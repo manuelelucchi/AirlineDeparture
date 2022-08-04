@@ -56,7 +56,7 @@ class Model():
             counter: int = 0
             lines = f.readlines()
             for l in lines:
-                if counter == columns_number:
+                if counter == len(lines):
                     self.b = float(l)
                 else:
                     self.W[counter] == float(l)

@@ -61,10 +61,23 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
         index = 'DIVERTED'
         data = preprocess_for_diverted(data)
 
-    train_data, test_data = split_data(data)
+    data_p, data_n = balance_dataframe(data, index, 10000)
+
+    train_data_p, test_data_p = split_data(data_p)
+    train_data_n, test_data_n = split_data(data_n)
+    train_data = pandas.concat(
+        [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
+    test_data = pandas.concat(
+        [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
     (train_data, train_labels) = split_labels(train_data, index)
     (test_data, test_labels) = split_labels(test_data, index)
     return (train_data, train_labels, test_data, test_labels)
+
+
+def balance_dataframe(data: DataFrame, index: str, n: int) -> DataFrame:
+    positives = data[data[index] == 1]
+    negatives = data[data[index] == 0]
+    return positives.sample(n), negatives.sample(n)
 
 
 def split_labels(data: DataFrame, index: str) -> DataFrame:
@@ -182,7 +195,7 @@ def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
     return data
 
 
-def split_data(data: DataFrame):
+def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
     # Take 25% of the data set as test set
     test_sample = data.sample(round(len(data.index) / 4))
     training_sample = data.drop(test_sample.index)
@@ -190,6 +203,6 @@ def split_data(data: DataFrame):
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
 # Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
-# Chiedere se la tempistica attuale è accettabile
+# Aggiungere delay alla partenza
 
 # Separare giorni dai mesi

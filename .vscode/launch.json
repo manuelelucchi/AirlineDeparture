@@ -5,13 +5,50 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Canceled Flights",
+            "name": "Custom Canceled",
             "type": "python",
             "request": "launch",
             "program": "./src/main.py",
             "console": "integratedTerminal",
             "args": [
-                "canceled"
+                "canceled",
+                "custom"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Custom Diverted",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "diverted",
+                "custom"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Sklearn Canceled",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "canceled",
+                "sklearn"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Sklearn Diverted",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "diverted",
+                "sklearn"
             ],
             "justMyCode": true
         }
