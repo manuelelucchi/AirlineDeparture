@@ -142,18 +142,19 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
     multiplier: float = 1 / 365
 
-    unique_values: ndarray = []
-    values_map: dict = {}
+    for i in date_columns_to_convert:
+        unique_values: ndarray = []
+        values_map: dict = {}
 
-    unique_values = data['FL_DATE'].unique()
-    unique_values = numpy.sort(unique_values)
+        unique_values = data[i].unique()
+        unique_values = numpy.sort(unique_values)
 
-    for v in unique_values:
-        date = dt.datetime.strptime(v, "%Y-%m-%d")
-        day = date.timetuple().tm_yday - 1
-        values_map[v] = day * multiplier
+        for v in unique_values:
+            date = dt.datetime.strptime(v, "%Y-%m-%d")
+            day = date.timetuple().tm_yday - 1
+            values_map[v] = day * multiplier
 
-    data['FL_DATE'].replace(to_replace=values_map, inplace=True)
+        data[i].replace(to_replace=values_map, inplace=True)
 
     return data
 

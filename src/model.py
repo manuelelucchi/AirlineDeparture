@@ -4,7 +4,7 @@ from turtle import forward
 import numpy as np
 from numpy import ndarray
 from constants import path
-from functions import binary_cross_entropy, gradients, sigmoid
+from functions import binary_cross_entropy, gradients, hinge, logistic, sigmoid
 
 
 class Model():
@@ -40,7 +40,7 @@ class Model():
                 (dW, db) = self.backward(b_X, Y, b_Y_label)
                 self.update(dW, db)
                 if b % 10000 == 0:
-                    l = binary_cross_entropy(Y, b_Y_label)
+                    l = logistic(Y, b_Y_label)
                     print("Loss {}|Iteration {}|Batch {}".format(l, i, b))
 
             print("Iteration {}".format(i))

@@ -18,6 +18,14 @@ def binary_cross_entropy(y: ndarray, y_label: ndarray):
     return loss
 
 
+def logistic(y: ndarray, y_label: ndarray):
+    return np.mean(np.log2(1 + np.exp(-y * y_label)))
+
+
+def hinge(y: ndarray, y_label: ndarray):
+    return max(0, np.mean(1 - y * y_label))
+
+
 def normalize(X: ndarray) -> ndarray:
     '''
     Normalizes the data based on the number of features
@@ -32,7 +40,7 @@ def normalize(X: ndarray) -> ndarray:
     return X
 
 
-def gradients(X: ndarray, y: ndarray, y_label: ndarray):
+def gradients(X: ndarray, Y: ndarray, Y_label: ndarray):
     '''
     Calculates the gradient w.r.t weights and bias
     '''
@@ -41,9 +49,9 @@ def gradients(X: ndarray, y: ndarray, y_label: ndarray):
     m = X.shape[0]
 
     # Gradient of loss w.r.t weights.
-    dw = (1/m)*np.dot(X.T, (y - y_label))
+    dw = (1/m)*np.dot(X.T, (Y - Y_label))
 
     # Gradient of loss w.r.t bias.
-    db = (1/m)*np.sum((y - y_label))
+    db = (1/m)*np.sum((Y - Y_label))
 
     return dw, db
