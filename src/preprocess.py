@@ -8,6 +8,9 @@ import read
 from numpy import ndarray
 import numpy
 from pandas import DataFrame, Series
+import pyspark.sql as sql
+from pyspark.sql.functions import lower, col, udf
+from zlib import crc32
 
 default_values: dict = {
     'CANCELLED': 0,
@@ -89,15 +92,15 @@ def split_labels(data: DataFrame, index: str) -> DataFrame:
 def common_preprocess(data: DataFrame) -> DataFrame:
 
     # Replace Nan values with the correct default values
-    data.fillna(default_values, inplace=True)
+    data = data.fillna(value=0)
 
     # Remove rows with Nan key values
-    data.dropna(how='any', axis='index', inplace=True)
+    data = data.dropna(how='any')
 
-    convert_names_into_numbers(data)
-    convert_dates_into_numbers(data)
-    convert_times_into_numbers(data)
-    convert_numerics_into_numbers(data)
+    data = convert_names_into_numbers(data)
+    data = convert_dates_into_numbers(data)
+    data = convert_times_into_numbers(data)
+    data = convert_numerics_into_numbers(data)
 
     return data
 
@@ -105,7 +108,7 @@ def common_preprocess(data: DataFrame) -> DataFrame:
 def preprocess_for_canceled(data: DataFrame) -> DataFrame:
 
     # Remove useless columns
-    data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
+    data = data.drop(columns_to_remove_for_canceled, axis=1)
 
     return data
 
@@ -113,67 +116,59 @@ def preprocess_for_canceled(data: DataFrame) -> DataFrame:
 def preprocess_for_diverted(data: DataFrame) -> DataFrame:
 
     # Remove useless columns
-    data.drop(columns_to_remove_for_diverted, axis=1, inplace=True)
+    data = data.drop(columns_to_remove_for_diverted, axis=1)
 
     return data
+
+
+def bytes_to_float(b):
+    return float(crc32(b) & 0xffffffff) / 2**32
+
+
+def str_to_float(s, encoding="utf-8"):
+    return bytes_to_float(s.encode(encoding))
 
 
 def convert_names_into_numbers(data: DataFrame) -> DataFrame:
 
+    udf_names_conversion = udf(lambda x: str_to_float(x))
+
     for c in names_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-        counter: float = 0
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-        adder: float = 1 / len(unique_values)
-
-        for v in unique_values:
-            values_map[v] = counter
-            counter += adder
-
-        data[c].replace(to_replace=values_map, inplace=True)
-
+        data = data.withColumn(c, udf_names_conversion(col(c)))
     return data
+
+
+def date_to_day_of_year(date_string) -> float:
+
+    multiplier: float = 1 / 365
+
+    date = dt.datetime.strptime(date_string, "%Y-%m-%d")
+    day = date.timetuple().tm_yday - 1
+    return day * multiplier
 
 
 def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
-    multiplier: float = 1 / 365
+    udf_dates_conversion = udf(lambda x: date_to_day_of_year(x))
 
-    for i in date_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-
-        unique_values = data[i].unique()
-        unique_values = numpy.sort(unique_values)
-
-        for v in unique_values:
-            date = dt.datetime.strptime(v, "%Y-%m-%d")
-            day = date.timetuple().tm_yday - 1
-            values_map[v] = day * multiplier
-
-        data[i].replace(to_replace=values_map, inplace=True)
+    for c in date_columns_to_convert:
+        data = data.withColumn(c, udf_dates_conversion(col(c)))
 
     return data
 
 
-def convert_times_into_numbers(data: DataFrame) -> DataFrame:
-
+def time_to_interval(time) -> float:
     multiplier: float = 1 / 2359
+    return float(time) * multiplier
+
+
+def convert_times_into_numbers(data: DataFrame) -> DataFrame:
+    udf_time_conversion = udf(lambda x: time_to_interval(x))
 
     for c in time_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-
-        for v in unique_values:
-            values_map[v] = v * multiplier
-
-        data[c].replace(to_replace=values_map, inplace=True)
+        data.show()
+        data = data.withColumn(c, udf_time_conversion(col(c)))
+        data.show()
 
     return data
 
@@ -206,4 +201,6 @@ def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
 # Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
 # Aggiungere delay alla partenza
 
+
 # Separare giorni dai mesi
+preprocess()

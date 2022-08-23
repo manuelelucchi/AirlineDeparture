@@ -4,7 +4,6 @@ from turtle import forward
 from numpy import positive
 from model import Model
 from preprocess import preprocess
-from preprocess import preprocess
 from sklearn.linear_model import LogisticRegression
 
 train_data, train_labels, test_data, test_labels = preprocess()
