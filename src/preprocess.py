@@ -45,6 +45,8 @@ numeric_columns_to_convert: list[str] = [
     'DISTANCE'
 ]
 
+max_distance = 4970
+
 
 def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
 
@@ -52,7 +54,7 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
         download.download_dataset()
         data = read.get_small()  # .get_first_frame()
         data = common_preprocess(data)
-        read.save_preprocessed_data(data)
+        # read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
 
@@ -64,7 +66,7 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
         index = 'DIVERTED'
         data = preprocess_for_diverted(data)
 
-    data_p, data_n = balance_dataframe(data, index, 10000)
+    data_p, data_n = balance_dataframe(data, index, 0.05)
 
     train_data_p, test_data_p = split_data(data_p)
     train_data_n, test_data_n = split_data(data_n)
@@ -77,10 +79,10 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
     return (train_data, train_labels, test_data, test_labels)
 
 
-def balance_dataframe(data: DataFrame, index: str, n: int) -> DataFrame:
+def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame:
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
-    return positives.sample(n), negatives.sample(n)
+    return positives.sample(fraction=fraction), negatives.sample(fraction=fraction)
 
 
 def split_labels(data: DataFrame, index: str) -> DataFrame:
@@ -100,7 +102,7 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     data = convert_names_into_numbers(data)
     data = convert_dates_into_numbers(data)
     data = convert_times_into_numbers(data)
-    data = convert_numerics_into_numbers(data)
+    data = convert_distance_into_numbers(data)
 
     return data
 
@@ -108,7 +110,7 @@ def common_preprocess(data: DataFrame) -> DataFrame:
 def preprocess_for_canceled(data: DataFrame) -> DataFrame:
 
     # Remove useless columns
-    data = data.drop(columns_to_remove_for_canceled, axis=1)
+    data = data.drop('DIVERTED')
 
     return data
 
@@ -116,7 +118,7 @@ def preprocess_for_canceled(data: DataFrame) -> DataFrame:
 def preprocess_for_diverted(data: DataFrame) -> DataFrame:
 
     # Remove useless columns
-    data = data.drop(columns_to_remove_for_diverted, axis=1)
+    data = data.drop('CANCELLED')
 
     return data
 
@@ -166,35 +168,24 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
     udf_time_conversion = udf(lambda x: time_to_interval(x))
 
     for c in time_columns_to_convert:
-        data.show()
         data = data.withColumn(c, udf_time_conversion(col(c)))
-        data.show()
 
     return data
 
 
-def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
+def convert_distance_into_numbers(data: DataFrame) -> DataFrame:
+    multiplier: float = float(1) / float(max_distance)
+    udf_numeric_conversion = udf(lambda x: float(x) * multiplier)
 
-    for c in numeric_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-        multiplier: float = 1 / unique_values.max()
-
-        for v in unique_values:
-            values_map[v] = v * multiplier
-
-        data[c].replace(to_replace=values_map, inplace=True)
+    data = data.withColumn('DISTANCE', udf_numeric_conversion(col('DISTANCE')))
 
     return data
 
 
 def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
     # Take 25% of the data set as test set
-    test_sample = data.sample(round(len(data.index) / 4))
-    training_sample = data.drop(test_sample.index)
+    test_sample = data.sample(fraction=0.25)
+    training_sample = data.filter(test_sample.index)
     return training_sample, test_sample
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti

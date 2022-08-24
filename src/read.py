@@ -88,11 +88,11 @@ def check_preprocessed_data_exists() -> bool:
 def get_preprocessed_data() -> DataFrame:
     #data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
     data = spark.read.option("header", True).csv(
-        path + '/' + 'preprocessed.csv')
+        path + '/' + 'preprocessed')
     print('Preprocessed frame loaded')
     return data
 
 
 def save_preprocessed_data(data: DataFrame):
-    data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)
+    data.write.option("header", True).csv(path + '/' + 'preprocessed')
     print('Preprocessed csv created')
