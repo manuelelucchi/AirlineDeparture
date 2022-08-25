@@ -83,7 +83,7 @@ One milion of records equally distributed between the files were taken to perfor
 \section{Preprocessing Techniques}
 
 Multiple preprocessing techniques were used.\\
-First, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives.\\
+First, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives. MIGLIORARE\\
 Then the data not already represented as real numbers has been converted; places and carriers, that were alphanumeric codes, had a number assigned based on the code, dates were splitted between the year and the rest, with the latter being hashed MIGLIORARE.\\
 The data (now completely composed of real numbers) was then normalized between 0 and 1, to avoid exploding values.\\
 Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
@@ -103,6 +103,14 @@ DIVISO PER MEDIA E VARIANZA???
 
 \section{Model}
 
+\subsection{Parameters initialization}
+Parameters such as Weights and Bias are initialized using a uniform distribution between 0 and 1, with the first one having the same length as the number of columns and the second being a scalar value.
+
+DA VEDERE ITERAZIONI, BATCH SIZE E LEARNING RATE
+
+\subsection{Algorithm}
+
+\subsection{}
 - descrizione inizializzazione parametri
 - descrizione batching e iterazioni
 - descrizione forward propagation
