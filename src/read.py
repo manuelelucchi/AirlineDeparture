@@ -4,6 +4,7 @@ import pandas as pd
 from pandas import DataFrame
 from constants import path
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.types import *
 
 columns_to_get: list[str] = [
@@ -53,6 +54,8 @@ def get_all_frames() -> DataFrame:
 
             big_frame = frame.union(big_frame)
             print('Frame ' + f + ' loaded')
+    big_frame = big_frame.select(
+        "*").withColumn("index", monotonically_increasing_id())
     return big_frame
 
 
@@ -62,6 +65,9 @@ def get_small() -> DataFrame:
     #                        '/' + files[0], usecols=columns_to_get, nrows=1000000)
     big_frame = spark.read.option("header", True).csv(path + '/' + files[0])
     big_frame = big_frame.select(columns_to_get).limit(1000000)
+    big_frame = big_frame.select(
+        "*").withColumn("index", monotonically_increasing_id())
+
     print('Small frame loaded')
     return big_frame
 
@@ -72,6 +78,10 @@ def get_first_frame() -> DataFrame:
     #                        '/' + files[0], usecols=columns_to_get)
     big_frame = spark.read.option("header", True).csv(path + '/' + files[0])
     big_frame = big_frame.select(columns_to_get)
+    big_frame = big_frame.select(
+        "*").withColumn("index", monotonically_increasing_id())
+
+    print('Small frame loaded')
     big_frame.show()
     print('First frame loaded')
     return big_frame

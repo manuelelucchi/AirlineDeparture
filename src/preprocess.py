@@ -2,14 +2,13 @@ from cgi import test
 import datetime as dt
 import sys
 
-import pandas
 import download
 import read
-from numpy import ndarray
 import numpy
-from pandas import DataFrame, Series
 import pyspark.sql as sql
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import lower, col, udf
+from pyspark.sql.types import *
 from zlib import crc32
 
 default_values: dict = {
@@ -48,7 +47,7 @@ numeric_columns_to_convert: list[str] = [
 max_distance = 4970
 
 
-def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
+def preprocess() -> tuple[DataFrame, DataFrame, DataFrame, DataFrame]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
@@ -70,13 +69,17 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
 
     train_data_p, test_data_p = split_data(data_p)
     train_data_n, test_data_n = split_data(data_n)
-    train_data = pandas.concat(
-        [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
-    test_data = pandas.concat(
-        [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
+
+    train_data = train_data_p.union(train_data_n)
+    test_data = test_data_p.union(test_data_n)
+
     (train_data, train_labels) = split_labels(train_data, index)
     (test_data, test_labels) = split_labels(test_data, index)
-    return (train_data, train_labels, test_data, test_labels)
+
+    return (numpy.array(train_data.collect()),
+            numpy.array(train_labels),
+            numpy.array(test_data.collect()),
+            numpy.array(test_labels))
 
 
 def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame:
@@ -87,7 +90,7 @@ def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame
 
 def split_labels(data: DataFrame, index: str) -> DataFrame:
     labels = data[index]
-    data = data.drop(index, axis=1)
+    data = data.drop(index)
     return data, labels
 
 
@@ -123,33 +126,29 @@ def preprocess_for_diverted(data: DataFrame) -> DataFrame:
     return data
 
 
-def bytes_to_float(b):
-    return float(crc32(b) & 0xffffffff) / 2**32
-
-
-def str_to_float(s, encoding="utf-8"):
-    return bytes_to_float(s.encode(encoding))
-
-
 def convert_names_into_numbers(data: DataFrame) -> DataFrame:
+
+    def str_to_float(s: str):
+        encoding = "utf-8"
+        b = s.encode(encoding)
+        return float(crc32(b) & 0xffffffff) / 2**32
 
     udf_names_conversion = udf(lambda x: str_to_float(x))
 
     for c in names_columns_to_convert:
         data = data.withColumn(c, udf_names_conversion(col(c)))
+
     return data
 
 
-def date_to_day_of_year(date_string) -> float:
-
-    multiplier: float = 1 / 365
-
-    date = dt.datetime.strptime(date_string, "%Y-%m-%d")
-    day = date.timetuple().tm_yday - 1
-    return day * multiplier
-
-
 def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
+
+    def date_to_day_of_year(date_string):
+        multiplier: float = 1 / 365
+
+        date = dt.datetime.strptime(date_string, "%Y-%m-%d")
+        day = date.timetuple().tm_yday - 1
+        return day * multiplier
 
     udf_dates_conversion = udf(lambda x: date_to_day_of_year(x))
 
@@ -159,12 +158,11 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
     return data
 
 
-def time_to_interval(time) -> float:
-    multiplier: float = 1 / 2359
-    return float(time) * multiplier
-
-
 def convert_times_into_numbers(data: DataFrame) -> DataFrame:
+    def time_to_interval(time) -> float:
+        multiplier: float = 1 / 2359
+        return float(time) * multiplier
+
     udf_time_conversion = udf(lambda x: time_to_interval(x))
 
     for c in time_columns_to_convert:
@@ -185,7 +183,8 @@ def convert_distance_into_numbers(data: DataFrame) -> DataFrame:
 def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
     # Take 25% of the data set as test set
     test_sample = data.sample(fraction=0.25)
-    training_sample = data.filter(test_sample.index)
+    training_sample = data.subtract(test_sample)
+
     return training_sample, test_sample
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
@@ -194,4 +193,3 @@ def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
 
 
 # Separare giorni dai mesi
-preprocess()

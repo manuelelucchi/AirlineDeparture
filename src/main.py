@@ -8,24 +8,24 @@ from sklearn.linear_model import LogisticRegression
 
 train_data, train_labels, test_data, test_labels = preprocess()
 
-print('Train Data {}, Train Labels {}, Test Data {}, Test Labels {}'.format(
-    train_data.shape, train_labels.shape, test_data.shape, len(test_labels)))
+# print('Train Data {}, Train Labels {}, Test Data {}, Test Labels {}'.format(
+#    train_data.shape, train_labels.shape, test_data.shape, len(test_labels)))
 
 if sys.argv[2] == "custom":
-    model = Model(batch_size=train_data.shape[0], learning_rate=0.01)
-    model.train(train_data.to_numpy(),
-                train_labels.to_numpy(), iterations=100000)
+    model = Model(batch_size=train_data.size, learning_rate=0.01)
+    model.train(train_data,
+                train_labels, iterations=100000)
 else:
     model = LogisticRegression()
-    model.fit(train_data.to_numpy(), train_labels.to_numpy())
+    model.fit(train_data, train_labels)
 
 predictions = []
 
-for test_sample, test_label in zip(test_data.values, test_labels.values):
+for test_sample, test_label in zip(test_data, test_labels):
     if sys.argv[2] == "custom":
         res = model.forward(test_sample)
     else:
-        res = model.predict(test_sample.reshape([1, test_sample.shape[0]]))[0]
+        res = model.predict(test_sample.reshape([1, test_sample.size]))[0]
     predictions.append([res, test_label])
 
 correct = len(list(filter(lambda x: round(x[0]) == x[1], predictions)))
