@@ -1,11 +1,9 @@
 import os
-from xmlrpc.client import Boolean, boolean
-import pandas as pd
-from pandas import DataFrame
 from constants import path
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.types import *
+from pyspark.sql import DataFrame
 
 columns_to_get: list[str] = [
     'FL_DATE',
@@ -53,7 +51,6 @@ def get_all_frames() -> DataFrame:
             frame = frame.select(columns_to_get)
 
             big_frame = frame.union(big_frame)
-            print('Frame ' + f + ' loaded')
     big_frame = big_frame.select(
         "*").withColumn("index", monotonically_increasing_id())
     return big_frame
@@ -80,10 +77,7 @@ def get_first_frame() -> DataFrame:
     big_frame = big_frame.select(columns_to_get)
     big_frame = big_frame.select(
         "*").withColumn("index", monotonically_increasing_id())
-
-    print('Small frame loaded')
     big_frame.show()
-    print('First frame loaded')
     return big_frame
 
 
@@ -98,11 +92,11 @@ def check_preprocessed_data_exists() -> bool:
 def get_preprocessed_data() -> DataFrame:
     #data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
     data = spark.read.option("header", True).csv(
-        path + '/' + 'preprocessed')
+        path + '/' + 'preprocessed.csv')
     print('Preprocessed frame loaded')
     return data
 
 
 def save_preprocessed_data(data: DataFrame):
-    data.write.option("header", True).csv(path + '/' + 'preprocessed')
+    data.write.option("header", True).csv(path + '/' + 'preprocessed.csv')
     print('Preprocessed csv created')

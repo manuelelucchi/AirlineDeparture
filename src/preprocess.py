@@ -1,15 +1,13 @@
-from cgi import test
 import datetime as dt
 import sys
-
 import download
 import read
 import numpy
-import pyspark.sql as sql
-from pyspark.sql import DataFrame
-from pyspark.sql.functions import lower, col, udf
+from pyspark.sql import DataFrame, Column
+from pyspark.sql.functions import col, udf
 from pyspark.sql.types import *
 from zlib import crc32
+from numpy import ndarray
 
 default_values: dict = {
     'CANCELLED': 0,
@@ -47,13 +45,13 @@ numeric_columns_to_convert: list[str] = [
 max_distance = 4970
 
 
-def preprocess() -> tuple[DataFrame, DataFrame, DataFrame, DataFrame]:
+def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
         data = read.get_small()  # .get_first_frame()
         data = common_preprocess(data)
-        # read.save_preprocessed_data(data)
+        read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
 
@@ -88,7 +86,7 @@ def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame
     return positives.sample(fraction=fraction), negatives.sample(fraction=fraction)
 
 
-def split_labels(data: DataFrame, index: str) -> DataFrame:
+def split_labels(data: DataFrame, index: str) -> tuple[DataFrame, Column]:
     labels = data[index]
     data = data.drop(index)
     return data, labels
@@ -143,7 +141,7 @@ def convert_names_into_numbers(data: DataFrame) -> DataFrame:
 
 def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
-    def date_to_day_of_year(date_string):
+    def date_to_day_of_year(date_string) -> float:
         multiplier: float = 1 / 365
 
         date = dt.datetime.strptime(date_string, "%Y-%m-%d")

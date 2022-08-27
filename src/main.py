@@ -24,7 +24,7 @@ if sys.argv[2] == "custom":
     loss = binary_cross_entropy(res, test_labels)
 else:
     res = list(map(lambda x: x[1], model.predict_proba(
-        test_data.values)))
+        test_data)))
     loss = log_loss(test_labels, res)
 
 
