@@ -14,8 +14,8 @@ print('Train Data {}, Train Labels {}, Test Data {}, Test Labels {}'.format(
 n_features = train_data.shape[0]
 
 
-def custom_train_eval(lr=1, iterations=100) -> float:
-    model = Model(batch_size=train_data.shape[1], learning_rate=lr)
+def custom_train_eval(lr=1, l2=0.01, iterations=100) -> float:
+    model = Model(batch_size=train_data.shape[1], learning_rate=lr, l2=l2)
     model.train(train_data.to_numpy(),
                 train_labels.to_numpy(), iterations=iterations)
     res = model.forward(test_data.values)

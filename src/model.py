@@ -8,9 +8,10 @@ from functions import binary_cross_entropy, gradients, hinge, logistic, sigmoid
 
 
 class Model():
-    def __init__(self, batch_size=20, learning_rate: float = 0.01):
+    def __init__(self, batch_size=20, learning_rate: float = 0.01, l2: float = 0.01):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.l2 = l2
 
     def initialize(self, columns_number):
         self.W = np.random.rand(columns_number)
