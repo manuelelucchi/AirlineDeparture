@@ -43,7 +43,7 @@ numeric_columns_to_convert: list[str] = [
 ]
 
 
-def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
+def preprocess(forKey: str) -> tuple[DataFrame, Series, DataFrame, Series]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
@@ -53,11 +53,11 @@ def preprocess() -> tuple[DataFrame, Series, DataFrame, Series]:
     else:
         data = read.get_preprocessed_data()
 
-    if sys.argv[1] == "canceled":
+    if forKey == "canceled":
         index = 'CANCELLED'
         data = preprocess_for_canceled(data)
 
-    if sys.argv[1] == "diverted":
+    if forKey == "diverted":
         index = 'DIVERTED'
         data = preprocess_for_diverted(data)
 
