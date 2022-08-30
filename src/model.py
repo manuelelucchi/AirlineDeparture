@@ -41,22 +41,5 @@ class Model():
                 (dW, db) = self.backward(b_X, Y, b_Y_label)
                 self.update(dW, db)
 
-    def save(self):
-        with open(path + '/model.txt', 'w') as f:
-            for n in self.W:
-                f.write(str(n) + '\n')
-            f.write(str(self.b) + '\n')
-
-    def load(self):
-        with open(path + '/model.txt', 'r') as f:
-            counter: int = 0
-            lines = f.readlines()
-            for l in lines:
-                if counter == len(lines):
-                    self.b = float(l)
-                else:
-                    self.W[counter] == float(l)
-                    counter += 1
-
     def eval(self, X: ndarray) -> int:
         return round(self.forward(X))

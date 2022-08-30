@@ -43,23 +43,18 @@ numeric_columns_to_convert: list[str] = [
 ]
 
 
-def preprocess(forKey: str) -> tuple[DataFrame, Series, DataFrame, Series]:
+def preprocess(index: str) -> tuple[DataFrame, Series, DataFrame, Series]:
 
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_small()  # .get_first_frame()
+        data = read.get_first_frame()
         data = common_preprocess(data)
+        # Converti tutto poi salva solo quello che ti interessa
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
 
-    if forKey == "canceled":
-        index = 'CANCELLED'
-        data = preprocess_for_canceled(data)
-
-    if forKey == "diverted":
-        index = 'DIVERTED'
-        data = preprocess_for_diverted(data)
+    data = remove_extra_column(index, data)
 
     data_p, data_n = balance_dataframe(data, index, 10000)
 
@@ -102,19 +97,10 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     return data
 
 
-def preprocess_for_canceled(data: DataFrame) -> DataFrame:
-
+def remove_extra_column(index: str, data: DataFrame) -> DataFrame:
     # Remove useless columns
-    data.drop(columns_to_remove_for_canceled, axis=1, inplace=True)
-
-    return data
-
-
-def preprocess_for_diverted(data: DataFrame) -> DataFrame:
-
-    # Remove useless columns
-    data.drop(columns_to_remove_for_diverted, axis=1, inplace=True)
-
+    data.drop(columns_to_remove_for_canceled if index ==
+              'CANCELLED' else columns_to_remove_for_diverted, axis=1, inplace=True)
     return data
 
 
