@@ -42,6 +42,18 @@ numeric_columns_to_convert: list[str] = [
     'DISTANCE'
 ]
 
+preprocess_columns_to_convert: list[str] = [
+    'OP_CARRIER',
+    'ORIGIN',
+    'DEST',
+    'FL_DATE',
+    'CRS_DEP_TIME',
+    'CRS_ARR_TIME',
+    'CRS_ELAPSED_TIME',
+    'DISTANCE',
+    'index'
+]
+
 max_distance = 4970
 
 
@@ -54,6 +66,9 @@ def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
+        udf_string_conversion = udf(lambda x: float(x), DoubleType())
+        for c in preprocess_columns_to_convert:
+            data = data.withColumn(c, udf_string_conversion(col(c)))
 
     if sys.argv[1] == "canceled":
         index = 'CANCELLED'
@@ -63,6 +78,7 @@ def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
         index = 'DIVERTED'
         data = preprocess_for_diverted(data)
 
+    print(data.schema)
     data_p, data_n = balance_dataframe(data, index, 0.05)
 
     train_data_p, test_data_p = split_data(data_p)
@@ -113,6 +129,9 @@ def preprocess_for_canceled(data: DataFrame) -> DataFrame:
     # Remove useless columns
     data = data.drop('DIVERTED')
 
+    udf_string_conversion = udf(lambda x: float(x), DoubleType())
+    data = data.withColumn(
+        'CANCELLED', udf_string_conversion(col('CANCELLED')))
     return data
 
 
@@ -121,6 +140,8 @@ def preprocess_for_diverted(data: DataFrame) -> DataFrame:
     # Remove useless columns
     data = data.drop('CANCELLED')
 
+    udf_string_conversion = udf(lambda x: float(x), DoubleType())
+    data = data.withColumn('DIVERTED', udf_string_conversion(col('DIVERTED')))
     return data
 
 
@@ -131,7 +152,7 @@ def convert_names_into_numbers(data: DataFrame) -> DataFrame:
         b = s.encode(encoding)
         return float(crc32(b) & 0xffffffff) / 2**32
 
-    udf_names_conversion = udf(lambda x: str_to_float(x))
+    udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
 
     for c in names_columns_to_convert:
         data = data.withColumn(c, udf_names_conversion(col(c)))
@@ -148,7 +169,7 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
         day = date.timetuple().tm_yday - 1
         return day * multiplier
 
-    udf_dates_conversion = udf(lambda x: date_to_day_of_year(x))
+    udf_dates_conversion = udf(lambda x: date_to_day_of_year(x), DoubleType())
 
     for c in date_columns_to_convert:
         data = data.withColumn(c, udf_dates_conversion(col(c)))
@@ -161,7 +182,7 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
         multiplier: float = 1 / 2359
         return float(time) * multiplier
 
-    udf_time_conversion = udf(lambda x: time_to_interval(x))
+    udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
 
     for c in time_columns_to_convert:
         data = data.withColumn(c, udf_time_conversion(col(c)))
@@ -171,7 +192,7 @@ def convert_times_into_numbers(data: DataFrame) -> DataFrame:
 
 def convert_distance_into_numbers(data: DataFrame) -> DataFrame:
     multiplier: float = float(1) / float(max_distance)
-    udf_numeric_conversion = udf(lambda x: float(x) * multiplier)
+    udf_numeric_conversion = udf(lambda x: float(x) * multiplier, DoubleType())
 
     data = data.withColumn('DISTANCE', udf_numeric_conversion(col('DISTANCE')))
 
