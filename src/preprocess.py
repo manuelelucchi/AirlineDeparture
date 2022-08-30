@@ -42,6 +42,11 @@ numeric_columns_to_convert: list[str] = [
     'DISTANCE'
 ]
 
+string_columns_to_convert: list[str] = [
+    'CANCELLED',
+    'DIVERTED'
+]
+
 preprocess_columns_to_convert: list[str] = [
     'OP_CARRIER',
     'ORIGIN',
@@ -51,6 +56,8 @@ preprocess_columns_to_convert: list[str] = [
     'CRS_ARR_TIME',
     'CRS_ELAPSED_TIME',
     'DISTANCE',
+    'CANCELLED',
+    'DIVERTED',
     'index'
 ]
 
@@ -60,9 +67,8 @@ max_distance = 4970
 def preprocess(index: str) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_first_frame()
+        data = read.get_small()
         data = common_preprocess(data)
-        # Converti tutto poi salva solo quello che ti interessa
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
@@ -70,7 +76,7 @@ def preprocess(index: str) -> tuple[ndarray, ndarray, ndarray, ndarray]:
         for c in preprocess_columns_to_convert:
             data = data.withColumn(c, udf_string_conversion(col(c)))
 
-    data = remove_extra_column(index, data)
+    data = remove_extra_columns(index, data)
 
     print(data.schema)
     data_p, data_n = balance_dataframe(data, index, 0.05)
@@ -114,18 +120,24 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     data = convert_dates_into_numbers(data)
     data = convert_times_into_numbers(data)
     data = convert_distance_into_numbers(data)
+    data = convert_strings_into_numbers(data)
 
     return data
 
 
-def remove_extra_column(index: str, data: DataFrame) -> DataFrame:
+def remove_extra_columns(index: str, data: DataFrame) -> DataFrame:
     oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
-
     data = data.drop(oppositeIndex)
+    data = data.drop('index')
+    return data
+
+
+def convert_strings_into_numbers(data: DataFrame) -> DataFrame:
 
     udf_string_conversion = udf(lambda x: float(x), DoubleType())
-    data = data.withColumn(
-        index, udf_string_conversion(col(index)))
+    for c in string_columns_to_convert:
+        data = data.withColumn(c, udf_string_conversion(col(c)))
+
     return data
 
 
