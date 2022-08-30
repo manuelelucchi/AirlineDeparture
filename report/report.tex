@@ -42,8 +42,8 @@
 \section{Definitions}\label{definitions} % Labels provide a point for referencing, in this case with \ref{definitions} to refer to this subsection number
 
 \begin{description}
-	\item[Stoichiometry] The relationship between the relative quantities of substances taking part in a reaction or forming a compound, typically a ratio of whole integers.
-	\item[Atomic mass] The mass of an atom of a chemical element expressed in atomic mass units. It is approximately equivalent to the number of protons and neutrons in the atom (the mass number) or to the average number allowing for the relative abundances of different isotopes.
+	\item[Label]
+	\item[Model]
 \end{description}
 
 %----------------------------------------------------------------------------------------
@@ -52,12 +52,29 @@
 
 \section{Dataset}
 
-- Overview dataset
-- Struttura delle colonne
-- Divisione dei file
-- Numero di record
-- Quali colonne prendiamo
-- Quanti record prendiamo
+The initial dataset, [Airline Delay and Cancellation Data] is made of 9 years of airlines flights data, composed by 10 files (one for each year from 2009 to 2018) of around 6 milions records each.
+The files presents 28 columns, of which we only took the 9 more relevant\\
+
+\begin{description}
+	\item[FL\_DATE] The flight date.
+	\item[OP\_CARRIER] The carrier code.
+	\item[ORIGIN] The departure place.
+	\item[DEST] The destination place.
+	\item[CRS\_DEP\_TIME] The.
+	\item[CRS\_ARR\_TIME] The.
+	\item[CANCELLED] If the flight has been canceled.
+	\item[DIVERTED] If the flight has been diverted.
+	\item[CRS\_ELAPSED\_TIME]
+	\item[DISTANCE] The distance the flight has to cover.
+\end{description}
+
+In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
+
+The carrier code is a two characters alphanumeric code, the origin and destination places are a three characters alphanumeric code.\\
+Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
+Cancelled and diverted are either 0 or 1.\\
+
+One milion of records equally distributed between the files were taken to perform the training.
 
 %----------------------------------------------------------------------------------------
 %	PREPROCESSING TECHNIQUES
@@ -65,10 +82,14 @@
 
 \section{Preprocessing Techniques}
 
-- balancing
-- normalization
-- splitting
-- dates and enums to numbers
+Multiple preprocessing techniques were used.\\
+First, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives. MIGLIORARE\\
+Then the data not already represented as real numbers has been converted; places and carriers, that were alphanumeric codes, had a number assigned based on the code, dates were splitted between the year and the rest, with the latter being hashed MIGLIORARE.\\
+The data (now completely composed of real numbers) was then normalized between 0 and 1, to avoid exploding values.\\
+Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
+
+DIVISO PER MEDIA E VARIANZA???
+
 
 %----------------------------------------------------------------------------------------
 %	PREPROCESSING PARALLELIZATION 
@@ -82,17 +103,40 @@
 
 \section{Model}
 
+\subsection{Parameters initialization}
+Parameters such as Weights and Bias are initialized using a uniform distribution between 0 and 1, with the first one having the same length as the number of columns and the second being a scalar value.
+
+DA VEDERE ITERAZIONI, BATCH SIZE E LEARNING RATE
+
+\subsection{Algorithm}
+
+\subsection{}
+- descrizione inizializzazione parametri
+- descrizione batching e iterazioni
+- descrizione forward propagation
+- descrizione loss
+- descrizione calcolo gradiente
+- descrizione update
+
 %----------------------------------------------------------------------------------------
 %	PERFORMANCES 
 %----------------------------------------------------------------------------------------
 
 \section{Performances}
 
+- come scalano le operazioni di numpy effettuate
+
 %----------------------------------------------------------------------------------------
 %	EXPERIMENTS
 %----------------------------------------------------------------------------------------
 
 \section{Experiments}
+
+- nostro modello dopo v1 iterazioni con learning rate v1
+- nostro modello dopo v1 iterazioni con learning rate v2
+- nostro modello dopo v2 iterazioni con learning rate v1
+- nostro modello dopo v2 iterazioni con learning rate v2
+- confronto modello di sklearn con i valori migliori
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
@@ -101,12 +145,6 @@
 \section{Results and Conclusions}
 
 The atomic weight of magnesium is concluded to be \SI{24}{\gram\per\mol}, as determined by the stoichiometry of its chemical combination with oxygen. This result is in agreement with the accepted value.
-
-\begin{figure}[H] % [H] forces the figure to be placed exactly where it appears in the text
-	\centering % Horizontally center the figure
-	%\includegraphics[width=0.65\textwidth]{placeholder} % Include the figure
-	\caption{Figure caption.}
-\end{figure}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

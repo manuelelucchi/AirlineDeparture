@@ -8,15 +8,16 @@ from functions import binary_cross_entropy, gradients, hinge, logistic, sigmoid
 
 
 class Model():
-    def __init__(self, batch_size=20, learning_rate: float = 0.01):
+    def __init__(self, batch_size=20, learning_rate: float = 0.01, l2: float = 0.01):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.l2 = l2
 
     def initialize(self, columns_number):
         self.W = np.random.rand(columns_number)
         self.b = np.random.rand()
 
-    def forward(self, X: ndarray):
+    def forward(self, X: ndarray) -> ndarray:
         Z = np.dot(X, self.W) + self.b
         Z = sigmoid(Z)
         return Z
@@ -39,28 +40,6 @@ class Model():
                 Y = self.forward(b_X)
                 (dW, db) = self.backward(b_X, Y, b_Y_label)
                 self.update(dW, db)
-                if b % 10000 == 0:
-                    l = logistic(Y, b_Y_label)
-                    print("Loss {}|Iteration {}|Batch {}".format(l, i, b))
-
-            print("Iteration {}".format(i))
-
-    def save(self):
-        with open(path + '/model.txt', 'w') as f:
-            for n in self.W:
-                f.write(str(n) + '\n')
-            f.write(str(self.b) + '\n')
-
-    def load(self):
-        with open(path + '/model.txt', 'r') as f:
-            counter: int = 0
-            lines = f.readlines()
-            for l in lines:
-                if counter == len(lines):
-                    self.b = float(l)
-                else:
-                    self.W[counter] == float(l)
-                    counter += 1
 
     def eval(self, X: ndarray) -> int:
         return round(self.forward(X))

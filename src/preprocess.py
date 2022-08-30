@@ -57,12 +57,12 @@ preprocess_columns_to_convert: list[str] = [
 max_distance = 4970
 
 
-def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
-
+def preprocess(index: str) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_small()  # .get_first_frame()
+        data = read.get_first_frame()
         data = common_preprocess(data)
+        # Converti tutto poi salva solo quello che ti interessa
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
@@ -70,13 +70,7 @@ def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
         for c in preprocess_columns_to_convert:
             data = data.withColumn(c, udf_string_conversion(col(c)))
 
-    if sys.argv[1] == "canceled":
-        index = 'CANCELLED'
-        data = preprocess_for_canceled(data)
-
-    if sys.argv[1] == "diverted":
-        index = 'DIVERTED'
-        data = preprocess_for_diverted(data)
+    data = remove_extra_column(index, data)
 
     print(data.schema)
     data_p, data_n = balance_dataframe(data, index, 0.05)
@@ -124,24 +118,14 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     return data
 
 
-def preprocess_for_canceled(data: DataFrame) -> DataFrame:
+def remove_extra_column(index: str, data: DataFrame) -> DataFrame:
+    oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
 
-    # Remove useless columns
-    data = data.drop('DIVERTED')
+    data = data.drop(oppositeIndex)
 
     udf_string_conversion = udf(lambda x: float(x), DoubleType())
     data = data.withColumn(
-        'CANCELLED', udf_string_conversion(col('CANCELLED')))
-    return data
-
-
-def preprocess_for_diverted(data: DataFrame) -> DataFrame:
-
-    # Remove useless columns
-    data = data.drop('CANCELLED')
-
-    udf_string_conversion = udf(lambda x: float(x), DoubleType())
-    data = data.withColumn('DIVERTED', udf_string_conversion(col('DIVERTED')))
+        index, udf_string_conversion(col(index)))
     return data
 
 

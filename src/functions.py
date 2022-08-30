@@ -14,7 +14,7 @@ def binary_cross_entropy(y: ndarray, y_label: ndarray):
     '''
     Calculates the binary cross entropy loss of the calculated y and the given y_label
     '''
-    loss = -np.mean(y_label*(np.log(y)) - (1-y_label)*np.log(1-y))
+    loss = -np.mean(y_label*(np.log(y)) + (1-y_label)*np.log(1-y))
     return loss
 
 
