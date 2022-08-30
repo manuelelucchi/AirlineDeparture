@@ -91,9 +91,9 @@ def preprocess() -> tuple[ndarray, ndarray, ndarray, ndarray]:
     (test_data, test_labels) = split_labels(test_data, index)
 
     return (numpy.array(train_data.collect()),
-            numpy.array(train_labels),
+            numpy.array(train_labels.collect()),
             numpy.array(test_data.collect()),
-            numpy.array(test_labels))
+            numpy.array(test_labels.collect()))
 
 
 def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame:
@@ -103,7 +103,7 @@ def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame
 
 
 def split_labels(data: DataFrame, index: str) -> tuple[DataFrame, Column]:
-    labels = data[index]
+    labels = data.select(index)
     data = data.drop(index)
     return data, labels
 
