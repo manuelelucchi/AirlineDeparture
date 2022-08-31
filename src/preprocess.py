@@ -1,13 +1,13 @@
-from cgi import test
 import datetime as dt
 import sys
-
-import pandas
 import download
 import read
-from numpy import ndarray
 import numpy
-from pandas import DataFrame, Series
+from pyspark.sql import DataFrame, Column
+from pyspark.sql.functions import col, udf
+from pyspark.sql.types import *
+from zlib import crc32
+from numpy import ndarray
 
 default_values: dict = {
     'CANCELLED': 0,
@@ -42,154 +42,172 @@ numeric_columns_to_convert: list[str] = [
     'DISTANCE'
 ]
 
+string_columns_to_convert: list[str] = [
+    'CANCELLED',
+    'DIVERTED'
+]
 
-def preprocess(index: str) -> tuple[DataFrame, Series, DataFrame, Series]:
+preprocess_columns_to_convert: list[str] = [
+    'OP_CARRIER',
+    'ORIGIN',
+    'DEST',
+    'FL_DATE',
+    'CRS_DEP_TIME',
+    'CRS_ARR_TIME',
+    'CRS_ELAPSED_TIME',
+    'DISTANCE',
+    'CANCELLED',
+    'DIVERTED',
+    'index'
+]
 
+max_distance = 4970
+
+
+def preprocess(index: str) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_first_frame()
+        data = read.get_small()
         data = common_preprocess(data)
-        # Converti tutto poi salva solo quello che ti interessa
         read.save_preprocessed_data(data)
     else:
         data = read.get_preprocessed_data()
+        udf_string_conversion = udf(lambda x: float(x), DoubleType())
+        for c in preprocess_columns_to_convert:
+            data = data.withColumn(c, udf_string_conversion(col(c)))
 
-    data = remove_extra_column(index, data)
+    data = remove_extra_columns(index, data)
 
-    data_p, data_n = balance_dataframe(data, index, 10000)
+    print(data.schema)
+    data_p, data_n = balance_dataframe(data, index, 0.05)
 
     train_data_p, test_data_p = split_data(data_p)
     train_data_n, test_data_n = split_data(data_n)
-    train_data = pandas.concat(
-        [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
-    test_data = pandas.concat(
-        [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
+
+    train_data = train_data_p.union(train_data_n)
+    test_data = test_data_p.union(test_data_n)
+
     (train_data, train_labels) = split_labels(train_data, index)
     (test_data, test_labels) = split_labels(test_data, index)
-    return (train_data, train_labels, test_data, test_labels)
+
+    return (numpy.array(train_data.collect()),
+            numpy.array(train_labels.collect()),
+            numpy.array(test_data.collect()),
+            numpy.array(test_labels.collect()))
 
 
-def balance_dataframe(data: DataFrame, index: str, n: int) -> DataFrame:
+def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame:
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
-    return positives.sample(n), negatives.sample(n)
+    return positives.sample(fraction=fraction), negatives.sample(fraction=fraction)
 
 
-def split_labels(data: DataFrame, index: str) -> DataFrame:
-    labels = data[index]
-    data = data.drop(index, axis=1)
+def split_labels(data: DataFrame, index: str) -> tuple[DataFrame, Column]:
+    labels = data.select(index)
+    data = data.drop(index)
     return data, labels
 
 
 def common_preprocess(data: DataFrame) -> DataFrame:
 
     # Replace Nan values with the correct default values
-    data.fillna(default_values, inplace=True)
+    data = data.fillna(value=0)
 
     # Remove rows with Nan key values
-    data.dropna(how='any', axis='index', inplace=True)
+    data = data.dropna(how='any')
 
-    convert_names_into_numbers(data)
-    convert_dates_into_numbers(data)
-    convert_times_into_numbers(data)
-    convert_numerics_into_numbers(data)
+    data = convert_names_into_numbers(data)
+    data = convert_dates_into_numbers(data)
+    data = convert_times_into_numbers(data)
+    data = convert_distance_into_numbers(data)
+    data = convert_strings_into_numbers(data)
 
     return data
 
 
-def remove_extra_column(index: str, data: DataFrame) -> DataFrame:
-    # Remove useless columns
-    data.drop(columns_to_remove_for_canceled if index ==
-              'CANCELLED' else columns_to_remove_for_diverted, axis=1, inplace=True)
+def remove_extra_columns(index: str, data: DataFrame) -> DataFrame:
+    oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
+    data = data.drop(oppositeIndex)
+    data = data.drop('index')
+    return data
+
+
+def convert_strings_into_numbers(data: DataFrame) -> DataFrame:
+
+    udf_string_conversion = udf(lambda x: float(x), DoubleType())
+    for c in string_columns_to_convert:
+        data = data.withColumn(c, udf_string_conversion(col(c)))
+
     return data
 
 
 def convert_names_into_numbers(data: DataFrame) -> DataFrame:
 
+    def str_to_float(s: str):
+        encoding = "utf-8"
+        b = s.encode(encoding)
+        return float(crc32(b) & 0xffffffff) / 2**32
+
+    udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
+
     for c in names_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-        counter: float = 0
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-        adder: float = 1 / len(unique_values)
-
-        for v in unique_values:
-            values_map[v] = counter
-            counter += adder
-
-        data[c].replace(to_replace=values_map, inplace=True)
+        data = data.withColumn(c, udf_names_conversion(col(c)))
 
     return data
 
 
 def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
-    multiplier: float = 1 / 365
+    def date_to_day_of_year(date_string) -> float:
+        multiplier: float = 1 / 365
 
-    for i in date_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
+        date = dt.datetime.strptime(date_string, "%Y-%m-%d")
+        day = date.timetuple().tm_yday - 1
+        return day * multiplier
 
-        unique_values = data[i].unique()
-        unique_values = numpy.sort(unique_values)
+    udf_dates_conversion = udf(lambda x: date_to_day_of_year(x), DoubleType())
 
-        for v in unique_values:
-            date = dt.datetime.strptime(v, "%Y-%m-%d")
-            day = date.timetuple().tm_yday - 1
-            values_map[v] = day * multiplier
-
-        data[i].replace(to_replace=values_map, inplace=True)
+    for c in date_columns_to_convert:
+        data = data.withColumn(c, udf_dates_conversion(col(c)))
 
     return data
 
 
 def convert_times_into_numbers(data: DataFrame) -> DataFrame:
+    def time_to_interval(time) -> float:
+        t = int(float(time))
+        h = t // 100
+        m = t % 100
+        t = h * 60 + m
+        return float(t / 1140)
 
-    multiplier: float = 1 / 2359
+    udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
 
     for c in time_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-
-        for v in unique_values:
-            values_map[v] = v * multiplier
-
-        data[c].replace(to_replace=values_map, inplace=True)
+        data = data.withColumn(c, udf_time_conversion(col(c)))
 
     return data
 
 
-def convert_numerics_into_numbers(data: DataFrame) -> DataFrame:
+def convert_distance_into_numbers(data: DataFrame) -> DataFrame:
+    multiplier: float = float(1) / float(max_distance)
+    udf_numeric_conversion = udf(lambda x: float(x) * multiplier, DoubleType())
 
-    for c in numeric_columns_to_convert:
-        unique_values: ndarray = []
-        values_map: dict = {}
-
-        unique_values = data[c].unique()
-        unique_values = numpy.sort(unique_values)
-        multiplier: float = 1 / unique_values.max()
-
-        for v in unique_values:
-            values_map[v] = v * multiplier
-
-        data[c].replace(to_replace=values_map, inplace=True)
+    data = data.withColumn('DISTANCE', udf_numeric_conversion(col('DISTANCE')))
 
     return data
 
 
 def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
     # Take 25% of the data set as test set
-    test_sample = data.sample(round(len(data.index) / 4))
-    training_sample = data.drop(test_sample.index)
+    test_sample = data.sample(fraction=0.25)
+    training_sample = data.subtract(test_sample)
+
     return training_sample, test_sample
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
 # Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
 # Aggiungere delay alla partenza
+
 
 # Separare giorni dai mesi

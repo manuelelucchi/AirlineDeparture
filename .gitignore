@@ -142,3 +142,5 @@ dmypy.json
 *.synctex*
 *.fls
 *.aux
+
+data/preprocessed

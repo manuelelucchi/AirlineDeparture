@@ -51,6 +51,18 @@
                 "sklearn"
             ],
             "justMyCode": true
-        }
+        },
+        {
+            "name": "Preprocess Canceled",
+            "type": "python",
+            "request": "launch",
+            "program": "./src/preprocess.py",
+            "console": "integratedTerminal",
+            "args": [
+                "canceled",
+                "custom"
+            ],
+            "justMyCode": true
+        },
     ]
 }
