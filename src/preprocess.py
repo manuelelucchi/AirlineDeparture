@@ -175,8 +175,11 @@ def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
 
 def convert_times_into_numbers(data: DataFrame) -> DataFrame:
     def time_to_interval(time) -> float:
-        multiplier: float = 1 / 2359
-        return float(time) * multiplier
+        t = int(float(time))
+        h = t // 100
+        m = t % 100
+        t = h * 60 + m
+        return float(t / 1140)
 
     udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
 
