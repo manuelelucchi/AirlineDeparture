@@ -109,10 +109,10 @@ DIVISO PER MEDIA E VARIANZA??? L2 REGULARIZATION
 \subsection{Parallelization}
 
 Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
-PySpark is a wrapper for Python of the library Apache Spark, originally written in Java.
+PySpark is a wrapper for Python of the library Apache Spark, originally written in Java.\\
 
 The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
-The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.
+The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.\\
 
 %\begin{figure}
 %\includegraphics[width=\linewidth]{spark.ppm}
@@ -122,9 +122,9 @@ The library handles automatically the work distribution on the available nodes t
 
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
-The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF(User Defined Functions), have been created, which then have been applied to every column containing certain types of data.
+The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF(User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
 
-The library PySpark is also able to handle the csv file handling, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes.
+The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes.\\
 
 The preprocessing part of the solution is therefore computed in a distributed manner, using the PySpark dataframe as main data structure to perform the various calculations on the columns of the dataset.
 At the end of this section of the solution, the distributed dataframes are merged into one using the collect method. This operation can create memory problems if the dataset is extremely large, but it is not possibile to distribute efficiently the model training
