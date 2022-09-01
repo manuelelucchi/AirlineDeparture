@@ -144,3 +144,7 @@ dmypy.json
 *.aux
 
 data/preprocessed
+*.ilg
+*.toc
+*.ppm
+*.pdf
