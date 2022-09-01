@@ -3,14 +3,14 @@
 \contentsline {section}{\numberline {3}Preprocessing Techniques}{3}{}%
 \contentsline {subsection}{\numberline {3.1}Algorithms and Techniques}{3}{}%
 \contentsline {subsection}{\numberline {3.2}Parallelization}{3}{}%
-\contentsline {section}{\numberline {4}Model}{3}{}%
-\contentsline {subsection}{\numberline {4.1}Parameters initialization}{3}{}%
-\contentsline {subsection}{\numberline {4.2}Iterations}{3}{}%
-\contentsline {subsection}{\numberline {4.3}Algorithm}{3}{}%
-\contentsline {subsection}{\numberline {4.4}}{3}{}%
+\contentsline {section}{\numberline {4}Model}{4}{}%
+\contentsline {subsection}{\numberline {4.1}Parameters initialization}{4}{}%
+\contentsline {subsection}{\numberline {4.2}Iterations}{4}{}%
+\contentsline {subsection}{\numberline {4.3}Algorithm}{4}{}%
+\contentsline {subsection}{\numberline {4.4}Regularization}{4}{}%
 \contentsline {section}{\numberline {5}Performances}{4}{}%
-\contentsline {section}{\numberline {6}Experiments}{4}{}%
-\contentsline {subsection}{\numberline {6.1}Canceled Flights}{4}{}%
-\contentsline {subsection}{\numberline {6.2}Diverted Flights}{4}{}%
-\contentsline {section}{\numberline {7}Results and Conclusions}{4}{}%
-\contentsline {subsection}{\numberline {7.1}Space and Time}{4}{}%
+\contentsline {section}{\numberline {6}Experiments}{5}{}%
+\contentsline {subsection}{\numberline {6.1}Canceled Flights}{5}{}%
+\contentsline {subsection}{\numberline {6.2}Diverted Flights}{5}{}%
+\contentsline {section}{\numberline {7}Results and Conclusions}{5}{}%
+\contentsline {subsection}{\numberline {7.1}Space and Time}{5}{}%

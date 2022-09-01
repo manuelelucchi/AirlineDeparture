@@ -79,12 +79,11 @@ The files presents 28 columns, of which we only took the 9 more relevant\\
 	\item[CRS\_ARR\_TIME] The.
 	\item[CANCELLED] If the flight has been canceled.
 	\item[DIVERTED] If the flight has been diverted.
-	\item[CRS\_ELAPSED\_TIME]
-	\item[DISTANCE] The distance the flight has to cover.
+	\item[CRS\_ELAPSED\_TIME] TODO
+	\item[DISTANCE] The distance the flight has to cover.\\
 \end{description}
 
 In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
-
 The carrier code is a two characters alphanumeric code, the origin and destination places are a three characters alphanumeric code.\\
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
@@ -105,19 +104,21 @@ Then the data not already represented as real numbers has been converted; places
 The data (now completely composed of real numbers) was then normalized between 0 and 1, to avoid exploding values.\\
 Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
 
-DIVISO PER MEDIA E VARIANZA???
+DIVISO PER MEDIA E VARIANZA??? L2 REGULARIZATION
 
 \subsection{Parallelization}
 
 Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
-PySpark is a wrapper for Python of the library Apache Spark, originally written in Java. The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
+PySpark is a wrapper for Python of the library Apache Spark, originally written in Java.
+
+The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
 The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.
 
-\begin{figure}
-  \includegraphics[width=\linewidth]{spark.ppm}
-  \caption{Overview of Spark work distribution}
-  \label{fig:spark}
-\end{figure}
+%\begin{figure}
+%\includegraphics[width=\linewidth]{spark.ppm}
+%\caption{Overview of Spark work distribution}
+%\label{fig:spark}
+%\end{figure}
 
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
@@ -144,8 +145,16 @@ Parameters such as Weights and Bias are initialized using a uniform distribution
 
 differenze con sklearn
 
+% https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
+% https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
 
-\subsection{}
+
+\subsection{Regularization}
+Regularization is a technique used to prevent the overfittings. A regularization term is added to the optimization problem (i.e. the gradient calculation) to avoid overfitting.
+The used version is called \textbf{L2}, also known as \textbf{Ridge Regression}. MIGLIORARE + BIBLIO\\
+
+
+
 - descrizione inizializzazione parametri
 - descrizione batching e iterazioni
 - descrizione forward propagation

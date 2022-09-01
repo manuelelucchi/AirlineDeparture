@@ -4,7 +4,7 @@ from turtle import forward
 import numpy as np
 from numpy import ndarray
 from constants import path
-from functions import binary_cross_entropy, gradients, hinge, logistic, sigmoid
+from functions import binary_cross_entropy, gradients, hinge, logistic, normalize, sigmoid
 
 
 class Model():
@@ -31,6 +31,7 @@ class Model():
 
     def train(self, X: ndarray, Y_label: ndarray, iterations: int = 10):
         self.initialize(X.shape[1])
+        X = normalize(X)
 
         for i in range(iterations):
             for b in range(X.shape[0]//self.batch_size):
