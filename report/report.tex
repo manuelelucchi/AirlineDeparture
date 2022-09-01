@@ -116,6 +116,9 @@ The library handles automatically the work distribution on the available nodes t
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
 
+The preprocessing part of the solution is therefore computed in a distributed manner, using the PySpark dataframe as main data structure to perform the various calculations on the columns of the dataset.
+At the end of this section of the solution, the distributed dataframes are merged into one using the collect method. This operation can create memory problems if the dataset is extremely large, but it is not possibile to distribute efficiently the model training
+and computing as easily as the preprocessing, so the main part of the solution will be computed using standard Python data structures.
 
 %----------------------------------------------------------------------------------------
 %	MODEL
