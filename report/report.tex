@@ -32,6 +32,21 @@
 \end{center}
 
 %----------------------------------------------------------------------------------------
+%	DECLARATION
+%----------------------------------------------------------------------------------------
+
+\textit{We declare that this material,
+	which we now submit for assessment, is entirely our own work and has not been
+	taken from the work of others, save and to the extent that such work has been cited and
+	acknowledged within the text of our work. We understand that plagiarism, collusion,
+	and copying are grave and serious offences in the university and accept the penalties that
+	would be imposed should I engage in plagiarism, collusion or copying. This assignment,
+	or any part of it, has not been previously submitted by us or any other person for
+	assessment on this or any other course of study.}
+
+\tableofcontents
+
+%----------------------------------------------------------------------------------------
 %	ABSTRACT
 %----------------------------------------------------------------------------------------
 
@@ -52,7 +67,7 @@
 
 \section{Dataset}
 
-The initial dataset, [Airline Delay and Cancellation Data] is made of 9 years of airlines flights data, composed by 10 files (one for each year from 2009 to 2018) of around 6 milions records each.
+The initial dataset, [Airline Delay and Cancellation Data] CITAZIONE is made of 9 years of airlines flights data, composed by 10 files (one for each year from 2009 to 2018) of around 6 milions records each.
 The files presents 28 columns, of which we only took the 9 more relevant\\
 
 \begin{description}
@@ -77,10 +92,12 @@ Cancelled and diverted are either 0 or 1.\\
 One milion of records equally distributed between the files were taken to perform the training.
 
 %----------------------------------------------------------------------------------------
-%	PREPROCESSING TECHNIQUES
+%	PREPROCESSING
 %----------------------------------------------------------------------------------------
 
 \section{Preprocessing Techniques}
+
+\subsection{Algorithms and Techniques}
 
 Multiple preprocessing techniques were used.\\
 First, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives. MIGLIORARE\\
@@ -90,12 +107,7 @@ Lastly, the data was splitted between the training set (75\%) and the test set (
 
 DIVISO PER MEDIA E VARIANZA???
 
-
-%----------------------------------------------------------------------------------------
-%	PREPROCESSING PARALLELIZATION 
-%----------------------------------------------------------------------------------------
-
-\section{Preprocessing Parallelization}
+\subsection{Parallelization}
 
 %----------------------------------------------------------------------------------------
 %	MODEL
@@ -106,9 +118,12 @@ DIVISO PER MEDIA E VARIANZA???
 \subsection{Parameters initialization}
 Parameters such as Weights and Bias are initialized using a uniform distribution between 0 and 1, with the first one having the same length as the number of columns and the second being a scalar value.
 
-DA VEDERE ITERAZIONI, BATCH SIZE E LEARNING RATE
+\subsection{Iterations}
 
 \subsection{Algorithm}
+
+differenze con sklearn
+
 
 \subsection{}
 - descrizione inizializzazione parametri
@@ -132,11 +147,28 @@ DA VEDERE ITERAZIONI, BATCH SIZE E LEARNING RATE
 
 \section{Experiments}
 
+\subsection{Canceled Flights}
+
+\subsection{Diverted Flights}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+\end{center}
+
 - nostro modello dopo v1 iterazioni con learning rate v1
 - nostro modello dopo v1 iterazioni con learning rate v2
 - nostro modello dopo v2 iterazioni con learning rate v1
 - nostro modello dopo v2 iterazioni con learning rate v2
 - confronto modello di sklearn con i valori migliori
+
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
@@ -144,7 +176,8 @@ DA VEDERE ITERAZIONI, BATCH SIZE E LEARNING RATE
 
 \section{Results and Conclusions}
 
-The atomic weight of magnesium is concluded to be \SI{24}{\gram\per\mol}, as determined by the stoichiometry of its chemical combination with oxygen. This result is in agreement with the accepted value.
+\subsection{Space and Time}
+
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
