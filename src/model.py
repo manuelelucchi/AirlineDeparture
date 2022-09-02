@@ -23,7 +23,7 @@ class Model():
         return Z
 
     def backward(self, X: ndarray, Y: ndarray, Y_label: ndarray):
-        return gradients(X, Y, Y_label)
+        return gradients(X, Y, Y_label, self.W, self.b, self.l2)
 
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
