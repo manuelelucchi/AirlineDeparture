@@ -7,6 +7,8 @@
 	10pt, % Default font size, specify 10pt, 11pt or 12pt
 ]{class}
 
+\usepackage{caption}
+
 \addbibresource{bibliography.bib} % Bibliography file (located in the same folder as the template)
 
 %----------------------------------------------------------------------------------------
@@ -88,6 +90,8 @@ The carrier code is a two characters alphanumeric code, the origin and destinati
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
 
+DIRE PERCHE' ABBIAMO ESCLUSO ALCUNE COLONNE
+
 One milion of records equally distributed between the files were taken to perform the training.
 
 %----------------------------------------------------------------------------------------
@@ -137,30 +141,62 @@ and computing as easily as the preprocessing, so the main part of the solution w
 \section{Model}
 
 \subsection{Parameters initialization}
-Parameters such as Weights and Bias are initialized using a uniform distribution between 0 and 1, with the first one having the same length as the number of columns and the second being a scalar value.
-
-\subsection{Iterations}
+Parameters such as Weights and Bias are initialized using a \textbf{uniform distribution} between 0 and 1, with the first one having the same length as the number of columns and the second being a scalar value.
 
 \subsection{Algorithm}
 
-differenze con sklearn
+\subsubsection{Normalization}
 
-% https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
-% https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
+\subsubsection{Estimate}
+The estimate is computed as follows
+$$ \hat{y} = \sigma(w^Tx + b) $$
+where $\sigma$ is defined as
+$$ \sigma(z) = \frac{1}{1 + e^-z} \in (0,1) $$
+
+\subsubsection{Gradient}
+
+$$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) $$
+$$\nabla b = \frac{1}{m}\sum(\hat{y} - y) b $$
+
+\subsubsection{Update}
 
 
-\subsection{Regularization}
+$$ w' = w - \mu \nabla w $$
+$$ b' = b - \mu \nabla b $$
+
+\subsubsection{Loss}
+For the loss, we used the \textbf{Binary Cross Entropy} function, also called \textbf{Log Loss}.
+It is defined as
+$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y}))$$
+
+
+\subsubsection{Regularization}
 Regularization is a technique used to prevent the overfittings. A regularization term is added to the optimization problem (i.e. the gradient calculation) to avoid overfitting.
 The used version is called \textbf{L2}, also known as \textbf{Ridge Regression}. MIGLIORARE + BIBLIO\\
 
+The regularization factor for the loss is defined as
+$$ \frac{\lambda}{2n}\sum w^2 + b^2 $$ DA VEDERE
 
+The loss becomes
+$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y}))$$
 
-- descrizione inizializzazione parametri
-- descrizione batching e iterazioni
-- descrizione forward propagation
-- descrizione loss
-- descrizione calcolo gradiente
-- descrizione update
+While the weights and bias gradients formula becomes
+$$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) + \lambda w $$
+and
+$$ \nabla b = \frac{1}{m}\sum(\hat{y} - y) + \lambda b$$
+
+DA VEDERE
+
+\subsection{Differences with Sklearn implementation}
+
+In the following chapters the presented model performances will be compared with the Sklearn implementation, that has quite some differences.\\
+First, the sklearn version doesn't use the SGD solver, it uses \textbf{L-BFGS-B - Software for Large-scale Bound-constrained Optimization} instead, by default.
+% http://users.iems.northwestern.edu/~nocedal/lbfgsb.html
+For this reason, the solver doesn't need any form of Learning Rate.\\
+Also, with this implementation, the L2 Regularization is enabled by default as well.
+
+% https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
+% https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
 
 %----------------------------------------------------------------------------------------
 %	PERFORMANCES 
@@ -178,7 +214,7 @@ The used version is called \textbf{L2}, also known as \textbf{Ridge Regression}.
 
 \subsection{Canceled Flights}
 
-\subsection{Diverted Flights}
+\subsubsection{Changing the Learning Rate}
 
 \begin{center}
 	\begin{tabular}{ |c|c|c|c| }
@@ -190,12 +226,91 @@ The used version is called \textbf{L2}, also known as \textbf{Ridge Regression}.
 		1000       & 0  & 0  & 0    \\
 		\hline
 	\end{tabular}
+	\captionof{table}{Your caption here}
 \end{center}
 
-- nostro modello dopo v1 iterazioni con learning rate v1
-- nostro modello dopo v1 iterazioni con learning rate v2
-- nostro modello dopo v2 iterazioni con learning rate v1
-- nostro modello dopo v2 iterazioni con learning rate v2
+\subsubsection{Adding the L2 regularization}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\subsubsection{Comparison with Sklearn}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\subsection{Diverted Flights}
+
+\subsubsection{Changing the Learning Rate}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\subsubsection{Adding the L2 regularization}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\subsubsection{Comparison with Sklearn}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Loss \\
+		\hline
+		100        & 0  & 0  & 0    \\
+		500        & 0  & 0  & 0    \\
+		1000       & 0  & 0  & 0    \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+- nostro modello senza LR
+- nostro modello con LR v1
+- nostro modello con LR v2
+- nostro modello con LR v3
+- nostro modello con LR migliore e L2
 - confronto modello di sklearn con i valori migliori
 
 

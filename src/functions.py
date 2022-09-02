@@ -22,14 +22,6 @@ def regularize(W: ndarray, b: float, l2: float):
     return l2 / 2 * W.shape[0] * np.sum(np.square(W)) + b**2  # DA VEDERE
 
 
-def logistic(y: ndarray, y_label: ndarray):
-    return np.mean(np.log2(1 + np.exp(-y * y_label)))
-
-
-def hinge(y: ndarray, y_label: ndarray):
-    return max(0, np.mean(1 - y * y_label))
-
-
 def normalize(X: ndarray) -> ndarray:
     '''
     Normalizes the data based on the number of features
