@@ -32,7 +32,7 @@ dataframe_schema = StructType([
 ])
 
 spark = SparkSession.builder.appName(
-    "Airline Departure").master('local[*]').getOrCreate()
+    "Airline Departure").master('local[1]').getOrCreate()
 
 
 def get_all_frames() -> DataFrame:

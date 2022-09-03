@@ -118,12 +118,6 @@ PySpark is a wrapper for Python of the library Apache Spark, originally written 
 The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
 The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.\\
 
-%\begin{figure}
-%\includegraphics[width=\linewidth]{spark.ppm}
-%\caption{Overview of Spark work distribution}
-%\label{fig:spark}
-%\end{figure}
-
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
 The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF(User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\

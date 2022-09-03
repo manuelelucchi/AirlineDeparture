@@ -5,6 +5,7 @@ from preprocess import preprocess
 from preprocess import preprocess
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
+from numpy import zeros
 
 lr_1 = 0.01
 lr_2 = 0.001
@@ -30,7 +31,8 @@ def experiments(forIndex: str):
         print("For Custom, LR: {}, L2: {}, IT: {}, the last train loss is: {}".format(
             lr, l2, iterations, train_losses[-1]))
         res = model.evaluate(test_data)
-        test_loss = binary_cross_entropy(res, test_labels)
+        test_loss = binary_cross_entropy(
+            res, test_labels, zeros([res.shape[0]]), 0)
         print("For Custom, LR: {}, L2: {}, IT: {}, the average test loss is: {}".format(
             lr, l2, iterations, test_loss))
 

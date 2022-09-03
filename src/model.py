@@ -22,7 +22,7 @@ class Model():
         return Z
 
     def gradient(self, X: ndarray, Y: ndarray, Y_label: ndarray):
-        return gradients(X, Y, Y_label, self.W, self.b, self.l2)
+        return gradients(X, Y, Y_label, self.W, self.l2)
 
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
