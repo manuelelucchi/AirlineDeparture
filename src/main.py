@@ -24,7 +24,7 @@ def experiments(forIndex: str):
     print("Done")
 
     def custom_train_eval(lr=1, l2=0.01, iterations=100) -> float:
-        model = Model(batch_size=train_data.shape[1], learning_rate=lr, l2=l2)
+        model = Model(learning_rate=lr, l2=l2)
         train_losses = model.train(train_data,
                                    train_labels, iterations=iterations)
         print("For Custom, LR: {}, L2: {}, IT: {}, the last train loss is: {}".format(
