@@ -140,6 +140,7 @@ Parameters such as Weights and Bias are initialized using a \textbf{uniform dist
 \subsection{Algorithm}
 
 \subsubsection{Normalization}
+Before the estimate, we need to normalize the input data by subtracting the \textbf{mean} and dividing by the \textbf{variance}
 
 \subsubsection{Estimate}
 The estimate is computed as follows
@@ -200,6 +201,7 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 
 \section{Performances}
 
+- come scalano le operazioni nella teoria
 - come scalano le operazioni di numpy effettuate
 
 %----------------------------------------------------------------------------------------
@@ -213,13 +215,39 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Changing the Learning Rate}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Test Loss & Train Loss \\
+		\hline
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c|c| }
+		\hline
+		Iterations & LR & L2 & Test Loss & Train Loss \\
+		\hline
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -228,13 +256,13 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Adding the L2 regularization}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -243,13 +271,13 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Comparison with Sklearn}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -260,13 +288,13 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Changing the Learning Rate}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -275,13 +303,13 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Adding the L2 regularization}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -290,24 +318,17 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \subsubsection{Comparison with Sklearn}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Loss \\
+		Iterations & LR & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0    \\
-		500        & 0  & 0  & 0    \\
-		1000       & 0  & 0  & 0    \\
+		100        & 0  & 0  & 0         & 0          \\
+		500        & 0  & 0  & 0         & 0          \\
+		1000       & 0  & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
 \end{center}
-
-- nostro modello senza LR
-- nostro modello con LR v1
-- nostro modello con LR v2
-- nostro modello con LR v3
-- nostro modello con LR migliore e L2
-- confronto modello di sklearn con i valori migliori
 
 
 %----------------------------------------------------------------------------------------
