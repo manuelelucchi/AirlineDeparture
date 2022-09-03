@@ -25,12 +25,14 @@ def experiments(forIndex: str):
 
     def custom_train_eval(lr=1, l2=0.01, iterations=100) -> float:
         model = Model(batch_size=train_data.shape[1], learning_rate=lr, l2=l2)
-        model.train(train_data,
-                    train_labels, iterations=iterations)
-        res = model.forward(test_data)
-        loss = binary_cross_entropy(res, test_labels)
-        print("For Custom, LR: {}, L2: {}, IT: {}, the average loss is: {}".format(
-            lr, l2, iterations, loss))
+        train_losses = model.train(train_data,
+                                   train_labels, iterations=iterations)
+        print("For Custom, LR: {}, L2: {}, IT: {}, the last train loss is: {}".format(
+            lr, l2, iterations, train_losses[-1]))
+        res = model.evaluate(test_data)
+        test_loss = binary_cross_entropy(res, test_labels)
+        print("For Custom, LR: {}, L2: {}, IT: {}, the average test loss is: {}".format(
+            lr, l2, iterations, test_loss))
 
     def sklearn_train_eval() -> float:
         model = LogisticRegression()

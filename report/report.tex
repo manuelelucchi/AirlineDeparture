@@ -167,18 +167,19 @@ $$ b' = b - \mu \nabla b $$
 \subsubsection{Loss}
 For the loss, we used the \textbf{Binary Cross Entropy} function, also called \textbf{Log Loss}.
 It is defined as
-$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y}))$$
-
+$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
 
 \subsubsection{Regularization}
 Regularization is a technique used to prevent the overfittings. A regularization term is added to the optimization problem (i.e. the gradient calculation) to avoid overfitting.
 The used version is called \textbf{L2}, also known as \textbf{Ridge Regression}. MIGLIORARE + BIBLIO\\
 
 The regularization factor for the loss is defined as
-$$ \frac{\lambda}{2n}\sum w^2 + b^2 $$ DA VEDERE
+$$ L2 = \frac{\lambda}{2}||w||^2 $$
+where $L2$ is calculated as $ \frac{\lambda}{2}||w||^2 = \frac{\lambda}2{\displaystyle\sum_{j=1}^m w_j^2} $ \\
+DA VEDERE
 
-The loss becomes
-$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y}))$$
+The loss then becomes
+$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) + \frac{\lambda}{2}||w||^2 $$
 
 While the weights and bias gradients formula becomes
 $$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) + \lambda w $$
@@ -197,6 +198,7 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 
 % https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
 % https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
+% https://satishkumarmoparthi.medium.com/logistic-regression-with-l2-regularization-using-sgd-from-scratch-893692b48362
 
 %----------------------------------------------------------------------------------------
 %	PERFORMANCES 

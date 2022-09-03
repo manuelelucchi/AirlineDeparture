@@ -4,12 +4,11 @@ from turtle import forward
 import numpy as np
 from numpy import ndarray
 from constants import path
-from functions import binary_cross_entropy, gradients, hinge, logistic, normalize, sigmoid
+from functions import binary_cross_entropy, gradients, normalize, sigmoid
 
 
 class Model():
-    def __init__(self, batch_size=20, learning_rate: float = 0.01, l2: float = 0.01):
-        self.batch_size = batch_size
+    def __init__(self, learning_rate: float = 0.01, l2: float = 0.01):
         self.learning_rate = learning_rate
         self.l2 = l2
 
@@ -17,30 +16,25 @@ class Model():
         self.W = np.random.rand(columns_number)
         self.b = np.random.rand()
 
-    def forward(self, X: ndarray) -> ndarray:
+    def evaluate(self, X: ndarray) -> ndarray:
         Z = np.dot(X, self.W) + self.b
         Z = sigmoid(Z)
         return Z
 
-    def backward(self, X: ndarray, Y: ndarray, Y_label: ndarray):
+    def gradient(self, X: ndarray, Y: ndarray, Y_label: ndarray):
         return gradients(X, Y, Y_label, self.W, self.b, self.l2)
 
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
         self.b = self.b - self.learning_rate * db
 
-    def train(self, X: ndarray, Y_label: ndarray, iterations: int = 10):
+    def train(self, X: ndarray, Y_labels: ndarray, iterations: int = 10):
         self.initialize(X.shape[1])
         X = normalize(X)
-
-        for i in range(iterations):
-            for b in range(X.shape[0]//self.batch_size):
-                b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]
-                b_Y_label = Y_label[b*self.batch_size:b *
-                                    self.batch_size+self.batch_size]
-                Y = self.forward(b_X)
-                (dW, db) = self.backward(b_X, Y, b_Y_label)
-                self.update(dW, db)
-
-    def eval(self, X: ndarray) -> int:
-        return round(self.forward(X))
+        losses = []
+        for _ in range(iterations):
+            Y = self.evaluate(X)
+            losses.append(binary_cross_entropy(Y, Y_labels, self.W, self.l2))
+            (dW, db) = self.gradient(X, Y, Y_labels)
+            self.update(dW, db)
+        return losses
