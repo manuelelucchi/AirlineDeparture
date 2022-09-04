@@ -29,13 +29,14 @@ def experiments(forIndex: str):
         model = Model(learning_rate=lr, l2=l2)
         train_losses = model.train(train_data,
                                    train_labels, iterations=iterations)
-        print("For Custom, LR: {}, L2: {}, IT: {}, the last train loss is: {}".format(
-            lr, l2, iterations, train_losses[-1]))
         res = model.evaluate(test_data)
         test_loss = binary_cross_entropy(
             res, test_labels, zeros([res.shape[0]]), 0)
-        print("For Custom, LR: {}, L2: {}, IT: {}, the average test loss is: {}".format(
-            lr, l2, iterations, test_loss))
+
+        print("For Custom, LR: {}, L2: {}, IT: {}".format(
+            lr, l2, iterations))
+        print("The last train loss is: {}".format(train_losses[-1]))
+        print("The average test loss is: {}".format(test_loss))
 
     def sklearn_train_eval() -> float:
         model = LogisticRegression()
@@ -43,7 +44,7 @@ def experiments(forIndex: str):
         res = list(map(lambda x: x[1], model.predict_proba(
             test_data)))
         loss = log_loss(test_labels, res)
-        print("For Sklearn, IT: {}, the average loss is: {}".format(100, loss))
+        print("For Sklearn, IT: {}, the average test loss is: {}".format(100, loss))
 
     custom_train_eval(lr=lr_1, iterations=it_1)
     custom_train_eval(lr=lr_2, iterations=it_1)
@@ -55,4 +56,4 @@ def experiments(forIndex: str):
 
 
 experiments(forIndex='CANCELLED')
-experiments(forIndex='DIVERTED')
+# experiments(forIndex='DIVERTED')

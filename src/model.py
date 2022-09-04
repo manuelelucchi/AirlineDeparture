@@ -8,7 +8,7 @@ from functions import binary_cross_entropy, gradients, normalize, sigmoid
 
 
 class Model():
-    def __init__(self, learning_rate: float = 0.01, l2: float = 0.01):
+    def __init__(self, learning_rate: float, l2: float):
         self.learning_rate = learning_rate
         self.l2 = l2
 
@@ -30,7 +30,7 @@ class Model():
 
     def train(self, X: ndarray, Y_labels: ndarray, iterations: int = 10):
         self.initialize(X.shape[1])
-        # X = normalize(X)
+        X = normalize(X)
         losses = []
         for _ in range(iterations):
             Y = self.evaluate(X)
