@@ -69,7 +69,7 @@ max_distance = 4970
 def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_dataset(2000000, False, usePyspark)
+        data = read.get_first_frame()  # read.get_dataset(2000000, False, usePyspark)
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:
@@ -101,18 +101,21 @@ def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray,
 
     if usePyspark:
         result = (numpy.array(train_data.collect()),
-                numpy.array(train_labels.collect()),
-                numpy.array(test_data.collect()),
-                numpy.array(test_labels.collect()))
+                  numpy.array(train_labels.collect()),
+                  numpy.array(test_data.collect()),
+                  numpy.array(test_labels.collect()))
 
         finish_time = datetime.now() - start_time
-        print("Dataset splitting concluded: " + finish_time.total_seconds + " seconds")
+        print("Dataset splitting concluded: " +
+              str(finish_time.total_seconds()) + " seconds")
         return result
     else:
-        result = (train_data.to_numpy(), train_labels.to_numpy(), test_data.to_numpy(), test_labels.to_numpy())
+        result = (train_data.to_numpy(), train_labels.to_numpy(),
+                  test_data.to_numpy(), test_labels.to_numpy())
 
         finish_time = datetime.now() - start_time
-        print("Dataset splitting concluded: " + finish_time.total_seconds + " seconds")
+        print("Dataset splitting concluded: " +
+              str(finish_time.total_seconds()) + " seconds")
         return result
 
 
@@ -121,14 +124,17 @@ def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, use
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
-        result = positives.orderBy(rand()).limit(n), negatives.orderBy(rand()).limit(n)
+        result = positives.orderBy(rand()).limit(
+            n), negatives.orderBy(rand()).limit(n)
         finish_time = datetime.now() - start_time
-        print("Dataset balancing concluded: " + finish_time.total_seconds + " seconds")
+        print("Dataset balancing concluded: " +
+              str(finish_time.total_seconds()) + " seconds")
         return result
     else:
-        result =  positives.sample(n), negatives.sample(n)
+        result = positives.sample(n), negatives.sample(n)
         finish_time = datetime.now() - start_time
-        print("Dataset balancing concluded: " + finish_time.total_seconds + " seconds")
+        print("Dataset balancing concluded: " +
+              str(finish_time.total_seconds()) + " seconds")
         return result
 
 
@@ -149,7 +155,7 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
     data = data.fillna(value=0)
 
     # Remove rows with Nan key values
-    data = data.dropna(how='any')
+    data = data.dropna(how='any', axis='index')
 
     data = convert_names_into_numbers(data, usePyspark)
     data = convert_dates_into_numbers(data, usePyspark)
@@ -159,7 +165,8 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
         data = convert_strings_into_numbers(data, usePyspark)
 
     finish_time = datetime.now() - start_time
-    print("Common preprocessing concluded: " + finish_time.total_seconds + " seconds")
+    print("Common preprocessing concluded: " +
+          str(finish_time.total_seconds()) + " seconds")
     return data
 
 
@@ -174,7 +181,8 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
         data = data.drop(oppositeIndex, axis=1)
 
     finish_time = datetime.now() - start_time
-    print("Specific preprocessing concluded: " + finish_time.total_seconds + " seconds")
+    print("Specific preprocessing concluded: " +
+          str(finish_time.total_seconds()) + " seconds")
     return data
 
 
@@ -313,4 +321,3 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.
         test_sample = data.sample(round(len(data.index) / 4))
         training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
-

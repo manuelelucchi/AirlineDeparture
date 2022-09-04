@@ -124,7 +124,7 @@ This was necessary since the diverted or cancelled flights are a really small pe
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
 To solve the problem an Oversampling has been applied, matching the number of normal flights and problematic flights.\\
 
- Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
+Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
 
 DIVISO PER MEDIA E VARIANZA??? L2 REGULARIZATION
 
@@ -232,8 +232,8 @@ The table below summarizes the time required by the Colab enviroment to complete
 		\hline
 		Library & Common & Specific & Balancing & Splitting & Total \\
 		\hline
-		Pandas        & 0  & 0  & 0 & 0 & 0        \\
-		PySpark        & 0  & 0  & 0 & 0 & 0       \\
+		Pandas  & 0      & 0        & 0         & 0         & 0     \\
+		PySpark & 0      & 0        & 0         & 0         & 0     \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Performance comparison between Pandas preprocessing and sitributed PySpark preprocessing}
