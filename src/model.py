@@ -30,7 +30,7 @@ class Model():
 
     def train(self, X: ndarray, Y_labels: ndarray, iterations: int = 10):
         self.initialize(X.shape[1])
-        X = normalize(X)
+        # X = normalize(X)
         losses = []
         for _ in range(iterations):
             Y = self.evaluate(X)

@@ -1,9 +1,10 @@
 import os
 from constants import path
+import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.types import *
-from pyspark.sql import DataFrame
+import pyspark.sql as ps
 
 columns_to_get: list[str] = [
     'FL_DATE',
@@ -35,49 +36,36 @@ spark = SparkSession.builder.appName(
     "Airline Departure").master('local[1]').getOrCreate()
 
 
-def get_all_frames() -> DataFrame:
+def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = False) -> pd.DataFrame | ps.DataFrame:
     files = os.listdir(path)
-    big_frame = spark.createDataFrame(
-        spark.sparkContext.emptyRDD(), schema=dataframe_schema)
+    if usePyspark:
+        big_frame = spark.createDataFrame(
+            spark.sparkContext.emptyRDD(), schema=dataframe_schema)
+    else:
+        big_frame = pd.DataFrame()
+
+    if not allFrames:
+        files = [files[0]]
 
     for f in files:
         if f.endswith('.csv'):
-            # Reading only data at disposal before departure
-            # frame = pd.read_csv(filepath_or_buffer=path +
-            #                    '/' + f, usecols=columns_to_get)
-            #big_frame = pd.concat([big_frame, frame])
+            if usePyspark:
+                frame = spark.read.option("header", True).csv(path + '/' + f)
+                frame = frame.select(columns_to_get)
 
-            frame = spark.read.option("header", True).csv(path + '/' + f)
-            frame = frame.select(columns_to_get)
+                if limit != -1:
+                    frame = frame.limit(limit)
 
-            big_frame = frame.union(big_frame)
-    big_frame = big_frame.select(
-        "*").withColumn("index", monotonically_increasing_id())
-    return big_frame
+                big_frame = frame.union(big_frame)
+            else:
+                frame = pd.read_csv(filepath_or_buffer=path +
+                                    '/' + f, usecols=columns_to_get, nrows=limit if limit != -1 else None)
+                big_frame = pd.concat([big_frame, frame])
 
+    if usePyspark:
+        big_frame = big_frame.select(
+            "*").withColumn("index", monotonically_increasing_id())
 
-def get_small() -> DataFrame:
-    files: list = os.listdir(path)
-    # big_frame = pd.read_csv(filepath_or_buffer=path +
-    #                        '/' + files[0], usecols=columns_to_get, nrows=1000000)
-    big_frame = spark.read.option("header", True).csv(path + '/' + files[0])
-    big_frame = big_frame.select(columns_to_get).limit(1000000)
-    big_frame = big_frame.select(
-        "*").withColumn("index", monotonically_increasing_id())
-
-    print('Small frame loaded')
-    return big_frame
-
-
-def get_first_frame() -> DataFrame:
-    files: list = os.listdir(path)
-    # big_frame = pd.read_csv(filepath_or_buffer=path +
-    #                        '/' + files[0], usecols=columns_to_get)
-    big_frame = spark.read.option("header", True).csv(path + '/' + files[0])
-    big_frame = big_frame.select(columns_to_get)
-    big_frame = big_frame.select(
-        "*").withColumn("index", monotonically_increasing_id())
-    big_frame.show()
     return big_frame
 
 
@@ -89,14 +77,21 @@ def check_preprocessed_data_exists() -> bool:
     return False
 
 
-def get_preprocessed_data() -> DataFrame:
-    data = spark.read.option("header", True).csv(
-        path + '/preprocessed')
-    print('Preprocessed frame loaded')
+def load_dataset(usePyspark: bool) -> pd.DataFrame:
+    if usePyspark:
+        data = spark.read.option("header", True).csv(
+            path + '/preprocessed')
+    else:
+        data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
+
+    print('Preprocessed dataset loaded')
     return data
 
 
-def save_preprocessed_data(data: DataFrame):
-    data.write.format('csv').option('header', True).mode('overwrite').option(
-        'sep', ',').save(path + '/preprocessed')
-    print('Preprocessed csv created')
+def save_dataset(data: ps.DataFrame, usePyspark: bool):
+    if usePyspark:
+        data.write.format('csv').option('header', True).mode('overwrite').option(
+            'sep', ',').save(path + '/preprocessed')
+    else:
+        data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)
+    print('Preprocessed dataset saved')

@@ -3,11 +3,12 @@ import sys
 import download
 import read
 import numpy
-from pyspark.sql import DataFrame, Column
-from pyspark.sql.functions import col, udf
+import pyspark.sql as ps
+from pyspark.sql.functions import col, udf, rand
 from pyspark.sql.types import *
 from zlib import crc32
 from numpy import ndarray
+import pandas as pd
 
 default_values: dict = {
     'CANCELLED': 0,
@@ -64,51 +65,67 @@ preprocess_columns_to_convert: list[str] = [
 max_distance = 4970
 
 
-def preprocess(index: str) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
-        data = read.get_small()
-        data = common_preprocess(data)
-        read.save_preprocessed_data(data)
+        data = read.get_dataset(2000000, False, usePyspark)
+        data = common_preprocess(data, usePyspark)
+        read.save_dataset(data, usePyspark)
     else:
-        data = read.get_preprocessed_data()
-        udf_string_conversion = udf(lambda x: float(x), DoubleType())
-        for c in preprocess_columns_to_convert:
-            data = data.withColumn(c, udf_string_conversion(col(c)))
+        data = read.load_dataset(usePyspark)
+        if usePyspark:
+            udf_string_conversion = udf(lambda x: float(x), DoubleType())
+            for c in preprocess_columns_to_convert:
+                data = data.withColumn(c, udf_string_conversion(col(c)))
 
-    data = remove_extra_columns(index, data)
+    data = remove_extra_columns(index, data, usePyspark)
 
-    print(data.schema)
-    data_p, data_n = balance_dataframe(data, index, 0.05)
+    data_p, data_n = balance_dataframe(data, index, 10000, usePyspark)
 
-    train_data_p, test_data_p = split_data(data_p)
-    train_data_n, test_data_n = split_data(data_n)
+    train_data_p, test_data_p = split_data(data_p, usePyspark)
+    train_data_n, test_data_n = split_data(data_n, usePyspark)
 
-    train_data = train_data_p.union(train_data_n)
-    test_data = test_data_p.union(test_data_n)
+    if usePyspark:
+        train_data = train_data_p.union(train_data_n)
+        test_data = test_data_p.union(test_data_n)
+    else:
+        train_data = pd.concat(
+            [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
+        test_data = pd.concat(
+            [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
 
-    (train_data, train_labels) = split_labels(train_data, index)
-    (test_data, test_labels) = split_labels(test_data, index)
+    (train_data, train_labels) = split_labels(train_data, index, usePyspark)
+    (test_data, test_labels) = split_labels(test_data, index, usePyspark)
 
-    return (numpy.array(train_data.collect()),
-            numpy.array(train_labels.collect()),
-            numpy.array(test_data.collect()),
-            numpy.array(test_labels.collect()))
+    if usePyspark:
+        return (numpy.array(train_data.collect()),
+                numpy.array(train_labels.collect()),
+                numpy.array(test_data.collect()),
+                numpy.array(test_labels.collect()))
+    else:
+        return (train_data.to_numpy(), train_labels.to_numpy(), test_data.to_numpy(), test_labels.to_numpy())
 
 
-def balance_dataframe(data: DataFrame, index: str, fraction: float) -> DataFrame:
+def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
-    return positives.sample(fraction=fraction), negatives.sample(fraction=fraction)
+    if usePyspark:
+        return positives.orderBy(rand()).limit(n), negatives.orderBy(rand()).limit(n)
+    else:
+        return positives.sample(n), negatives.sample(n)
 
 
-def split_labels(data: DataFrame, index: str) -> tuple[DataFrame, Column]:
-    labels = data.select(index)
-    data = data.drop(index)
+def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.Column | pd.Series]:
+    if usePyspark:
+        labels = data.select(index)
+        data = data.drop(index)
+    else:
+        labels = data[index]
+        data = data.drop(index, axis=1)
     return data, labels
 
 
-def common_preprocess(data: DataFrame) -> DataFrame:
+def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
     # Replace Nan values with the correct default values
     data = data.fillna(value=0)
@@ -116,93 +133,160 @@ def common_preprocess(data: DataFrame) -> DataFrame:
     # Remove rows with Nan key values
     data = data.dropna(how='any')
 
-    data = convert_names_into_numbers(data)
-    data = convert_dates_into_numbers(data)
-    data = convert_times_into_numbers(data)
-    data = convert_distance_into_numbers(data)
-    data = convert_strings_into_numbers(data)
+    data = convert_names_into_numbers(data, usePyspark)
+    data = convert_dates_into_numbers(data, usePyspark)
+    data = convert_times_into_numbers(data, usePyspark)
+    data = convert_distance_into_numbers(data, usePyspark)
+    if usePyspark:
+        data = convert_strings_into_numbers(data, usePyspark)
 
     return data
 
 
-def remove_extra_columns(index: str, data: DataFrame) -> DataFrame:
+def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
-    data = data.drop(oppositeIndex)
-    data = data.drop('index')
+    if usePyspark:
+        data = data.drop(oppositeIndex)
+        data = data.drop('index')
+    else:
+        data = data.drop(oppositeIndex, axis=1)
     return data
 
 
-def convert_strings_into_numbers(data: DataFrame) -> DataFrame:
-
+def convert_strings_into_numbers(data: ps.DataFrame | pd.DataFrame) -> ps.DataFrame | pd.DataFrame:
     udf_string_conversion = udf(lambda x: float(x), DoubleType())
     for c in string_columns_to_convert:
         data = data.withColumn(c, udf_string_conversion(col(c)))
+    return data
+
+
+def convert_names_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
+
+    if usePyspark:
+        def str_to_float(s: str):
+            encoding = "utf-8"
+            b = s.encode(encoding)
+            return float(crc32(b) & 0xffffffff) / 2**32
+
+        udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
+
+        for c in names_columns_to_convert:
+            data = data.withColumn(c, udf_names_conversion(col(c)))
+    else:
+        for c in names_columns_to_convert:
+            unique_values: ndarray = []
+            values_map: dict = {}
+            counter: float = 0
+
+            unique_values = data[c].unique()
+            unique_values = numpy.sort(unique_values)
+            adder: float = 1 / len(unique_values)
+
+            for v in unique_values:
+                values_map[v] = counter
+                counter += adder
+
+            data[c].replace(to_replace=values_map, inplace=True)
+    return data
+
+
+def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
+    multiplier: float = 1 / 365
+    if usePyspark:
+        def date_to_day_of_year(date_string) -> float:
+
+            date = dt.datetime.strptime(date_string, "%Y-%m-%d")
+            day = date.timetuple().tm_yday - 1
+            return day * multiplier
+
+        udf_dates_conversion = udf(
+            lambda x: date_to_day_of_year(x), DoubleType())
+
+        for c in date_columns_to_convert:
+            data = data.withColumn(c, udf_dates_conversion(col(c)))
+    else:
+        for i in date_columns_to_convert:
+            unique_values: ndarray = []
+            values_map: dict = {}
+
+            unique_values = data[i].unique()
+            unique_values = numpy.sort(unique_values)
+
+            for v in unique_values:
+                date = dt.datetime.strptime(v, "%Y-%m-%d")
+                day = date.timetuple().tm_yday - 1
+                values_map[v] = day * multiplier
+
+            data[i].replace(to_replace=values_map, inplace=True)
 
     return data
 
 
-def convert_names_into_numbers(data: DataFrame) -> DataFrame:
+def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    def str_to_float(s: str):
-        encoding = "utf-8"
-        b = s.encode(encoding)
-        return float(crc32(b) & 0xffffffff) / 2**32
+    if usePyspark:
+        def time_to_interval(time) -> float:
+            t = int(float(time))
+            h = t // 100
+            m = t % 100
+            t = h * 60 + m
+            return float(t / 1140)
 
-    udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
+        udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
 
-    for c in names_columns_to_convert:
-        data = data.withColumn(c, udf_names_conversion(col(c)))
+        for c in time_columns_to_convert:
+            data = data.withColumn(c, udf_time_conversion(col(c)))
+    else:
+        multiplier: float = 1 / 2359
 
-    return data
+        for c in time_columns_to_convert:
+            unique_values: ndarray = []
+            values_map: dict = {}
 
+            unique_values = data[c].unique()
+            unique_values = numpy.sort(unique_values)
 
-def convert_dates_into_numbers(data: DataFrame) -> DataFrame:
+            for v in unique_values:
+                values_map[v] = v * multiplier
 
-    def date_to_day_of_year(date_string) -> float:
-        multiplier: float = 1 / 365
-
-        date = dt.datetime.strptime(date_string, "%Y-%m-%d")
-        day = date.timetuple().tm_yday - 1
-        return day * multiplier
-
-    udf_dates_conversion = udf(lambda x: date_to_day_of_year(x), DoubleType())
-
-    for c in date_columns_to_convert:
-        data = data.withColumn(c, udf_dates_conversion(col(c)))
-
-    return data
-
-
-def convert_times_into_numbers(data: DataFrame) -> DataFrame:
-    def time_to_interval(time) -> float:
-        t = int(float(time))
-        h = t // 100
-        m = t % 100
-        t = h * 60 + m
-        return float(t / 1140)
-
-    udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
-
-    for c in time_columns_to_convert:
-        data = data.withColumn(c, udf_time_conversion(col(c)))
+            data[c].replace(to_replace=values_map, inplace=True)
 
     return data
 
 
-def convert_distance_into_numbers(data: DataFrame) -> DataFrame:
-    multiplier: float = float(1) / float(max_distance)
-    udf_numeric_conversion = udf(lambda x: float(x) * multiplier, DoubleType())
+def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    data = data.withColumn('DISTANCE', udf_numeric_conversion(col('DISTANCE')))
+    if usePyspark:
+        multiplier: float = float(1) / float(max_distance)
+        udf_numeric_conversion = udf(
+            lambda x: float(x) * multiplier, DoubleType())
 
+        data = data.withColumn(
+            'DISTANCE', udf_numeric_conversion(col('DISTANCE')))
+    else:
+        for c in numeric_columns_to_convert:
+            unique_values: ndarray = []
+            values_map: dict = {}
+
+            unique_values = data[c].unique()
+            unique_values = numpy.sort(unique_values)
+            multiplier: float = 1 / unique_values.max()
+
+            for v in unique_values:
+                values_map[v] = v * multiplier
+
+            data[c].replace(to_replace=values_map, inplace=True)
     return data
 
 
-def split_data(data: DataFrame) -> tuple[DataFrame, DataFrame]:
+def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
     # Take 25% of the data set as test set
-    test_sample = data.sample(fraction=0.25)
-    training_sample = data.subtract(test_sample)
-
+    if usePyspark:
+        test_sample = data.sample(fraction=0.25)
+        training_sample = data.subtract(test_sample)
+    else:
+        test_sample = data.sample(round(len(data.index) / 4))
+        training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
 
 # Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti

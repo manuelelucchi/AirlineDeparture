@@ -14,8 +14,6 @@ def binary_cross_entropy(y: ndarray, y_label: ndarray, w: ndarray, l2: ndarray):
     '''
     Calculates the binary cross entropy loss of the calculated y and the given y_label
     '''
-    y_label = y_label.reshape([y_label.shape[0]])
-
     loss = -np.mean(np.dot(y_label, (np.log(y))) + np.dot((1-y_label),
                                                           np.log(1-y)))  # + regularize(w, l2)
     return loss
@@ -49,8 +47,6 @@ def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float):
 
     # m-> number of training examples.
     m = X.shape[0]
-
-    Y_label = Y_label.reshape([Y_label.shape[0]])
 
     # Gradient of loss w.r.t weights with regularization
     dw = (1/m)*np.dot(X.T, (Y - Y_label)) + l2 * W
