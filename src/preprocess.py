@@ -1,5 +1,6 @@
 import datetime as dt
 import sys
+from datetime import datetime
 import download
 import read
 import numpy
@@ -82,6 +83,7 @@ def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray,
 
     data_p, data_n = balance_dataframe(data, index, 10000, usePyspark)
 
+    start_time = datetime.now()
     train_data_p, test_data_p = split_data(data_p, usePyspark)
     train_data_n, test_data_n = split_data(data_n, usePyspark)
 
@@ -98,21 +100,36 @@ def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray,
     (test_data, test_labels) = split_labels(test_data, index, usePyspark)
 
     if usePyspark:
-        return (numpy.array(train_data.collect()),
+        result = (numpy.array(train_data.collect()),
                 numpy.array(train_labels.collect()),
                 numpy.array(test_data.collect()),
                 numpy.array(test_labels.collect()))
+
+        finish_time = datetime.now() - start_time
+        print("Dataset splitting concluded: " + finish_time.total_seconds + " seconds")
+        return result
     else:
-        return (train_data.to_numpy(), train_labels.to_numpy(), test_data.to_numpy(), test_labels.to_numpy())
+        result = (train_data.to_numpy(), train_labels.to_numpy(), test_data.to_numpy(), test_labels.to_numpy())
+
+        finish_time = datetime.now() - start_time
+        print("Dataset splitting concluded: " + finish_time.total_seconds + " seconds")
+        return result
 
 
 def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
+    start_time = datetime.now()
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
-        return positives.orderBy(rand()).limit(n), negatives.orderBy(rand()).limit(n)
+        result = positives.orderBy(rand()).limit(n), negatives.orderBy(rand()).limit(n)
+        finish_time = datetime.now() - start_time
+        print("Dataset balancing concluded: " + finish_time.total_seconds + " seconds")
+        return result
     else:
-        return positives.sample(n), negatives.sample(n)
+        result =  positives.sample(n), negatives.sample(n)
+        finish_time = datetime.now() - start_time
+        print("Dataset balancing concluded: " + finish_time.total_seconds + " seconds")
+        return result
 
 
 def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.Column | pd.Series]:
@@ -127,6 +144,7 @@ def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool
 
 def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
+    start_time = datetime.now()
     # Replace Nan values with the correct default values
     data = data.fillna(value=0)
 
@@ -140,16 +158,23 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
     if usePyspark:
         data = convert_strings_into_numbers(data, usePyspark)
 
+    finish_time = datetime.now() - start_time
+    print("Common preprocessing concluded: " + finish_time.total_seconds + " seconds")
     return data
 
 
 def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
+
+    start_time = datetime.now()
     oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
     if usePyspark:
         data = data.drop(oppositeIndex)
         data = data.drop('index')
     else:
         data = data.drop(oppositeIndex, axis=1)
+
+    finish_time = datetime.now() - start_time
+    print("Specific preprocessing concluded: " + finish_time.total_seconds + " seconds")
     return data
 
 
@@ -289,9 +314,3 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.
         training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
 
-# Chiedere cosa fare in caso di valori null su colonne possibilmente rilevanti
-# Chiedere se i dati su delay causati da cose come aereo in ritardo o meteo sono disponibili al momento del calcolo
-# Aggiungere delay alla partenza
-
-
-# Separare giorni dai mesi

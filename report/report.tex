@@ -75,22 +75,23 @@ The files presents 28 columns, of which we only took the 9 more relevant\\
 \begin{description}
 	\item[FL\_DATE] The flight date.
 	\item[OP\_CARRIER] The carrier code.
-	\item[ORIGIN] The departure place.
-	\item[DEST] The destination place.
-	\item[CRS\_DEP\_TIME] The.
-	\item[CRS\_ARR\_TIME] The.
+	\item[ORIGIN] The departure airport.
+	\item[DEST] The destination airport.
+	\item[CRS\_DEP\_TIME] The planned departure time.
+	\item[CRS\_ARR\_TIME] The planned arrival time.
 	\item[CANCELLED] If the flight has been canceled.
 	\item[DIVERTED] If the flight has been diverted.
-	\item[CRS\_ELAPSED\_TIME] TODO
+	\item[CRS\_ELAPSED\_TIME] The planned total time of the flight, taxi time included.
 	\item[DISTANCE] The distance the flight has to cover.\\
 \end{description}
+
+The majority of columns have been excluded because contained information not available at departure time, like the ones regarding actual departure, flight and arrival time, which are at disposal only after the flight landed.
+Other columns also contained informations which do not have any correlation with the results of the experiments, like the flight number assigned by the carrier.\\
 
 In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
 The carrier code is a two characters alphanumeric code, the origin and destination places are a three characters alphanumeric code.\\
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
-
-DIRE PERCHE' ABBIAMO ESCLUSO ALCUNE COLONNE
 
 One milion of records equally distributed between the files were taken to perform the training.
 
@@ -103,10 +104,27 @@ One milion of records equally distributed between the files were taken to perfor
 \subsection{Algorithms and Techniques}
 
 Multiple preprocessing techniques were used.\\
-First, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives. MIGLIORARE\\
-Then the data not already represented as real numbers has been converted; places and carriers, that were alphanumeric codes, had a number assigned based on the code, dates were splitted between the year and the rest, with the latter being hashed MIGLIORARE.\\
+
+Initially the rows without valid key values are removed, while the ones with invalid data the columns for which is possible to assign a default value are eventually corrected.\\
+
+Then the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
+
+Particularly, to convert the identifiers, the checksum function crc32 has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer.Finally, hte value is normnalized dividing it for the max integer value.
+This function has been choosen because is one of the fastest way to hash short strings, which is what is needed here, compared to other alghoritims like the SHA or MD5.\\
+
+To normalize dates, the day of the year has been extracted from every date, then divided by 365. A similar strategy has been used for the departure and arrival times, exctracting the minutes of the day and then dividing by 1140.\\
+
+The distance has been normalized by dividing it for the maximum value found in the dataset, rounded by excess to 4970.\\
+
 The data (now completely composed of real numbers) was then normalized between 0 and 1, to avoid exploding values.\\
-Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
+
+At this point, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives.\\
+
+This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
+this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
+To solve the problem an Oversampling has been applied, matching the number of normal flights and problematic flights.\\
+
+ Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
 
 DIVISO PER MEDIA E VARIANZA??? L2 REGULARIZATION
 
@@ -203,6 +221,23 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 
 - come scalano le operazioni nella teoria
 - come scalano le operazioni di numpy effettuate
+
+\subsection{Preprocessing Performance}
+
+Due to the harware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessiong speed using PySpark, because of the lack of a high number of worker nodes.
+The table below summarizes the time required by the Colab enviroment to complete various parts of the preprocessing section.
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c|c| }
+		\hline
+		Library & Common & Specific & Balancing & Splitting & Total \\
+		\hline
+		Pandas        & 0  & 0  & 0 & 0 & 0        \\
+		PySpark        & 0  & 0  & 0 & 0 & 0       \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Performance comparison between Pandas preprocessing and sitributed PySpark preprocessing}
+\end{center}
 
 %----------------------------------------------------------------------------------------
 %	EXPERIMENTS
