@@ -69,7 +69,11 @@ max_distance = 4970
 def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
+        
+        start_time = datetime.now()
         data = read.get_first_frame()  # read.get_dataset(2000000, False, usePyspark)
+        finish_time = datetime.now() - start_time
+        print("Dataset reading concluded: " + str(finish_time.total_seconds()) + " seconds")
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:

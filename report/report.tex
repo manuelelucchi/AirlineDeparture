@@ -85,7 +85,7 @@ The files presents 28 columns, of which we only took the 9 more relevant\\
 	\item[DISTANCE] The distance the flight has to cover.\\
 \end{description}
 
-The majority of columns have been excluded because contained information not available at departure time, like the ones regarding actual departure, flight and arrival time, which are at disposal only after the flight landed.
+The majority of columns have been excluded because contained information not available at departure time, like the ones regarding actual departure, flight and arrival time, which are at disposal only after the aircraft landed.
 Other columns also contained informations which do not have any correlation with the results of the experiments, like the flight number assigned by the carrier.\\
 
 In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
@@ -224,19 +224,26 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 
 \subsection{Preprocessing Performance}
 
-Due to the harware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessiong speed using PySpark, because of the lack of a high number of worker nodes.
+Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
+
 The table below summarizes the time required by the Colab enviroment to complete various parts of the preprocessing section.
+The numbers represents seconds of execution.
 
 \begin{center}
 	\begin{tabular}{ |c|c|c|c|c|c| }
 		\hline
-		Library & Common & Specific & Balancing & Splitting & Total \\
+		Section & Pandas & PySpark Single Node & PySpark Multiple Nodes \\
 		\hline
-		Pandas  & 0      & 0        & 0         & 0         & 0     \\
-		PySpark & 0      & 0        & 0         & 0         & 0     \\
+		Data reading 		& 0 & 0 & 0 \\
+		Common        & 0  & 0  & 0       \\
+		Row removal        & 0  & 0  & 0      \\
+		Balancing        & 0  & 0  & 0      \\
+		Splitting        & 0  & 0  & 0      \\
+		Total        & 0  & 0  & 0      \\
+
 		\hline
 	\end{tabular}
-	\captionof{table}{Performance comparison between Pandas preprocessing and sitributed PySpark preprocessing}
+	\captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
 \end{center}
 
 %----------------------------------------------------------------------------------------
