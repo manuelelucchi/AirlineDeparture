@@ -1,6 +1,3 @@
-from imp import init_builtin
-from random import random
-from turtle import forward
 import numpy as np
 from numpy import ndarray
 from constants import path
@@ -8,8 +5,9 @@ from functions import binary_cross_entropy, gradients, normalize, sigmoid
 
 
 class Model():
-    def __init__(self, learning_rate: float, l2: float):
+    def __init__(self, learning_rate: float, batch_size: int, l2: float):
         self.learning_rate = learning_rate
+        self.batch_size = batch_size
         self.l2 = l2
 
     def initialize(self, columns_number):
@@ -30,11 +28,18 @@ class Model():
 
     def train(self, X: ndarray, Y_labels: ndarray, iterations: int = 10):
         self.initialize(X.shape[1])
-        #X = normalize(X)
+        X = normalize(X)
         losses = []
+
         for _ in range(iterations):
-            Y = self.evaluate(X)
-            losses.append(binary_cross_entropy(Y, Y_labels, self.W, self.l2))
-            (dW, db) = self.gradient(X, Y, Y_labels)
-            self.update(dW, db)
+            for b in range(X.shape[0]//self.batch_size):
+                b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]
+                b_Y_labels = Y_labels[b*self.batch_size:b *
+                                      self.batch_size+self.batch_size]
+                Y = self.evaluate(b_X)
+                losses.append(binary_cross_entropy(
+                    Y, b_Y_labels, self.W, self.l2))
+                (dW, db) = self.gradient(b_X, Y, b_Y_labels)
+                self.update(dW, db)
+
         return losses

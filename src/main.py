@@ -26,7 +26,7 @@ def experiments(forIndex: str):
     print("Done")
 
     def custom_train_eval(lr=1, l2=0.01, iterations=100) -> float:
-        model = Model(learning_rate=lr, l2=l2)
+        model = Model(learning_rate=lr, batch_size=20, l2=l2)
         train_losses = model.train(train_data,
                                    train_labels, iterations=iterations)
         res = model.evaluate(test_data)

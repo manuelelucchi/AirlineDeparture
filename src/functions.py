@@ -49,7 +49,7 @@ def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float):
     m = X.shape[0]
 
     # Gradient of loss w.r.t weights with regularization
-    dw = (1/m)*np.dot(X.T, (Y - Y_label))  # + l2 * W
+    dw = (1/m)*np.dot(X.T, (Y - Y_label)) + l2 * W
 
     # Gradient of loss w.r.t bias with regularization
     db = (1/m)*np.sum((Y - Y_label))
