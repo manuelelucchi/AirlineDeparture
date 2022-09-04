@@ -21,7 +21,8 @@ it_3 = 1000
 
 def experiments(forIndex: str):
     print("Loading data for experiment: {}".format(forIndex))
-    train_data, train_labels, test_data, test_labels = preprocess(forIndex)
+    train_data, train_labels, test_data, test_labels = preprocess(
+        forIndex, usePyspark=False)
     print("Done")
 
     def custom_train_eval(lr=1, l2=0.01, iterations=100) -> float:
