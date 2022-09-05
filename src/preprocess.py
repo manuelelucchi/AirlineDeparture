@@ -65,16 +65,23 @@ preprocess_columns_to_convert: list[str] = [
 
 max_distance = 4970
 
+time_file = open("./data/times.txt", "a")
 
-def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+
+def print_and_save_time(s: str):
+    time_file.write(s + '\n')
+    print(s)
+
+
+def preprocess(index: str, size: int, balance_size: int, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
         start_time = datetime.now()
-        data = read.get_dataset(2000000, False, usePyspark)
+        data = read.get_dataset(size, False, usePyspark)
         finish_time = datetime.now() - start_time
-        print("Dataset reading concluded: " +
-              str(finish_time.total_seconds()) + " seconds")
+        print_and_save_time("Dataset reading concluded: " +
+                            str(finish_time.total_seconds()) + " seconds")
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:
@@ -86,7 +93,7 @@ def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray,
 
     data = remove_extra_columns(index, data, usePyspark)
 
-    data_p, data_n = balance_dataframe(data, index, 10000, usePyspark)
+    data_p, data_n = balance_dataframe(data, index, balance_size, usePyspark)
 
     start_time = datetime.now()
     train_data_p, test_data_p = split_data(data_p, usePyspark)
@@ -111,16 +118,16 @@ def preprocess(index: str, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray,
                   numpy.array(test_labels.collect()))
 
         finish_time = datetime.now() - start_time
-        print("Dataset splitting concluded: " +
-              str(finish_time.total_seconds()) + " seconds")
+        print_and_save_time("Dataset splitting concluded: " +
+                            str(finish_time.total_seconds()) + " seconds")
         return result
     else:
         result = (train_data.to_numpy(), train_labels.to_numpy(),
                   test_data.to_numpy(), test_labels.to_numpy())
 
         finish_time = datetime.now() - start_time
-        print("Dataset splitting concluded: " +
-              str(finish_time.total_seconds()) + " seconds")
+        print_and_save_time("Dataset splitting concluded: " +
+                            str(finish_time.total_seconds()) + " seconds")
         return result
 
 
@@ -132,14 +139,14 @@ def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, use
         result = positives.orderBy(rand()).limit(
             n), negatives.orderBy(rand()).limit(n)
         finish_time = datetime.now() - start_time
-        print("Dataset balancing concluded: " +
-              str(finish_time.total_seconds()) + " seconds")
+        print_and_save_time("Dataset balancing concluded: " +
+                            str(finish_time.total_seconds()) + " seconds")
         return result
     else:
         result = positives.sample(n), negatives.sample(n)
         finish_time = datetime.now() - start_time
-        print("Dataset balancing concluded: " +
-              str(finish_time.total_seconds()) + " seconds")
+        print_and_save_time("Dataset balancing concluded: " +
+                            str(finish_time.total_seconds()) + " seconds")
         return result
 
 
@@ -170,8 +177,8 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
         data = convert_strings_into_numbers(data, usePyspark)
 
     finish_time = datetime.now() - start_time
-    print("Common preprocessing concluded: " +
-          str(finish_time.total_seconds()) + " seconds")
+    print_and_save_time("Common preprocessing concluded: " +
+                        str(finish_time.total_seconds()) + " seconds")
     return data
 
 
@@ -186,8 +193,8 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
         data = data.drop(oppositeIndex, axis=1)
 
     finish_time = datetime.now() - start_time
-    print("Specific preprocessing concluded: " +
-          str(finish_time.total_seconds()) + " seconds")
+    print_and_save_time("Specific preprocessing concluded: " +
+                        str(finish_time.total_seconds()) + " seconds")
     return data
 
 

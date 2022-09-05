@@ -7,78 +7,109 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from numpy import zeros
 
-it_1 = 100
-it_2 = 500
-it_3 = 1000
+# =============================================================================
 
-lr_1 = 0.01
-lr_2 = 0.001
-lr_3 = 0.0001
-lr_4 = 0.00001
-
-l2_1 = 1
-l2_2 = 0.01
-l2_3 = 0.001
+file = open('data/results.txt', 'a')
 
 
-def experiments(forIndex: str):
-    print("Loading data for experiment: {}".format(forIndex))
-    train_data, train_labels, test_data, test_labels = preprocess(
-        forIndex, usePyspark=False)
-    print("Done")
-
-    def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
-        model = Model(learning_rate=lr, batch_size=batch_size, l2=l2)
-        train_losses = model.train(train_data,
-                                   train_labels, iterations=iterations)
-        res = model.evaluate(test_data)
-        test_loss = binary_cross_entropy(
-            res, test_labels, zeros([res.shape[0]]), 0)
-
-        print("For Custom, LR: {}, L2: {}, IT: {}".format(
-            lr, l2, iterations))
-        print("The last train loss is: {}".format(train_losses[-1]))
-        print("The average test loss is: {}".format(test_loss))
-        print("=====================================================")
-
-    def sklearn_train_eval() -> float:
-        model = LogisticRegression()
-        model.fit(train_data, train_labels)
-        res = list(map(lambda x: x[1], model.predict_proba(
-            test_data)))
-        loss = log_loss(test_labels, res)
-        print("For Sklearn, IT: {}, the average test loss is: {}".format(100, loss))
-        print("=====================================================")
-
-    custom_train_eval(iterations=it_1, lr=lr_1,
-                      batch_size=train_data.shape[0], l2=1)
-
-    custom_train_eval(iterations=it_1, lr=lr_2,
-                      batch_size=train_data.shape[0], l2=1)
-
-    custom_train_eval(iterations=it_1, lr=lr_3,
-                      batch_size=train_data.shape[0], l2=1)
-
-    custom_train_eval(iterations=it_1, lr=lr_4,
-                      batch_size=train_data.shape[0], l2=1)
-
-    custom_train_eval(iterations=it_1, lr=lr_3,
-                      batch_size=20, l2=1)
-
-    custom_train_eval(iterations=it_1, lr=lr_3,
-                      batch_size=20, l2=0.01)
-
-    custom_train_eval(iterations=it_1, lr=lr_3,
-                      batch_size=20, l2=0.001)
-
-    custom_train_eval(iterations=it_2, lr=lr_3,
-                      batch_size=20, l2=0.001)
-
-    custom_train_eval(iterations=it_3, lr=lr_3,
-                      batch_size=20, l2=0.001)
-
-    sklearn_train_eval()
+def print_and_save(s: str):
+    file.write(s + '\n')
+    print(s)
 
 
-experiments(forIndex='CANCELLED')
-# experiments(forIndex='DIVERTED')
+def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
+    model = Model(learning_rate=lr, batch_size=batch_size, l2=l2)
+    train_losses = model.train(train_data,
+                               train_labels, iterations=iterations)
+    res = model.evaluate(test_data)
+    test_loss = binary_cross_entropy(
+        res, test_labels, zeros([res.shape[0]]), 0)
+
+    print_and_save("For Custom, LR: {}, Batch Size: {}, L2: {}, IT: {}".format(
+        lr, batch_size, l2, iterations))
+    print_and_save("The last train loss is: {}".format(train_losses[-1]))
+    print_and_save("The average test loss is: {}".format(test_loss))
+    print_and_save("=====================================================")
+
+
+def sklearn_train_eval() -> float:
+    model = LogisticRegression()
+    model.fit(train_data, train_labels)
+    res = list(map(lambda x: x[1], model.predict_proba(
+        test_data)))
+    loss = log_loss(test_labels, res)
+    print_and_save(
+        "For Sklearn, IT: {}, the average test loss is: {}".format(100, loss))
+    print_and_save("=====================================================")
+
+
+# =============================================================================
+
+train_data, train_labels, test_data, test_labels = preprocess(
+    "DIVERTED", 6000000, 10000, usePyspark=False)
+
+# =============================================================================
+
+# Learning Rate
+
+custom_train_eval(iterations=100, lr=0.1,
+                  batch_size=train_data.shape[0], l2=0)
+
+custom_train_eval(iterations=100, lr=0.01,
+                  batch_size=train_data.shape[0], l2=0)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=train_data.shape[0], l2=0)
+
+custom_train_eval(iterations=100, lr=0.0001,
+                  batch_size=train_data.shape[0], l2=0)
+
+# =============================================================================
+
+# Batch Size
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=1, l2=0)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=1000, l2=0)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=train_data.shape[0], l2=0)
+
+# =============================================================================
+
+# L2 Regularization
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0.1)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0.01)
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0.001)
+
+
+# =============================================================================
+
+# L2 Regularization
+
+custom_train_eval(iterations=100, lr=0.001,
+                  batch_size=20, l2=0.01)
+
+custom_train_eval(iterations=200, lr=0.001,
+                  batch_size=20, l2=0.01)
+
+custom_train_eval(iterations=1000, lr=0.001,
+                  batch_size=20, l2=0.01)
+
+# =============================================================================
+
+sklearn_train_eval()

@@ -138,7 +138,7 @@ The library handles automatically the work distribution on the available nodes t
 
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
-The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF(User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
+The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
 
 The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes.\\
 
@@ -159,6 +159,7 @@ Parameters such as Weights and Bias are initialized using a \textbf{uniform dist
 
 \subsubsection{Normalization}
 Before the estimate, we need to normalize the input data by subtracting the \textbf{mean} and dividing by the \textbf{variance}
+MIGLIORARE
 
 \subsubsection{Estimate}
 The estimate is computed as follows
@@ -173,6 +174,7 @@ $$\nabla b = \frac{1}{m}\sum(\hat{y} - y) b $$
 
 \subsubsection{Update}
 
+PARLARE DI SGD
 
 $$ w' = w - \mu \nabla w $$
 $$ b' = b - \mu \nabla b $$
@@ -181,6 +183,9 @@ $$ b' = b - \mu \nabla b $$
 For the loss, we used the \textbf{Binary Cross Entropy} function, also called \textbf{Log Loss}.
 It is defined as
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
+
+\subsubsection{Batching}
+PARLARE DI DIFFERENZA TRA SGD E BATCHING SGD CON GRAFICHINO E FONTI
 
 \subsubsection{Regularization}
 Regularization is a technique used to prevent the overfittings. A regularization term is added to the optimization problem (i.e. the gradient calculation) to avoid overfitting.
@@ -265,33 +270,130 @@ The following experiment consists on the training and evaluation of the model wi
 \begin{center}
 	\begin{tabular}{ |c|c|c| }
 		\hline
-		LR & Test Loss & Train Loss \\
+		LR     & Train Loss & Test Loss \\
 		\hline
-		10 & 0         & 0          \\
-		0  & 0         & 0          \\
-		0  & 0         & 0          \\
-		0  & 0         & 0          \\
+		0.1    & 0.68296    & 0.69123   \\
+		0.01   & 1.12164    & 1.02453   \\
+		0.001  & 1.27019    & 1.21357   \\
+		0.0001 & 1.11576    & 1.30633   \\
 		\hline
 	\end{tabular}
-	\captionof{table}{Your caption here}
+	\captionof{table}{Training and Test Loss for different values of the Learning Rate}
 \end{center}
 
 
 
 \subsubsection{Implementing Mini-Batch}
 
+Next, the mini-batch technique has been used. Being able to train the model with a fraction of the dataset at time resulted in a great reduction of the loss.
+
 \begin{center}
 	\begin{tabular}{ |c|c|c| }
 		\hline
-		Batch Size & Test Loss & Train Loss \\
+		Batch Size & Train Loss & Test Loss \\
 		\hline
-		1          & 0         & 0          \\
-		20         & 0         & 0          \\
-		1000       & 0         & 0          \\
-		Max        & 0         & 0          \\
+		1          & 0.37784    & 1.02391   \\
+		20         & 0.60918    & 0.70032   \\
+		1000       & 1.23453    & 0.92476   \\
+		Max        & 1.02630    & 1.01142   \\
 		\hline
 	\end{tabular}
-	\captionof{table}{Your caption here}
+	\captionof{table}{Training and Test Loss for different size of batches}
+\end{center}
+
+In the first case, the model has been updated for each sample. This caused a degradation on performances and while the training loss is low, the test loss is three times higher, which lead to think the model is overfitted.\\
+
+In the second case, the test loss is much lower and similar to the train loss, while on the last two cases it's just a worse result in general.
+
+\subsubsection{Adding the L2 regularization}
+
+As described before, to avoid overfitting, a regularization term has been added, in this case the L2.
+
+\begin{center}
+	\begin{tabular}{ |c|c|c| }
+		\hline
+		L2    & Train Loss & Test Loss \\
+		\hline
+		0     & 0.60740    & 0.70037   \\
+		0.1   & 0.61829    & 0.69714   \\
+		0.01  & 0.61010    & 0.69960   \\
+		0.001 & 0.60819    & 0.70023   \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Training and Test Loss for a different value of the L2 term}
+\end{center}
+
+Since the model didn't appear to be overfitting from the start, the regularization doesn't show any significant benefit.
+
+\subsubsection{More iterations}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c| }
+		\hline
+		Iterations & Train Loss & Test Loss \\
+		\hline
+		100        & 0.60978    & 0.69974   \\
+		200        & 0.60978    & 0.69969   \\
+		1000       & 0.60962    & 0.69971   \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Training and Test Loss for different number of iterations}
+\end{center}
+
+Increasing the number of iterations didn't lead to any noticeable improvement.
+
+\subsubsection{Comparison with Sklearn}
+
+To conclude the experiments, the instance with the best hyperparameters from the previous experiments has been compared with the Sklearn implementation.\\
+
+The Sklearn one uses the same number of iterations and uses L2 regularization, but doesn't use the SGD (and thus the Learning Rate) or the batching.
+
+\begin{center}
+	\begin{tabular}{ |c|c|c|c|c|c|c| }
+		\hline
+		Model   & Iterations & LR    & Batch Size & L2      & Train Loss & Test Loss \\
+		\hline
+		Custom  & 100        & 0.001 & 20         & 0.1     & 0.60978    & 0.69974   \\
+		Sklearn & 100        & N/A   & N/A        & Unknown & N/A        & 0.66953   \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Training and Test Loss comparison with Sklearn with the best hyperparameters values for both}
+\end{center}
+
+The results are very close, with the Sklearn implementation being slightly better.
+
+\subsection{Diverted Flights}
+
+\subsubsection{Changing the Learning Rate}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c| }
+		\hline
+		LR     & Train Loss & Test Loss \\
+		\hline
+		0.1    & 0.67999    & 0.69171   \\
+		0.01   & 0.90016    & 0.91724   \\
+		0.001  & 0.94824    & 1.16871   \\
+		0.0001 & 1.03176    & 1.30609   \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Training and Test Loss for different values of the Learning Rate}
+\end{center}
+
+\subsubsection{Implementing Mini-Batch}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c| }
+		\hline
+		Batch Size & Train Loss & Test Loss \\
+		\hline
+		1          & 0.17018    & 0.99730   \\
+		20         & 0.61886    & 0.69662   \\
+		1000       & 1.24722    & 1.13225   \\
+		Max        & 0.93345    & 1.03499   \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Training and Test Loss for different size of batches}
 \end{center}
 
 \subsubsection{Adding the L2 regularization}
@@ -299,14 +401,15 @@ The following experiment consists on the training and evaluation of the model wi
 \begin{center}
 	\begin{tabular}{ |c|c|c| }
 		\hline
-		L2   & Test Loss & Train Loss \\
+		L2    & Train Loss & Test Loss \\
 		\hline
-		1    & 0         & 0          \\
-		20   & 0         & 0          \\
-		1000 & 0         & 0          \\
+		0     & 0.61563    & 0.69760   \\
+		0.1   & 0.62842    & 0.69513   \\
+		0.01  & 0.61832    & 0.69720   \\
+		0.001 & 0.61989    & 0.69576   \\
 		\hline
 	\end{tabular}
-	\captionof{table}{Your caption here}
+	\captionof{table}{Training and Test Loss for a different value of the L2 term}
 \end{center}
 
 \subsubsection{More iterations}
@@ -314,14 +417,14 @@ The following experiment consists on the training and evaluation of the model wi
 \begin{center}
 	\begin{tabular}{ |c|c|c| }
 		\hline
-		Iterations & Test Loss & Train Loss \\
+		Iterations & Train Loss & Test Loss \\
 		\hline
-		100        & 0         & 0          \\
-		200        & 0         & 0          \\
-		1000       & 0         & 0          \\
+		100        & 0.62105    & 0.69645   \\
+		200        & 0.61847    & 0.69721   \\
+		1000       & 0.61822    & 0.69749   \\
 		\hline
 	\end{tabular}
-	\captionof{table}{Your caption here}
+	\captionof{table}{Training and Test Loss for different number of iterations}
 \end{center}
 
 \subsubsection{Comparison with Sklearn}
@@ -329,60 +432,13 @@ The following experiment consists on the training and evaluation of the model wi
 \begin{center}
 	\begin{tabular}{ |c|c|c|c|c|c|c| }
 		\hline
-		Model   & Iterations & LR & Batch Size & L2 & Test Loss & Train Loss \\
+		Model   & Iterations & LR    & Batch Size & L2      & Train Loss & Test Loss \\
 		\hline
-		Custom  & 100        & 0  & 0          & 0  & 0         & 0          \\
-		Sklearn & 100        & 0  & 0          & 0  & 0         & 0          \\
-		\hline
-	\end{tabular}
-	\captionof{table}{Your caption here}
-\end{center}
-
-\subsection{Diverted Flights}
-
-\subsubsection{Changing the Learning Rate}
-
-\begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
-		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
-		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
+		Custom  & 100        & 0.001 & 20         & 0.1     & 0.62105    & 0.69645   \\
+		Sklearn & 100        & N/A   & N/A        & Unknown & N/A        & 0.67672   \\
 		\hline
 	\end{tabular}
-	\captionof{table}{Your caption here}
-\end{center}
-
-\subsubsection{Adding the L2 regularization}
-
-\begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
-		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
-		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
-		\hline
-	\end{tabular}
-	\captionof{table}{Your caption here}
-\end{center}
-
-\subsubsection{Comparison with Sklearn}
-
-\begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
-		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
-		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
-		\hline
-	\end{tabular}
-	\captionof{table}{Your caption here}
+	\captionof{table}{Training and Test Loss comparison with Sklearn with the best hyperparameters values for both}
 \end{center}
 
 
@@ -393,7 +449,7 @@ The following experiment consists on the training and evaluation of the model wi
 \section{Results and Conclusions}
 
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
-The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.
+The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
 Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.
 
 %----------------------------------------------------------------------------------------

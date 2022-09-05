@@ -2,6 +2,8 @@ import numpy as np
 from numpy import ndarray
 
 
+# ===============================================================================================================
+
 def sigmoid(x: ndarray) -> ndarray:
     '''
     Calculates the sigmoid of the given data
@@ -40,7 +42,7 @@ def normalize(X: ndarray) -> ndarray:
     return X
 
 
-def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float):
+def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float) -> tuple[ndarray, ndarray]:
     '''
     Calculates the gradient w.r.t weights and bias
     '''
@@ -55,3 +57,5 @@ def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float):
     db = (1/m)*np.sum((Y - Y_label))
 
     return dw, db
+
+# =======================================================================================================

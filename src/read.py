@@ -6,18 +6,7 @@ from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.types import *
 import pyspark.sql as ps
 
-columns_to_get: list[str] = [
-    'FL_DATE',
-    'OP_CARRIER',
-    'ORIGIN',
-    'DEST',
-    'CRS_DEP_TIME',
-    'CRS_ARR_TIME',
-    'CANCELLED',
-    'DIVERTED',
-    'CRS_ELAPSED_TIME',
-    'DISTANCE'
-]
+# ======================================================
 
 dataframe_schema = StructType([
     StructField('FL_DATE', StringType(), True),
@@ -34,6 +23,49 @@ dataframe_schema = StructType([
 
 spark = SparkSession.builder.appName(
     "Airline Departure").master('local[1]').getOrCreate()
+
+# =================================================================
+
+columns_to_get: list[str] = [
+    'FL_DATE',
+    'OP_CARRIER',
+    'ORIGIN',
+    'DEST',
+    'CRS_DEP_TIME',
+    'CRS_ARR_TIME',
+    'CANCELLED',
+    'DIVERTED',
+    'CRS_ELAPSED_TIME',
+    'DISTANCE'
+]
+
+
+def check_preprocessed_data_exists() -> bool:
+    files = os.listdir('./data')
+    for f in files:
+        if f.startswith('preprocessed'):
+            return True
+    return False
+
+
+def load_dataset(usePyspark: bool) -> pd.DataFrame:
+    if usePyspark:
+        data = spark.read.option("header", True).csv(
+            path + '/preprocessed')
+    else:
+        data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
+
+    print('Preprocessed dataset loaded')
+    return data
+
+
+def save_dataset(data: ps.DataFrame, usePyspark: bool):
+    if usePyspark:
+        data.write.format('csv').option('header', True).mode('overwrite').option(
+            'sep', ',').save(path + '/preprocessed')
+    else:
+        data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)
+    print('Preprocessed dataset saved')
 
 
 def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = False) -> pd.DataFrame | ps.DataFrame:
@@ -67,31 +99,3 @@ def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = Fa
             "*").withColumn("index", monotonically_increasing_id())
 
     return big_frame
-
-
-def check_preprocessed_data_exists() -> bool:
-    files = os.listdir('./data')
-    for f in files:
-        if f.startswith('preprocessed'):
-            return True
-    return False
-
-
-def load_dataset(usePyspark: bool) -> pd.DataFrame:
-    if usePyspark:
-        data = spark.read.option("header", True).csv(
-            path + '/preprocessed')
-    else:
-        data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
-
-    print('Preprocessed dataset loaded')
-    return data
-
-
-def save_dataset(data: ps.DataFrame, usePyspark: bool):
-    if usePyspark:
-        data.write.format('csv').option('header', True).mode('overwrite').option(
-            'sep', ',').save(path + '/preprocessed')
-    else:
-        data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)
-    print('Preprocessed dataset saved')

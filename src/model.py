@@ -3,6 +3,8 @@ from numpy import ndarray
 from constants import path
 from functions import binary_cross_entropy, gradients, normalize, sigmoid
 
+# =======================================================================================
+
 
 class Model():
     def __init__(self, learning_rate: float, batch_size: int, l2: float):
@@ -43,3 +45,5 @@ class Model():
                 self.update(dW, db)
 
         return losses
+
+# ==============================================================================================

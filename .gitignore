@@ -148,3 +148,5 @@ data/preprocessed
 *.toc
 *.ppm
 *.pdf
+
+data/*.txt
