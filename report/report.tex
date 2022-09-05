@@ -89,6 +89,7 @@ The majority of columns have been excluded because contained information not ava
 Other columns also contained informations which do not have any correlation with the results of the experiments, like the flight number assigned by the carrier.\\
 
 In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
+
 The carrier code is a two characters alphanumeric code, the origin and destination places are a three characters alphanumeric code.\\
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
@@ -109,20 +110,20 @@ Initially the rows without valid key values are removed, while the ones with inv
 
 Then the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
 
-Particularly, to convert the identifiers, the checksum function crc32 has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer.Finally, hte value is normnalized dividing it for the max integer value.
+The converted values were also normalized between 0 and 1, to avoid exploding values.\\
+
+Particularly, to convert the identifiers, the checksum function \textbf{crc32} has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer. Finally, the value is normnalized dividing it for the max integer value.
 This function has been choosen because is one of the fastest way to hash short strings, which is what is needed here, compared to other alghoritims like the SHA or MD5.\\
 
 To normalize dates, the day of the year has been extracted from every date, then divided by 365. A similar strategy has been used for the departure and arrival times, exctracting the minutes of the day and then dividing by 1140.\\
 
 The distance has been normalized by dividing it for the maximum value found in the dataset, rounded by excess to 4970.\\
 
-The data (now completely composed of real numbers) was then normalized between 0 and 1, to avoid exploding values.\\
-
 At this point, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives.\\
 
 This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
-To solve the problem an Oversampling has been applied, matching the number of normal flights and problematic flights.\\
+To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
 
 Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
 
