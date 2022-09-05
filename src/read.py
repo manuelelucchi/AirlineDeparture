@@ -95,11 +95,3 @@ def save_dataset(data: ps.DataFrame, usePyspark: bool):
     else:
         data.to_csv(path_or_buf=path + '/' + 'preprocessed.csv', index=False)
     print('Preprocessed dataset saved')
-
-
-def get_first_frame() -> pd.DataFrame:
-    files: list = os.listdir(path)
-    big_frame = pd.read_csv(filepath_or_buffer=path +
-                            '/' + files[0], usecols=columns_to_get)
-    print('First frame loaded')
-    return big_frame

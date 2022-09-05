@@ -212,6 +212,8 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 % https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
 % https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
 % https://satishkumarmoparthi.medium.com/logistic-regression-with-l2-regularization-using-sgd-from-scratch-893692b48362
+% https://towardsdatascience.com/batch-mini-batch-and-stochastic-gradient-descent-for-linear-regression-9fe4eefa637c
+
 
 %----------------------------------------------------------------------------------------
 %	PERFORMANCES 
@@ -232,14 +234,14 @@ The numbers represents seconds of execution.
 \begin{center}
 	\begin{tabular}{ |c|c|c|c|c|c| }
 		\hline
-		Section & Pandas & PySpark Single Node & PySpark Multiple Nodes \\
+		Section      & Pandas & PySpark Single Node & PySpark Multiple Nodes \\
 		\hline
-		Data reading 		& 0 & 0 & 0 \\
-		Common        & 0  & 0  & 0       \\
-		Row removal        & 0  & 0  & 0      \\
-		Balancing        & 0  & 0  & 0      \\
-		Splitting        & 0  & 0  & 0      \\
-		Total        & 0  & 0  & 0      \\
+		Data reading & 0      & 0                   & 0                      \\
+		Common       & 0      & 0                   & 0                      \\
+		Row removal  & 0      & 0                   & 0                      \\
+		Balancing    & 0      & 0                   & 0                      \\
+		Splitting    & 0      & 0                   & 0                      \\
+		Total        & 0      & 0                   & 0                      \\
 
 		\hline
 	\end{tabular}
@@ -252,44 +254,41 @@ The numbers represents seconds of execution.
 
 \section{Experiments}
 
+Premessa su dataset
+
 \subsection{Canceled Flights}
 
 \subsubsection{Changing the Learning Rate}
 
+The following experiment consists on the training and evaluation of the model with different values of the Learning Rate. The training is fixed at 100 iterations.
+
 \begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
+	\begin{tabular}{ |c|c|c| }
 		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
+		LR & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
+		10 & 0         & 0          \\
+		0  & 0         & 0          \\
+		0  & 0         & 0          \\
+		0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
 \end{center}
 
-\begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
-		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
-		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
-		\hline
-	\end{tabular}
-	\captionof{table}{Your caption here}
-\end{center}
+
+
+\subsubsection{Implementing Mini-Batch}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
+	\begin{tabular}{ |c|c|c| }
 		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
+		Batch Size & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
+		1          & 0         & 0          \\
+		20         & 0         & 0          \\
+		1000       & 0         & 0          \\
+		Max        & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -298,13 +297,28 @@ The numbers represents seconds of execution.
 \subsubsection{Adding the L2 regularization}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
+	\begin{tabular}{ |c|c|c| }
 		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
+		L2   & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
+		1    & 0         & 0          \\
+		20   & 0         & 0          \\
+		1000 & 0         & 0          \\
+		\hline
+	\end{tabular}
+	\captionof{table}{Your caption here}
+\end{center}
+
+\subsubsection{More iterations}
+
+\begin{center}
+	\begin{tabular}{ |c|c|c| }
+		\hline
+		Iterations & Test Loss & Train Loss \\
+		\hline
+		100        & 0         & 0          \\
+		200        & 0         & 0          \\
+		1000       & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -313,13 +327,12 @@ The numbers represents seconds of execution.
 \subsubsection{Comparison with Sklearn}
 
 \begin{center}
-	\begin{tabular}{ |c|c|c|c|c| }
+	\begin{tabular}{ |c|c|c|c|c|c|c| }
 		\hline
-		Iterations & LR & L2 & Test Loss & Train Loss \\
+		Model   & Iterations & LR & Batch Size & L2 & Test Loss & Train Loss \\
 		\hline
-		100        & 0  & 0  & 0         & 0          \\
-		500        & 0  & 0  & 0         & 0          \\
-		1000       & 0  & 0  & 0         & 0          \\
+		Custom  & 100        & 0  & 0          & 0  & 0         & 0          \\
+		Sklearn & 100        & 0  & 0          & 0  & 0         & 0          \\
 		\hline
 	\end{tabular}
 	\captionof{table}{Your caption here}
@@ -379,14 +392,27 @@ The numbers represents seconds of execution.
 
 \section{Results and Conclusions}
 
-\subsection{Space and Time}
-
+The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
+The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.
+Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
 \printbibliography % Output the bibliography
+
+% Logistic Regression
+% Spark/PySpark
+% Kaggle Dataset
+% Mini Batch
+% L2 Regularization
+% Normalization
+% SGD
+% Il solver di Sklearn
+% sklearn, numpy, pandas
+% binary cross entropy
+% sigmoid
 
 %----------------------------------------------------------------------------------------
 
