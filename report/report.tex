@@ -8,6 +8,7 @@
 ]{class}
 
 \usepackage{caption}
+\usepackage{soul}
 
 \addbibresource{bibliography.bib} % Bibliography file (located in the same folder as the template)
 
@@ -159,19 +160,25 @@ Parameters such as Weights and Bias are initialized using a \textbf{uniform dist
 \subsection{Algorithm}
 
 \subsubsection{Normalization}
-Before the estimate, we need to normalize the input data by subtracting the \textbf{mean} and dividing by the \textbf{variance}
-MIGLIORARE
+Before the estimate, we need to normalize the input data by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} CITAZIONE.
+
+$$ z = \frac{x - \mu}{\sigma} $$
 
 \subsubsection{Estimate}
 The estimate is computed as follows
 $$ \hat{y} = \sigma(w^Tx + b) $$
 where $\sigma$ is defined as
-$$ \sigma(z) = \frac{1}{1 + e^-z} \in (0,1) $$
+$$ \sigma(z) = \frac{1}{1 + e^{-z}} \in [0,1] $$
+and $w$ and $b$ are the model weights and bias and $x$ is the input.
+
+The code implementation uses \texttt{np.exp} for the exponential calculation.
 
 \subsubsection{Gradient}
 
 $$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) $$
-$$\nabla b = \frac{1}{m}\sum(\hat{y} - y) b $$
+$$ \nabla b = \frac{1}{m}\sum(\hat{y} - y) b $$
+
+In the code implementation, \texttt{np.dot} and \texttt{np.mean} were used.
 
 \subsubsection{Update}
 
@@ -186,7 +193,17 @@ It is defined as
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
 
 \subsubsection{Batching}
-PARLARE DI DIFFERENZA TRA SGD E BATCHING SGD CON GRAFICHINO E FONTI
+There are multiple types of Gradient Descent.\\
+
+\textbf{Stochastic Gradient Descent} updates the model after each sample and has a convergence rate that is non-linear $O(\frac{1}{k})$ where $k$ is a fixed step size.\\
+
+\textbf{Batching Gradient Descent} updates the model once per iteration using the whole dataset at once. It has a better convergence rate.\\
+
+\textbf{Mini Batch Gradient Descent} uses small chunks of samples, so it's a middle solution between the previous ones, but adds a new hyperparameter to tune, the \textbf{Batch Size}\\
+Its convergence rate is
+$$O(\frac{1}{\sqrt{bk}} + \frac{1}{k})$$
+
+In this project the last one was choosen after a dedicated experiment.
 
 \subsubsection{Regularization}
 Regularization is a technique used to prevent the overfittings. A regularization term is added to the optimization problem (i.e. the gradient calculation) to avoid overfitting.
@@ -198,12 +215,10 @@ where $L2$ is calculated as $ \frac{\lambda}{2}||w||^2 = \frac{\lambda}2{\displa
 DA VEDERE
 
 The loss then becomes
-$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) + \frac{\lambda}{2}||w||^2 $$
+$$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) + \boldsymbol{\frac{\lambda}{2}||w||^2} $$
 
-While the weights and bias gradients formula becomes
-$$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) + \lambda w $$
-and
-$$ \nabla b = \frac{1}{m}\sum(\hat{y} - y) + \lambda b$$
+While the weights gradients formula becomes
+$$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) \boldsymbol{+ \lambda w} $$
 
 DA VEDERE
 
