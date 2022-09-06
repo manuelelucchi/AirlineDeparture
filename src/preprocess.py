@@ -1,6 +1,6 @@
 import datetime as dt
 import sys
-from datetime import datetime
+from datetime import datetime as dt
 import download
 import read
 import numpy
@@ -77,9 +77,9 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
-        start_time = datetime.now()
+        start_time = dt.now()
         data = read.get_dataset(size, useAllFrames, usePyspark)
-        finish_time = datetime.now() - start_time
+        finish_time = dt.now() - start_time
         print_and_save_time("Dataset reading concluded: " +
                             str(finish_time.total_seconds()) + " seconds")
         data = common_preprocess(data, usePyspark)
@@ -95,7 +95,7 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
 
     data_p, data_n = balance_dataframe(data, index, balance_size, usePyspark)
 
-    start_time = datetime.now()
+    start_time = dt.now()
     train_data_p, test_data_p = split_data(data_p, usePyspark)
     train_data_n, test_data_n = split_data(data_n, usePyspark)
 
@@ -117,7 +117,7 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
                   numpy.array(test_data.collect()),
                   numpy.array(test_labels.collect()))
 
-        finish_time = datetime.now() - start_time
+        finish_time = dt.now() - start_time
         print_and_save_time("Dataset splitting concluded: " +
                             str(finish_time.total_seconds()) + " seconds")
         return result
@@ -125,26 +125,26 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
         result = (train_data.to_numpy(), train_labels.to_numpy(),
                   test_data.to_numpy(), test_labels.to_numpy())
 
-        finish_time = datetime.now() - start_time
+        finish_time = dt.now() - start_time
         print_and_save_time("Dataset splitting concluded: " +
                             str(finish_time.total_seconds()) + " seconds")
         return result
 
 
 def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
-    start_time = datetime.now()
+    start_time = dt.now()
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
         result = positives.orderBy(rand()).limit(
             n), negatives.orderBy(rand()).limit(n)
-        finish_time = datetime.now() - start_time
+        finish_time = dt.now() - start_time
         print_and_save_time("Dataset balancing concluded: " +
                             str(finish_time.total_seconds()) + " seconds")
         return result
     else:
         result = positives.sample(n), negatives.sample(n)
-        finish_time = datetime.now() - start_time
+        finish_time = dt.now() - start_time
         print_and_save_time("Dataset balancing concluded: " +
                             str(finish_time.total_seconds()) + " seconds")
         return result
@@ -162,29 +162,57 @@ def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool
 
 def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    start_time = datetime.now()
+    common_start_time = dt.now()
     # Replace Nan values with the correct default values
     data = data.fillna(value=0)
 
     # Remove rows with Nan key values
     data = data.dropna(how='any', axis='index')
 
-    data = convert_names_into_numbers(data, usePyspark)
-    data = convert_dates_into_numbers(data, usePyspark)
-    data = convert_times_into_numbers(data, usePyspark)
-    data = convert_distance_into_numbers(data, usePyspark)
-    if usePyspark:
-        data = convert_strings_into_numbers(data, usePyspark)
+    null_removal_finish_time = dt.now() - common_start_time
+    print_and_save_time("Null values removal concluded: " +
+                        str(null_removal_finish_time.total_seconds()) + " seconds")
 
-    finish_time = datetime.now() - start_time
+    names_start_time = dt.now()
+    data = convert_names_into_numbers(data, usePyspark)
+    names_finish_time = dt.now() - names_start_time
+    print_and_save_time("Names conversion concluded: " +
+                        str(names_finish_time.total_seconds()) + " seconds")
+
+    dates_start_time = dt.now()
+    data = convert_dates_into_numbers(data, usePyspark)
+    dates_finish_time = dt.now() - dates_start_time
+    print_and_save_time("Dates conversion concluded: " +
+                        str(dates_finish_time.total_seconds()) + " seconds")
+
+    times_start_time = dt.now()
+    data = convert_times_into_numbers(data, usePyspark)
+    times_finish_time = dt.now() - times_start_time
+    print_and_save_time("Times conversion concluded: " +
+                        str(times_finish_time.total_seconds()) + " seconds")
+
+    distance_start_time = dt.now()
+    data = convert_distance_into_numbers(data, usePyspark)
+    distance_finish_time = dt.now() - distance_start_time
+    print_and_save_time("Distance conversion concluded: " +
+                        str(distance_finish_time.total_seconds()) + " seconds")
+
+    if usePyspark:
+        strings_start_time = dt.now()
+        data = convert_strings_into_numbers(data, usePyspark)
+        strings_finish_time = dt.now() - strings_start_time
+        print_and_save_time("Strings conversion concluded: " +
+                            str(strings_finish_time.total_seconds()) + " seconds")
+
+    common_finish_time = dt.now() - common_start_time
     print_and_save_time("Common preprocessing concluded: " +
-                        str(finish_time.total_seconds()) + " seconds")
+                        str(common_finish_time.total_seconds()) + " seconds")
     return data
 
 
 def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    start_time = datetime.now()
+    start_time = dt.now()
     oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
     if usePyspark:
         data = data.drop(oppositeIndex)
@@ -192,8 +220,8 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
     else:
         data = data.drop(oppositeIndex, axis=1)
 
-    finish_time = datetime.now() - start_time
-    print_and_save_time("Specific preprocessing concluded: " +
+    finish_time = dt.now() - start_time
+    print_and_save_time("Extra column removal concluded: " +
                         str(finish_time.total_seconds()) + " seconds")
     return data
 
