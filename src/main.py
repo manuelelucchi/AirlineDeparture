@@ -1,4 +1,4 @@
-import sys
+import imp
 from functions import binary_cross_entropy
 from model import Model
 from preprocess import preprocess
@@ -6,6 +6,7 @@ from preprocess import preprocess
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from numpy import zeros
+import matplotlib.pyplot as plt
 
 # =============================================================================
 
@@ -19,16 +20,27 @@ def print_and_save(s: str):
 
 def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
     model = Model(learning_rate=lr, batch_size=batch_size, l2=l2)
-    train_losses = model.train(train_data,
-                               train_labels, iterations=iterations)
+    (train_losses, gradients) = model.train(train_data,
+                                            train_labels, iterations=iterations)
     res = model.evaluate(test_data)
     test_loss = binary_cross_entropy(
         res, test_labels, zeros([res.shape[0]]), 0)
-
     print_and_save("For Custom, LR: {}, Batch Size: {}, L2: {}, IT: {}".format(
         lr, batch_size, l2, iterations))
     print_and_save("The last train loss is: {}".format(train_losses[-1]))
     print_and_save("The average test loss is: {}".format(test_loss))
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Iterations')
+    ax.set_ylabel('Loss/Gradient')
+    ax.set_title('IT={} LR={} Batch Size={} L2={}'.format(iterations,
+                                                          lr, batch_size, l2))
+    ax.plot(range(iterations), train_losses, label='Loss')
+    ax.plot(range(iterations), gradients, label='Gradient')
+    ax.grid()
+    ax.legend()
+    fig.savefig("./data/IT={}_LR={}_BatchSize={}_L2={}.png".format(iterations,
+                                                                   lr, batch_size, l2))
+    fig.clear()
     print_and_save("=====================================================")
 
 
@@ -46,9 +58,10 @@ def sklearn_train_eval() -> float:
 # =============================================================================
 
 train_data, train_labels, test_data, test_labels = preprocess(
-    "DIVERTED", 6000000, 10000, usePyspark=False)
+    "DIVERTED", False, 6000000, 10000, usePyspark=False)
 
 # =============================================================================
+
 
 # Learning Rate
 

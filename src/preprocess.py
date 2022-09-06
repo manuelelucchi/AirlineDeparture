@@ -73,12 +73,12 @@ def print_and_save_time(s: str):
     print(s)
 
 
-def preprocess(index: str, size: int, balance_size: int, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
         start_time = datetime.now()
-        data = read.get_dataset(size, False, usePyspark)
+        data = read.get_dataset(size, useAllFrames, usePyspark)
         finish_time = datetime.now() - start_time
         print_and_save_time("Dataset reading concluded: " +
                             str(finish_time.total_seconds()) + " seconds")

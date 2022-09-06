@@ -32,18 +32,24 @@ class Model():
         self.initialize(X.shape[1])
         X = normalize(X)
         losses = []
+        gradients = []
 
         for _ in range(iterations):
+            _losses = []
+            _gradients = []
             for b in range(X.shape[0]//self.batch_size):
                 b_X = X[b*self.batch_size:b*self.batch_size+self.batch_size, :]
                 b_Y_labels = Y_labels[b*self.batch_size:b *
                                       self.batch_size+self.batch_size]
                 Y = self.evaluate(b_X)
-                losses.append(binary_cross_entropy(
+                _losses.append(binary_cross_entropy(
                     Y, b_Y_labels, self.W, self.l2))
                 (dW, db) = self.gradient(b_X, Y, b_Y_labels)
+                _gradients.append(dW)
                 self.update(dW, db)
+            losses.append(np.mean(_losses))
+            gradients.append(np.mean(_gradients))
 
-        return losses
+        return (losses, gradients)
 
 # ==============================================================================================
