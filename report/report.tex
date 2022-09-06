@@ -9,6 +9,7 @@
 
 \usepackage{caption}
 \usepackage{soul}
+\usepackage{subcaption}
 
 \addbibresource{bibliography.bib} % Bibliography file (located in the same folder as the template)
 
@@ -73,6 +74,17 @@
 \end{description}
 
 %----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\section{Introduction}
+
+The paper is splitted in a describing part, where the operations on the dataset and how the model is built are detailed, and an experimental part where a series of tests are performed and the results are stated.\\
+Also, the document covers two different objectives, the classification of the dataset using the model to predict both the canceled and the diverted flights.\\
+The two objectives are virtually the same, since the subset of the dataset used is identical and the model stays the same.\\
+Both the cases DIRE CHE E' UNA ROBA IMPOSSIBILE A LATO PRATICO
+
+%----------------------------------------------------------------------------------------
 %	DATASET
 %----------------------------------------------------------------------------------------
 
@@ -111,7 +123,7 @@ One milion of records equally distributed between the files were taken to perfor
 
 \section{Preprocessing Techniques}
 
-\subsection{Algorithms and Techniques}
+\subsection{Data processing}
 
 Multiple preprocessing techniques were used.\\
 
@@ -121,8 +133,12 @@ Then the data not already represented as real numbers has been converted; airpor
 
 The converted values were also normalized between 0 and 1, to avoid exploding values.\\
 
+\subsubsection{Hashing}
+
 Particularly, to convert the identifiers, the checksum function \textbf{crc32} \cite{crc32} has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer. Finally, the value is normnalized dividing it for the max integer value.
 This function has been choosen because is one of the fastest way to hash short strings, which is what is needed here, compared to other alghoritims like the SHA or MD5.\\
+
+\subsubsection{Normalization}
 
 To normalize dates, the day of the year has been extracted from every date, then divided by 365. A similar strategy has been used for the departure and arrival times, exctracting the minutes of the day and then dividing by 1140.\\
 
@@ -134,14 +150,14 @@ This was necessary since the diverted or cancelled flights are a really small pe
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
 To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
 
-Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
-
-\subsubsection{Normalization}
-The resulting dataset has been normalized by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization}.
+Also resulting dataset has been normalized by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization}.
 
 $$ z = \frac{x - \mu}{\sigma} $$
 
-\subsection{Parallelization}
+\subsubsection{Splitting}
+Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
+
+\subsection{Parallelization AGGIUNGERE SOTTOSEZIONI}
 
 Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
 PySpark is a wrapper for Python of the library Apache Spark \cite{spark}, originally written in Java.\\
@@ -244,15 +260,13 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 % https://satishkumarmoparthi.medium.com/logistic-regression-with-l2-regularization-using-sgd-from-scratch-893692b48362
 % https://towardsdatascience.com/batch-mini-batch-and-stochastic-gradient-descent-for-linear-regression-9fe4eefa637c
 
-
 %----------------------------------------------------------------------------------------
-%	PERFORMANCES 
+%	EXPERIMENTS
 %----------------------------------------------------------------------------------------
 
-\section{Performances}
+\section{Experiments}
 
-- come scalano le operazioni nella teoria
-- come scalano le operazioni di numpy effettuate
+Premessa su dataset
 
 \subsection{Preprocessing Performance}
 
@@ -278,13 +292,6 @@ The numbers represents seconds of execution.
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
 \end{center}
 
-%----------------------------------------------------------------------------------------
-%	EXPERIMENTS
-%----------------------------------------------------------------------------------------
-
-\section{Experiments}
-
-Premessa su dataset
 
 \subsection{Canceled Flights}
 
@@ -313,16 +320,29 @@ This is an unexpected behavior, since usually the gradient descent performs bett
 
 Using the Mini-Batch technique for $\mu=0.001$ and $Batch Size = 20$ (whose experiment will be detailed in the section below) a difference with this test can be found.
 
-IMMAGINE
-
-IMMAGINE
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{../data/IT=100_LR=0.001_BatchSize=20_L2=0.png}
+        \caption{$\mu = 0.001$ and $Batch Size = 20$}
+        \label{fig:left}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{../data/IT=100_LR=0.1_BatchSize=14733_L2=0.png}
+        \caption{$\mu = 0.1 $ and $Batch Size = Max$}
+        \label{fig:right}
+    \end{subfigure}
+    \label{fig:combined}
+\end{figure}
 
 As the charts shows, while both the hyperparameters configurations converge to the same (local) minimum, the one that uses mini batch and a lower learning rate convergence at a much faster speed.
 In the following experiments, this configuration will be the one used.
 
 \subsubsection{Implementing Mini-Batch}
 
-Ad anticipated before, the mini-batch technique has been used. Being able to train the model with a fraction of the dataset at time resulted in a great reduction of the loss.
+As anticipated before, the mini-batch technique has been used. Being able to train the model with a fraction of the dataset at time resulted in a great reduction of the loss.
 
 \begin{center}
     \begin{tabular}{ |c|c|c| }
@@ -493,6 +513,7 @@ For this reason, the results obtained are equivalent, so they will just be repor
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
 The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
 Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.
+Both of the models probably converged on a local minimum,
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
