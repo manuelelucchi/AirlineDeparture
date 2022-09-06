@@ -193,7 +193,7 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
         data = data.drop(oppositeIndex, axis=1)
 
     finish_time = datetime.now() - start_time
-    print_and_save_time("Specific preprocessing concluded: " +
+    print_and_save_time("Extra column removal concluded: " +
                         str(finish_time.total_seconds()) + " seconds")
     return data
 
