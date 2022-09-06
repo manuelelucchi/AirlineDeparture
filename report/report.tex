@@ -109,7 +109,7 @@ The files presents 28 columns, of which we only took the 9 more relevant\\
 The majority of columns have been excluded because contained information not available at departure time, like the ones regarding actual departure, flight and arrival time, which are at disposal only after the aircraft landed.
 Other columns also contained informations which do not have any correlation with the results of the experiments, like the flight number assigned by the carrier.\\
 
-In the case the prediction is about the cancellation, the DIVERTED column will be ignored, while if the prediction is on if the flight would be diverted or not, the CANCELLED column will be ignored.\\
+In the case the prediction is about the cancellation, the \texttt{DIVERTED} column will be ignored, while if the prediction is on if the flight would be diverted or not, the \texttt{CANCELLED} column will be ignored.\\
 
 The carrier code is a two characters alphanumeric code, the origin and destination places are a three characters alphanumeric code.\\
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
@@ -159,11 +159,14 @@ Lastly, the data was splitted between the training set (75\%) and the test set (
 
 \subsection{Parallelization AGGIUNGERE SOTTOSEZIONI}
 
+\subsubsection{PySpark}
 Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
 PySpark is a wrapper for Python of the library Apache Spark \cite{spark}, originally written in Java.\\
 
 The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
 The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.\\
+
+\subsubsection{Compatibility}
 
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas \cite{pandas}.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
@@ -171,8 +174,10 @@ The issue has been addressed using the PySpark.SQL functionality, which allow to
 
 The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes.\\
 
+\subsubsection{Integration}
+
 The preprocessing part of the solution is therefore computed in a distributed manner, using the PySpark dataframe as main data structure to perform the various calculations on the columns of the dataset.
-At the end of this section of the solution, the distributed dataframes are merged into one using the collect method. This operation can create memory problems if the dataset is extremely large, but it is not possibile to distribute efficiently the model training
+At the end of this section of the solution, the distributed dataframes are merged into one using the \texttt{collect} method. This operation can create memory problems if the dataset is extremely large, but it is not possibile to distribute efficiently the model training
 and computing as easily as the preprocessing, so the main part of the solution will be computed using standard Python data structures.
 
 %----------------------------------------------------------------------------------------
@@ -207,7 +212,8 @@ In the code implementation, \texttt{np.dot} and \texttt{np.mean} were used.
 
 \subsubsection{Update}
 
-PARLARE DI SGD \cite{sgd}
+Gradient Descent \cite{sgd} is a technique that allows to find maximus e minimum in a multi-variable function, like the model taken in consideration.\\
+Once the gradients are calculated, the parameters (weights and bias in this case) will be updated with the gradient value properly mitigated with the \textbf{Learning Rate}
 
 $$ w' = w - \mu \nabla w $$
 $$ b' = b - \mu \nabla b $$
@@ -224,7 +230,7 @@ There are multiple types of Gradient Descent.\\
 
 \textbf{Batching Gradient Descent} updates the model once per iteration using the whole dataset at once. It has a better convergence rate.\\
 
-\textbf{Mini Batch Gradient Descent} \cite{batching} uses small chunks of samples, so it's a middle solution between the previous ones, but adds a new hyperparameter to tune, the \textbf{Batch Size}\\
+\textbf{Mini Batch Gradient Descent} \cite{batching} uses small chunks of samples, so it's a middle solution between the previous ones, but adds a new hyperparameter to tune, the \textbf{Batch Size}.\\
 Its convergence rate is
 $$O(\frac{1}{\sqrt{bk}} + \frac{1}{k})$$
 
@@ -512,8 +518,8 @@ For this reason, the results obtained are equivalent, so they will just be repor
 
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
 The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
-Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.
-Both of the models probably converged on a local minimum,
+Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.\\
+Both of the models probably converged on a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

@@ -16,8 +16,11 @@ def download_dataset():
     if not os.path.isdir(path):
         os.mkdir(path)
     if not os.listdir(path):
-        api = KaggleApi()
-        api.authenticate()
-        api.dataset_download_files(dataset, path, unzip=True, quiet=False)
+        try:
+            api = KaggleApi()
+            api.authenticate()
+            api.dataset_download_files(dataset, path, unzip=True, quiet=False)
+        except:
+            print("Error downloading the dataset")
 
 # =================================================================================

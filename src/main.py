@@ -1,4 +1,3 @@
-import imp
 from functions import binary_cross_entropy
 from model import Model
 from preprocess import preprocess
