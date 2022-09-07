@@ -167,7 +167,10 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
     data = data.fillna(value=0)
 
     # Remove rows with Nan key values
-    data = data.dropna(how='any', axis='index')
+    if usePyspark:
+        data = data.dropna(how='any')
+    else:
+        data = data.dropna(how='any', axis='index')
 
     null_removal_finish_time = dt.now() - common_start_time
     print_and_save_time("Null values removal concluded: " +
@@ -355,8 +358,10 @@ def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark:
 def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
     # Take 25% of the data set as test set
     if usePyspark:
-        test_sample = data.sample(fraction=0.25)
-        training_sample = data.subtract(test_sample)
+        #test_sample = data.sample(fraction=0.25)
+        #training_sample = data.subtract(test_sample)
+        test_sample, training_sample = data.randomSplit(
+            [0.25, 0.75], seed=4000)
     else:
         test_sample = data.sample(round(len(data.index) / 4))
         training_sample = data.drop(test_sample.index)
