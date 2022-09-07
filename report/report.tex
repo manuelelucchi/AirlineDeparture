@@ -266,16 +266,14 @@ The used version is called \textbf{L2}, also known as \textbf{Ridge Regression} 
 
 The regularization factor for the loss is defined as
 $$ L2 = \frac{\lambda}{2}||w||^2 $$
-where $L2$ is calculated as $ \frac{\lambda}{2}||w||^2 = \frac{\lambda}2{\displaystyle\sum_{j=1}^m w_j^2} $ \\
-DA VEDERE
+where $L2$ is calculated as
+$$ \frac{\lambda}{2}||w||^2 = \frac{\lambda}2{\displaystyle\sum_{j=1}^m w_j^2} $$ \\
 
 The loss then becomes
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) + \boldsymbol{\frac{\lambda}{2}||w||^2} $$
 
 While the weights gradients formula becomes
 $$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) \boldsymbol{+ \lambda w} $$
-
-DA VEDERE
 
 \subsection{Differences with Sklearn implementation}
 
@@ -355,7 +353,7 @@ This is an unexpected behavior, since usually the gradient descent performs bett
 
 Using the Mini-Batch technique for $\mu=0.001$ and $Batch Size = 20$ (whose experiment will be detailed in the section below) a difference with this test can be found.
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
@@ -435,14 +433,42 @@ The following experiments used $\lambda = 0.1$
 
 Increasing the number of iterations didn't lead to any noticeable improvement.
 
-\subsubsection{Analysis of the best version}
-ROC CURVE
+\subsubsection{ROC Curve}
+
+The apparently better performing configuration of the hyperparameters has the following \textbf{ROC curve}
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/roc_1.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = 20$}
+    %\label{roc1}
+\end{center}
+
+It has a decent ability to predict, but as an inverse predictor, suggesting that mini batch feature
+
+A notable case is the experiment with the same learning rate but without the Mini Batch feature.
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/roc_2.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = Max$}
+    %\label{roc2}
+\end{center}
+
+It has a similar curve to the previous case, but this time it's not predicting the inverse. This is interesting since the loss of this configuration is really high loss and it suffers of vanishing gradient as can be seen from the following chart
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/graph_3.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = Max$}
+    %\label{graph3}
+\end{center}
+
+It's safe to say that this model is not really reliable, and just underfitted.
 
 \subsubsection{Comparison with Sklearn}
 
 To conclude the experiments, the instance with the best hyperparameters from the previous experiments has been compared with the Sklearn implementation.\\
 
 The Sklearn one uses the same number of iterations and uses L2 regularization, but doesn't use the SGD (and thus the Learning Rate) or the batching.
+Instead it uses \textbf{L-BFGS-B} \cite{lbfgsb}, a solver for Large-scale Bound-constrained Optimization.
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c| }
@@ -576,14 +602,9 @@ Both of the models probably converged on a local minimum, that would explain the
 \end{document}
 
 % todo
-% BIBLIO
+
 % DEFINIZIONI
 % ESPERIMENTI PREPROCESSING
-% Sezione UPDATE
-% Sezione Gradiente (parlare di GD)
-% Sezione Estimate (parlare di sigmoide)
-% Parlare meglio di binary cross entropy
 % Performances del modello
 % Add Bold words
-% Add ROC curve
 % README
