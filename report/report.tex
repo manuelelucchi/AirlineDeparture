@@ -69,8 +69,10 @@
 \section{Definitions}\label{definitions} % Labels provide a point for referencing, in this case with \ref{definitions} to refer to this subsection number
 
 \begin{description}
+    \item[Dataset]
     \item[Label]
     \item[Model]
+    \item[]
 \end{description}
 
 %----------------------------------------------------------------------------------------
@@ -80,9 +82,11 @@
 \section{Introduction}
 
 The paper is splitted in a describing part, where the operations on the dataset and how the model is built are detailed, and an experimental part where a series of tests are performed and the results are stated.\\
-Also, the document covers two different objectives, the classification of the dataset using the model to predict both the canceled and the diverted flights.\\
+
+Also, the document covers two different objectives, the classification of the dataset using the model to predict both the \textbf{canceled} and the \textbf{diverted} flights.\\
 The two objectives are virtually the same, since the subset of the dataset used is identical and the model stays the same.\\
-Both the cases DIRE CHE E' UNA ROBA IMPOSSIBILE A LATO PRATICO
+
+Both the cases represent real world problems that are still not completely solved, since there aren't algorithms that predicts these situations with accuracy yet, so a simple Logistic Regression model is probably not enough powerful to accomplish this tasks, but it's still worth analyzing its behavior in different circumstances.
 
 %----------------------------------------------------------------------------------------
 %	DATASET
@@ -107,7 +111,7 @@ The files presents 28 columns, of which we only took the 9 more relevant\\
 \end{description}
 
 The majority of columns have been excluded because contained information not available at departure time, like the ones regarding actual departure, flight and arrival time, which are at disposal only after the aircraft landed.
-Other columns also contained informations which do not have any correlation with the results of the experiments, like the flight number assigned by the carrier.\\
+Other columns also contained informations which do not have any correlation with the objective of the experiments, like the flight number assigned by the carrier.\\
 
 In the case the prediction is about the cancellation, the \texttt{DIVERTED} column will be ignored, while if the prediction is on if the flight would be diverted or not, the \texttt{CANCELLED} column will be ignored.\\
 
@@ -115,7 +119,7 @@ The carrier code is a two characters alphanumeric code, the origin and destinati
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
 
-One milion of records equally distributed between the files were taken to perform the training.
+One milion of records sampled with an uniform distributed were took from each year file to perform the preprocessing.
 
 %----------------------------------------------------------------------------------------
 %	PREPROCESSING
@@ -131,8 +135,6 @@ Initially the rows without valid key values are removed, while the ones with inv
 
 Then the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
 
-The converted values were also normalized between 0 and 1, to avoid exploding values.\\
-
 \subsubsection{Hashing}
 
 Particularly, to convert the identifiers, the checksum function \textbf{crc32} \cite{crc32} has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer. Finally, the value is normnalized dividing it for the max integer value.
@@ -146,18 +148,23 @@ The distance has been normalized by dividing it for the maximum value found in t
 
 At this point, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives.\\
 
+The converted values were also limited between 0 and 1, to avoid exploding values during the training of the dataset.\\
+
+Finally, the resulting dataset has been normalized by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization}.
+
+$$ z = \frac{x - \mu}{\sigma} $$
+
+\subsubsection{Balancing}
+
 This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
 To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
-
-Also resulting dataset has been normalized by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization}.
-
-$$ z = \frac{x - \mu}{\sigma} $$
+Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, just 20000 of records could be used for the experiments, half with positive outcomes and half with negative ones.
 
 \subsubsection{Splitting}
 Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
 
-\subsection{Parallelization AGGIUNGERE SOTTOSEZIONI}
+\subsection{Parallelization}
 
 \subsubsection{PySpark}
 Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
@@ -172,7 +179,9 @@ The usage of this library created some compatibility issues, because the data st
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
 The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
 
-The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes.\\
+\subsubsection{I/O}
+
+The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes. The data saved on the intermediate CSV is valid for both the tasks that are the goal of the paper.\\
 
 \subsubsection{Integration}
 
@@ -222,6 +231,21 @@ $$ b' = b - \mu \nabla b $$
 For the loss, we used the \textbf{Binary Cross Entropy} \cite{binary_cross_entropy} function, also called \textbf{Log Loss}.
 It is defined as
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
+This particular function is used since to perform the gradient descent it can be derived and conducted to the weights update formula to minimize it in the same way as it's done for the MSE \cite{mse} for the Linear Regression.\\
+
+For the MSE and Linear Regression
+
+$$ MSE(w) = \frac{1}{2} (\hat{y} - y)^2 = \frac{1}{2} (w^Tx - y)^2 $$
+$$\frac{\partial J}{\partial w} = (w^T x - y)x $$
+$$ w' = w - \mu (w^T x -y)x $$
+
+For the Log Loss and Logistic Regression
+
+$$ LogLoss(\hat{y}, y) = -y log \hat{y} - (1-y)log(1- \hat{y})$$
+$$ \hat{y} = sigmoid(w^Tx) = \frac{1}{1 + e^{w^Tx}} $$
+$$ \frac{\partial LogLoss}{\partial w} = (\hat{y} - y)x $$
+$$ w' = w - \mu (\hat{y} - y)x $$
+$$ w' = w - \mu (w^T x -y)x $$
 
 \subsubsection{Batching}
 There are multiple types of Gradient Descent.\\
@@ -293,7 +317,6 @@ The numbers represents seconds of execution.
         Times conversion                  & 0      & 0                   & 0                      \\
         Distance conversion               & 0      & 0                   & 0                      \\
         Strings conversion (PySpark only) & 0      & 0                   & 0                      \\
-        Common                            & 0      & 0                   & 0                      \\
         Column removal                    & 0      & 0                   & 0                      \\
         Balancing                         & 0      & 0                   & 0                      \\
         Splitting                         & 0      & 0                   & 0                      \\
@@ -411,6 +434,9 @@ The following experiments used $\lambda = 0.1$
 \end{center}
 
 Increasing the number of iterations didn't lead to any noticeable improvement.
+
+\subsubsection{Analysis of the best version}
+ROC CURVE
 
 \subsubsection{Comparison with Sklearn}
 
@@ -558,11 +584,5 @@ Both of the models probably converged on a local minimum, that would explain the
 % Sezione Estimate (parlare di sigmoide)
 % Parlare meglio di binary cross entropy
 % Performances del modello
-% Dataset premise in experiments
-% Special case for learning rate pre and after batching
 % Add Bold words
 % Add ROC curve
-% DISCORSO SAMPLING
-% logistic regression inadatta
-% abbiamo raggiunto un minimo locale
-% parlare in dataset di differenza logica tra canceled e diverted

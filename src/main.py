@@ -125,3 +125,30 @@ custom_train_eval(iterations=1000, lr=0.001,
 # =============================================================================
 
 sklearn_train_eval()
+
+"""
+labelsAndScores = OHEValidationData.map(lambda lp:
+                                            (lp.label, getP(lp.features,
+                                                            model0.weights,
+                                                            model0.intercept)))
+labelsAndWeights = labelsAndScores.collect()
+labelsAndWeights.sort(key=lambda kv: kv[1], reverse=True)
+labelsByWeight = np.array([k for (k, v) in labelsAndWeights])
+
+length = labelsByWeight.size
+truePositives = labelsByWeight.cumsum()
+numPositive = truePositives[-1]
+falsePositives = np.arange(1.0, length + 1, 1.) - truePositives
+
+truePositiveRate = truePositives / numPositive
+falsePositiveRate = falsePositives / (length - numPositive)
+
+# Generate layout and plot data
+fig, ax = preparePlot(np.arange(0., 1.1, 0.1), np.arange(0., 1.1, 0.1))
+ax.set_xlim(-.05, 1.05), ax.set_ylim(-.05, 1.05)
+ax.set_ylabel('True Positive Rate (Sensitivity)')
+ax.set_xlabel('False Positive Rate (1 - Specificity)')
+plt.plot(falsePositiveRate, truePositiveRate, color='#8cbfd0', linestyle='-', linewidth=3.)
+plt.plot((0., 1.), (0., 1.), linestyle='--', color='#d6ebf2', linewidth=2.)  # Baseline model
+plt.show()
+"""
