@@ -5,6 +5,7 @@ from preprocess import preprocess
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from numpy import zeros
+import numpy as np
 import matplotlib.pyplot as plt
 
 # =============================================================================
@@ -61,7 +62,7 @@ train_data, train_labels, test_data, test_labels = preprocess(
 
 # =============================================================================
 
-
+"""
 # Learning Rate
 
 custom_train_eval(iterations=100, lr=0.1,
@@ -125,6 +126,55 @@ custom_train_eval(iterations=1000, lr=0.001,
 # =============================================================================
 
 sklearn_train_eval()
+
+# =============================================================================
+
+"""
+
+model = Model(learning_rate=0.001, batch_size=20, l2=0.01)
+(train_losses, gradients) = model.train(train_data,
+                                        train_labels, iterations=100)
+res = model.evaluate(test_data)
+
+labels_and_results = sorted(
+    list(zip(test_labels, map(lambda x: x, res))), key=lambda x: x[1])
+
+labels_by_weights = np.array([k for (k, _) in labels_and_results])
+
+length = labels_by_weights.size
+
+
+"""
+true_positives = len(
+    list(map(lambda x:  x[1] == 1 and x[1] == x[0], labels_and_results)))
+true_negatives = len(
+    list(map(lambda x:  x[1] == 0 and x[1] == x[0], labels_and_results)))
+false_positives = len(
+    list(map(lambda x:  x[1] == 1 and x[1] != x[0], labels_and_results)))
+false_negatives = len(
+    list(map(lambda x:  x[1] == 0 and x[1] != x[0], labels_and_results)))
+"""
+
+true_positives = labels_by_weights.cumsum()
+
+num_positive = true_positives[-1]
+
+false_positives = np.arange(1.0, length + 1, 1.) - true_positives
+
+true_positives_rate = true_positives / num_positive
+false_positives_rate = false_positives / (length - num_positive)
+
+fig, ax = plt.subplots()
+ax.set_xlim(-.05, 1.05), ax.set_ylim(-.05, 1.05)
+ax.set_ylabel('True Positive Rate (Sensitivity)')
+ax.set_xlabel('False Positive Rate (1 - Specificity)')
+plt.plot(false_positives_rate, true_positives_rate,
+         color='#8cbfd0', linestyle='-', linewidth=3.)
+plt.plot((0., 1.), (0., 1.), linestyle='--',
+         color='#d6ebf2', linewidth=2.)  # Baseline model
+
+plt.savefig('./data/roc.png')
+plt.show()
 
 """
 labelsAndScores = OHEValidationData.map(lambda lp:

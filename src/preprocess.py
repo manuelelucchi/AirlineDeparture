@@ -271,7 +271,7 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
     if usePyspark:
         def date_to_day_of_year(date_string) -> float:
 
-            date = dt.datetime.strptime(date_string, "%Y-%m-%d")
+            date = dt.strptime(date_string, "%Y-%m-%d")
             day = date.timetuple().tm_yday - 1
             return day * multiplier
 
@@ -289,7 +289,7 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
             unique_values = numpy.sort(unique_values)
 
             for v in unique_values:
-                date = dt.datetime.strptime(v, "%Y-%m-%d")
+                date = dt.strptime(v, "%Y-%m-%d")
                 day = date.timetuple().tm_yday - 1
                 values_map[v] = day * multiplier
 
