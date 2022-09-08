@@ -150,3 +150,5 @@ data/preprocessed
 *.pdf
 
 data/*.txt
+
+data/*.png

@@ -69,11 +69,11 @@
 \section{Definitions}\label{definitions} % Labels provide a point for referencing, in this case with \ref{definitions} to refer to this subsection number
 
 \begin{description}
-    \item[Dataset]
-    \item[Label]
-    \item[Model]
-    \item[Overfitting]
-    \item[Vanishing Gradient]
+    \item[Dataset] The sample of data used to train the Model
+    \item[Label] The expected outcome of the prediction
+    \item[Model] The group of algorithms that tries to solve the problem
+    \item[Overfitting] When the model is too sensible to changes compared to the dataset
+    \item[Vanishing Gradient] When the gradient values becomes progressively smaller until they are insignificant for the process
 \end{description}
 
 %----------------------------------------------------------------------------------------
@@ -359,13 +359,13 @@ Using the Mini-Batch technique for $\mu=0.001$ and $Batch Size = 20$ (whose expe
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width = \textwidth]{../data/IT=100_LR=0.001_BatchSize=20_L2=0.png}
+        \includegraphics[width = \textwidth]{../images/graph_1.png}
         \caption{$\mu = 0.001$ and $Batch Size = 20$}
         \label{fig:left}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width = \textwidth]{../data/IT=100_LR=0.1_BatchSize=14733_L2=0.png}
+        \includegraphics[width = \textwidth]{../images/graph_2.png}
         \caption{$\mu = 0.1 $ and $Batch Size = Max$}
         \label{fig:right}
     \end{subfigure}
