@@ -119,7 +119,7 @@ The carrier code is a two characters alphanumeric code, the origin and destinati
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
 
-One milion of records sampled with an uniform distributed were took from each year file to perform the preprocessing.
+500,000 records sampled with an uniform distributed were took from each year file to perform the preprocessing.
 
 %----------------------------------------------------------------------------------------
 %	PREPROCESSING
@@ -157,27 +157,27 @@ $$ z = \frac{x - \mu}{\sigma} $$
 \subsubsection{Balancing}
 
 This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
-this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it hass been trained on a dataset with basically zero problematic flights.
+this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it has been trained on a dataset with basically zero problematic flights.
 To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
 Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, just 20000 of records could be used for the experiments, half with positive outcomes and half with negative ones.
 
 \subsubsection{Splitting}
-Lastly, the data was splitted between the training set (75\%) and the test set (25\%).\\
+Lastly, the data was splitted between the \textbf{training set} (75\%) and the \textbf{test set} (25\%).\\
 
 \subsection{Parallelization}
 
 \subsubsection{PySpark}
-Keeping in mind that the implementation has to be space and time efficient and scale up to large datasets, the preprocessing part has been carried out using the library PySpark.
+Keeping in mind that the implementation has to be space and time efficient and \textbf{scale up to large datasets}, the preprocessing part has been carried out using the library PySpark.
 PySpark is a wrapper for Python of the library Apache Spark \cite{spark}, originally written in Java.\\
 
-The purpose of this library is the handling of parallelized data processing, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
-The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the scalability of the solution, which can be run on competely different system without code modification.\\
+The purpose of this library is the handling of \textbf{parallelized data processing}, particularly regarding the Distributed File System Hadoop, also created by the Apache Foundation.
+The library handles automatically the work distribution on the available nodes that the system provide, it can be composed of a single machine with multiple cores or a cluster of machines, this improves significantly the \textbf{scalability} of the solution, which can be run on competely different system without code modification.\\
 
 \subsubsection{Compatibility}
 
-The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially suing the data science library Pandas \cite{pandas}.
+The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially using the data science library Pandas \cite{pandas}.
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
-The issue has been addressed using the PySpark.SQL functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
+The issue has been addressed using the \textbf{PySpark.SQL} functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
 
 \subsubsection{I/O}
 
@@ -186,8 +186,8 @@ The library PySpark is also able to handle the csv file reading and writing, so 
 \subsubsection{Integration}
 
 The preprocessing part of the solution is therefore computed in a distributed manner, using the PySpark dataframe as main data structure to perform the various calculations on the columns of the dataset.
-At the end of this section of the solution, the distributed dataframes are merged into one using the \texttt{collect} method. This operation can create memory problems if the dataset is extremely large, but it is not possibile to distribute efficiently the model training
-and computing as easily as the preprocessing, so the main part of the solution will be computed using standard Python data structures.
+At the end of this section of the solution, the distributed dataframes are merged into one using the \texttt{collect} method. This operation can create memory problems if the dataset is extremely large, but the model training and computing can't be efficiently distributed
+as easily as the preprocessing, so the main part of the solution will be computed using standard Python data structures.
 
 %----------------------------------------------------------------------------------------
 %	MODEL
@@ -308,17 +308,17 @@ The numbers represents seconds of execution.
         \hline
         Section                           & Pandas & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading                      & 0      & 0                   & 0                      \\
-        Null values removal               & 0      & 0                   & 0                      \\
-        Names conversion                  & 0      & 0                   & 0                      \\
-        Dates conversion                  & 0      & 0                   & 0                      \\
-        Times conversion                  & 0      & 0                   & 0                      \\
-        Distance conversion               & 0      & 0                   & 0                      \\
-        Strings conversion (PySpark only) & 0      & 0                   & 0                      \\
-        Column removal                    & 0      & 0                   & 0                      \\
-        Balancing                         & 0      & 0                   & 0                      \\
-        Splitting                         & 0      & 0                   & 0                      \\
-        Total                             & 0      & 0                   & 0                      \\
+        Data reading                      & 20.12526      & 0                   & 0                      \\
+        Null values removal               & 3.96165      & 0                   & 0                      \\
+        Names conversion                  & 114.67961      & 0                   & 0                      \\
+        Dates conversion                  & 51.46286      & 0                   & 0                      \\
+        Times conversion                  & 125.54429      & 0                   & 0                      \\
+        Distance conversion               & 69.56513      & 0                   & 0                      \\
+        Strings conversion (PySpark only) & -      & 0                   & 0                      \\
+        Column removal                    & 0.62132      & 0                   & 0                      \\
+        Balancing                         & 0.68836      & 0                   & 0                      \\
+        Splitting                         & 0.045422      & 0                   & 0                      \\
+        Total                             & 366.01487      & 0                   & 0                      \\
 
         \hline
     \end{tabular}
