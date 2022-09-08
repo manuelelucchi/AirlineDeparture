@@ -72,7 +72,8 @@
     \item[Dataset]
     \item[Label]
     \item[Model]
-    \item[]
+    \item[Overfitting]
+    \item[Vanishing Gradient]
 \end{description}
 
 %----------------------------------------------------------------------------------------
@@ -95,7 +96,7 @@ Both the cases represent real world problems that are still not completely solve
 \section{Dataset}
 
 The initial dataset, "Airline Delay and Cancellation Data" \cite{dataset} is made of 9 years of airlines flights data, composed by 10 files (one for each year from 2009 to 2018) with around 6 milions records each.
-The files presents 28 columns, of which we only took the 9 more relevant\\
+The files presents 28 columns, of which only the 9 more relevant were took\\
 
 \begin{description}
     \item[FL\_DATE] The flight date.
@@ -228,7 +229,7 @@ $$ w' = w - \mu \nabla w $$
 $$ b' = b - \mu \nabla b $$
 
 \subsubsection{Loss}
-For the loss, we used the \textbf{Binary Cross Entropy} \cite{binarycrossentropy} function, also called \textbf{Log Loss}.
+For the loss the \textbf{Binary Cross Entropy} \cite{binarycrossentropy} function, also called \textbf{Log Loss}, was used.
 It is defined as
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
 This particular function is used since to perform the gradient descent it can be derived and conducted to the weights update formula to minimize it in the same way as it's done for the MSE \cite{mse} for the Linear Regression.\\
@@ -294,11 +295,10 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 
 \section{Experiments}
 
-Premessa su dataset
+As stated in the previous secontions, before starting the experiments the dataset is composed by about 20000 records, whose 15000 are for the training set and 5000 for the test set.\\
+They are sampled from each file following a uniform distirbution and they are equally positives and negatives outcomes.
 
 \subsection{Preprocessing Performance}
-
-Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
 
 The table below summarizes the time required by the Colab enviroment to complete various parts of the preprocessing section.
 The numbers represents seconds of execution.
@@ -306,25 +306,27 @@ The numbers represents seconds of execution.
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section                           & Pandas & PySpark Single Node & PySpark Multiple Nodes \\
+        Section                           & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading                      & 20.12526      & 0                   & 0                      \\
-        Null values removal               & 3.96165      & 0                   & 0                      \\
-        Names conversion                  & 114.67961      & 0                   & 0                      \\
-        Dates conversion                  & 51.46286      & 0                   & 0                      \\
-        Times conversion                  & 125.54429      & 0                   & 0                      \\
-        Distance conversion               & 69.56513      & 0                   & 0                      \\
-        Strings conversion (PySpark only) & -      & 0                   & 0                      \\
-        Column removal                    & 0.62132      & 0                   & 0                      \\
-        Balancing                         & 0.68836      & 0                   & 0                      \\
-        Splitting                         & 0.045422      & 0                   & 0                      \\
-        Total                             & 366.01487      & 0                   & 0                      \\
+        Data reading                      & 20.12526  & 0                   & 0                      \\
+        Null values removal               & 3.96165   & 0                   & 0                      \\
+        Names conversion                  & 114.67961 & 0                   & 0                      \\
+        Dates conversion                  & 51.46286  & 0                   & 0                      \\
+        Times conversion                  & 125.54429 & 0                   & 0                      \\
+        Distance conversion               & 69.56513  & 0                   & 0                      \\
+        Strings conversion (PySpark only) & -         & 0                   & 0                      \\
+        Column removal                    & 0.62132   & 0                   & 0                      \\
+        Balancing                         & 0.68836   & 0                   & 0                      \\
+        Splitting                         & 0.045422  & 0                   & 0                      \\
+        Total                             & 366.01487 & 0                   & 0                      \\
 
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
 \end{center}
 
+Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
+DA RIFARE
 
 \subsection{Canceled Flights}
 
