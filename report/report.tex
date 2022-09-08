@@ -296,11 +296,11 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 \section{Experiments}
 
 As stated in the previous secontions, before starting the experiments the dataset is composed by about 20000 records, whose 15000 are for the training set and 5000 for the test set.\\
-They are sampled from each file following a uniform distirbution and they are equally positives and negatives outcomes.
+They are sampled from each file following a uniform distribution and they are equally positives and negatives outcomes.
 
 \subsection{Preprocessing Performance}
 
-The table below summarizes the time required by the Colab enviroment to complete various parts of the preprocessing section.
+The table below summarizes the time required by the \textbf{Colab enviroment} to complete various parts of the preprocessing section.
 The numbers represents seconds of execution.
 
 \begin{center}
@@ -308,17 +308,17 @@ The numbers represents seconds of execution.
         \hline
         Section                           & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading                      & 20.12526  & 0                   & 0                      \\
-        Null values removal               & 3.96165   & 0                   & 0                      \\
-        Names conversion                  & 114.67961 & 0                   & 0                      \\
-        Dates conversion                  & 51.46286  & 0                   & 0                      \\
-        Times conversion                  & 125.54429 & 0                   & 0                      \\
-        Distance conversion               & 69.56513  & 0                   & 0                      \\
-        Strings conversion (PySpark only) & -         & 0                   & 0                      \\
-        Column removal                    & 0.62132   & 0                   & 0                      \\
-        Balancing                         & 0.68836   & 0                   & 0                      \\
-        Splitting                         & 0.045422  & 0                   & 0                      \\
-        Total                             & 366.01487 & 0                   & 0                      \\
+        Data reading                      & 20.12526  & 0                   & 41.72719                      \\
+        Null values removal               & 3.96165   & 0                   & 112.14040                      \\
+        Names conversion                  & 114.67961 & 0                   & 117.07912                      \\
+        Dates conversion                  & 51.46286  & 0                   & 109.54266                      \\
+        Times conversion                  & 125.54429 & 0                   & 109.56157                      \\
+        Distance conversion               & 69.56513  & 0                   & 110.38996                      \\
+        Strings conversion (PySpark only) & -         & 0                   & 110.59919                      \\
+        Column removal                    & 0.62132   & 0                   & 110.63221                      \\
+        Balancing                         & 0.68836   & 0                   & 256.77912                      \\
+        Splitting                         & 0.045422  & 0                   & 1145.30147                      \\
+        Total                             & 366.01487 & 0                   & 2223,75289                      \\
 
         \hline
     \end{tabular}
