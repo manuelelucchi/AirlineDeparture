@@ -1,3 +1,4 @@
+from dataclasses import replace
 import os
 from constants import path
 import pandas as pd
@@ -84,6 +85,7 @@ def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = Fa
             if usePyspark:
                 frame = spark.read.option("header", True).csv(path + '/' + f)
                 frame = frame.select(columns_to_get)
+                frame = frame.sample(fraction=1.0, withReplacement=False)
 
                 if limit != -1:
                     frame = frame.limit(limit)
@@ -91,7 +93,9 @@ def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = Fa
                 big_frame = frame.union(big_frame)
             else:
                 frame = pd.read_csv(filepath_or_buffer=path +
-                                    '/' + f, usecols=columns_to_get, nrows=limit if limit != -1 else None)
+                                    '/' + f, usecols=columns_to_get)
+                if limit != -1:
+                    frame = frame.sample(n=limit, replace=False)
                 big_frame = pd.concat([big_frame, frame])
 
     if usePyspark:
