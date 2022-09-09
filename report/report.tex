@@ -161,6 +161,7 @@ This was necessary since the diverted or cancelled flights are a really small pe
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it has been trained on a dataset with basically zero problematic flights.
 To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
 Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, just 20000 of records could be used for the experiments, half with positive outcomes and half with negative ones.
+As a note, this last operation could have been performed before the others to greatly boost the overall performances of the preprocessing, but then the first part of the objective, to measure the performances of a system that scales with massive datasets, would not have been really useful.
 
 \subsubsection{Splitting}
 Lastly, the data was splitted between the \textbf{training set} (75\%) and the \textbf{test set} (25\%).\\
@@ -306,27 +307,32 @@ The numbers represents seconds of execution.
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section                           & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
+        Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading                      & 20.12526  & 58.69491                   & 41.72719                      \\
-        Null values removal               & 3.96165   & 116.81526                   & 112.14040                      \\
-        Names conversion                  & 114.67961 & 115.43204                   & 117.07912                      \\
-        Dates conversion                  & 51.46286  & 110.92972                   & 109.54266                      \\
-        Times conversion                  & 125.54429 & 111.87970                   & 109.56157                      \\
-        Distance conversion               & 69.56513  & 112.53075                   & 110.38996                      \\
-        Strings conversion (PySpark only) & -         & 120.45830                   & 110.59919                      \\
-        Column removal                    & 0.62132   & 111.37853                   & 110.63221                      \\
-        Balancing                         & 0.68836   & 265.81415                   & 256.77912                      \\
-        Splitting                         & 0.045422  & 1190.70186                   & 1145.30147                      \\
-        Total                             & 366.01487 & 2314,63522                   & 2223,75289                      \\
-
+        Data reading        & 20.12526  & 58.69491            & 41.72719               \\
+        Null values removal & 3.96165   & 116.81526           & 112.14040              \\
+        Names conversion    & 114.67961 & 115.43204           & 117.07912              \\
+        Dates conversion    & 51.46286  & 110.92972           & 109.54266              \\
+        Times conversion    & 125.54429 & 111.87970           & 109.56157              \\
+        Distance conversion & 69.56513  & 112.53075           & 110.38996              \\
+        Strings conversion  & -         & 120.45830           & 110.59919              \\
+        Column removal      & 0.62132   & 111.37853           & 110.63221              \\
+        Balancing           & 0.68836   & 265.81415           & 256.77912              \\
+        Splitting           & 0.045422  & 1190.70186          & 1145.30147             \\
+        Total               & 366.01487 & 2314,63522          & 2223,75289             \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
 \end{center}
 
-Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, we couldn't obtain significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
-DA RIFARE
+
+Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, there couldn't be obtained significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
+The first test was conducted using pandas, that was overall faster in each test, \textbf{by a factor of 1000 for some tests}. This could be explained by the big overhead the distributed enviroment creates that cannot be transformed into an advantage given the inadequate hardware.\\
+
+Another proof to support this thesys, is the comparison between the PySpark experiment forced into one node and the one that lets the system choose how many worker create.
+The first case was just slightly slower than the second, proving that both cases didn't fully use the parallelization the framework is specialized to.
+It's also worth noticing that the Google Collab enviroment was really unstable, with the same sequence of operations taking different times in the order of \textbf{30-40\%} of difference.
+\textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}
 
 \subsection{Canceled Flights}
 
