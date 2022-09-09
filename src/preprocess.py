@@ -163,14 +163,15 @@ def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool
 def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
     common_start_time = dt.now()
-    # Replace Nan values with the correct default values
-    data = data.fillna(value=0)
 
-    # Remove rows with Nan key values
     if usePyspark:
+        # Replace Nan values with the correct default values
+        data = data.fillna(value=0)
+        # Remove rows with Nan key values
         data = data.dropna(how='any')
     else:
-        data = data.dropna(how='any', axis='index')
+        data.fillna(value=0, inplace=True)
+        data.dropna(how='any', axis='index', inplace=True)
 
     null_removal_finish_time = dt.now() - common_start_time
     print_and_save_time("Null values removal concluded: " +
@@ -221,7 +222,7 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
         data = data.drop(oppositeIndex)
         data = data.drop('index')
     else:
-        data = data.drop(oppositeIndex, axis=1)
+        data.drop(oppositeIndex, axis=1, inplace=True)
 
     finish_time = dt.now() - start_time
     print_and_save_time("Extra column removal concluded: " +
@@ -285,12 +286,10 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
             unique_values: ndarray = []
             values_map: dict = {}
 
-            unique_values = data[i].unique()
-            unique_values = numpy.sort(unique_values)
+            unique_values = numpy.sort(data[i].unique())
 
             for v in unique_values:
-                date = dt.strptime(v, "%Y-%m-%d")
-                day = date.timetuple().tm_yday - 1
+                day = dt.strptime(v, "%Y-%m-%d").timetuple().tm_yday - 1
                 values_map[v] = day * multiplier
 
             data[i].replace(to_replace=values_map, inplace=True)

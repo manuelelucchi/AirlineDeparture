@@ -101,5 +101,6 @@ def get_dataset(limit: float = -1, allFrames: bool = True, usePyspark: bool = Fa
     if usePyspark:
         big_frame = big_frame.select(
             "*").withColumn("index", monotonically_increasing_id())
+        big_frame.count()
 
     return big_frame
