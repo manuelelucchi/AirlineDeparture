@@ -1,7 +1,6 @@
 from functions import binary_cross_entropy, normalize
 from model import Model
 from preprocess import preprocess
-from preprocess import preprocess
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from numpy import zeros

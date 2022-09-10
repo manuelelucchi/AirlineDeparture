@@ -1,6 +1,5 @@
 import numpy as np
 from numpy import ndarray
-from constants import path
 from functions import binary_cross_entropy, gradients, normalize, sigmoid
 
 # =======================================================================================

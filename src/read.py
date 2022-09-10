@@ -1,6 +1,5 @@
 from dataclasses import replace
 import os
-from constants import path
 import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import monotonically_increasing_id
