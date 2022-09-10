@@ -93,7 +93,7 @@ def make_roc(labels, results, name):
 
 # =============================================================================
 train_data, train_labels, test_data, test_labels = preprocess(
-    "CANCELLED", True, 500000, 10000, usePyspark=False)
+    "CANCELLED", True, 500000, 10000, usePyspark=False, earlyBalance=True)
 
 # =============================================================================
 

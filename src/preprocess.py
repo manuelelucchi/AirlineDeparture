@@ -73,15 +73,19 @@ def print_and_save_time(s: str):
     print(s)
 
 
-def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool, earlyBalance: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
         start_time = tm.time()
         data = read.get_dataset(size, useAllFrames, usePyspark)
+        
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset reading concluded: " +
                             str(finish_time) + " seconds")
+        if earlyBalance:
+            data = early_balance(data, index, balance_size, usePyspark)
+            
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:
@@ -131,11 +135,31 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
         return result
 
 
+def early_balance(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool):
+    start_time = tm.time()
+    positives = data[data[index] == 1]
+    negatives = data[data[index] == 0]
+
+    if usePyspark:
+        result = positives.orderBy(rand()).limit(
+            n).union(negatives.orderBy(rand()).limit(n))
+
+        finish_time = tm.time() - start_time
+        print_and_save_time("Early balancing concluded: " +
+                        str(finish_time) + " seconds")
+        return result
+    else:
+        finish_time = tm.time() - start_time
+        print_and_save_time("Early balancing concluded: " +
+                            str(finish_time) + " seconds")
+        return  pd.concat([positives.sample(n), negatives.sample(n)])
+
 def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     start_time = tm.time()
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
+        
         result = positives.orderBy(rand()).limit(
             n), negatives.orderBy(rand()).limit(n)
         finish_time = tm.time() - start_time
@@ -244,9 +268,8 @@ def convert_names_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
         b = s.encode(encoding)
         return float(crc32(b) & 0xffffffff) / 2**32
 
-    udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
-
     if usePyspark:
+        udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
         for c in names_columns_to_convert:
             data = data.withColumn(c, udf_names_conversion(col(c)))
     else:
@@ -264,10 +287,9 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
         day = date.timetuple().tm_yday - 1
         return day * multiplier
 
-    udf_dates_conversion = udf(
-        lambda x: date_to_day_of_year(x), DoubleType())
-
     if usePyspark:
+        udf_dates_conversion = udf(
+        lambda x: date_to_day_of_year(x), DoubleType())
         for c in date_columns_to_convert:
             data = data.withColumn(c, udf_dates_conversion(col(c)))
     else:
@@ -286,9 +308,8 @@ def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
         t = h * 60 + m
         return float(t / 1140)
 
-    udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
-
     if usePyspark:
+        udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
         for c in time_columns_to_convert:
             data = data.withColumn(c, udf_time_conversion(col(c)))
     else:
