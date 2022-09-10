@@ -94,7 +94,7 @@ def make_roc(labels, results, name):
 
 
 # If true, the balancing will be done before resulting in a great performances gain
-make_balancing_before_preprocessing = False
+earlyBalance = False
 problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
 usePyspark = False  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
@@ -106,7 +106,7 @@ records_for_balancing = 10000
 
 # =============================================================================
 train_data, train_labels, test_data, test_labels = preprocess(
-    problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark)
+    problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark, earlyBalance=earlyBalance)
 
 # =============================================================================
 
