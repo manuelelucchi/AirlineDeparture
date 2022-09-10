@@ -42,6 +42,7 @@ def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
         iterations, lr, batch_size, l2)
     fig.savefig("./data/{}.png".format(name))
     fig.clear()
+    plt.close()
 
     make_roc(test_labels, res, name)
 
@@ -83,9 +84,11 @@ def make_roc(labels, results, name):
     plt.plot(false_positives_rate, true_positives_rate,
              color='#8cbfd0', linestyle='-', linewidth=3.)
     plt.plot((0., 1.), (0., 1.), linestyle='--',
-             color='#d6ebf2', linewidth=2.)  # Baseline model
+             color='#d6ebf2', linewidth=2.)
 
     plt.savefig('./data/{}_roc.png'.format(name))
+    fig.clear()
+    plt.close()
 
 
 # =============================================================================

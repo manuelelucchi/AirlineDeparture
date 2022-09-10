@@ -240,39 +240,39 @@ def convert_strings_into_numbers(data: ps.DataFrame | pd.DataFrame) -> ps.DataFr
 def convert_names_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
     def str_to_float(s: str):
-            encoding = "utf-8"
-            b = s.encode(encoding)
-            return float(crc32(b) & 0xffffffff) / 2**32
+        encoding = "utf-8"
+        b = s.encode(encoding)
+        return float(crc32(b) & 0xffffffff) / 2**32
 
     udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
-    
+
     if usePyspark:
         for c in names_columns_to_convert:
             data = data.withColumn(c, udf_names_conversion(col(c)))
     else:
         for c in names_columns_to_convert:
-            data[c] = data[c].apply(udf_names_conversion)
+            data[c] = data[c].apply(str_to_float)
     return data
 
 
 def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     multiplier: float = 1 / 365
-    
+
     def date_to_day_of_year(date_string) -> float:
 
-            date = dt.strptime(date_string, "%Y-%m-%d")
-            day = date.timetuple().tm_yday - 1
-            return day * multiplier
+        date = dt.strptime(date_string, "%Y-%m-%d")
+        day = date.timetuple().tm_yday - 1
+        return day * multiplier
 
     udf_dates_conversion = udf(
         lambda x: date_to_day_of_year(x), DoubleType())
-    
-    if usePyspark:       
+
+    if usePyspark:
         for c in date_columns_to_convert:
             data = data.withColumn(c, udf_dates_conversion(col(c)))
     else:
         for i in date_columns_to_convert:
-            data[i] = data[i].apply(udf_dates_conversion)
+            data[i] = data[i].apply(date_to_day_of_year)
 
     return data
 
@@ -280,20 +280,20 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
 def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
     def time_to_interval(time) -> float:
-            t = int(float(time))
-            h = t // 100
-            m = t % 100
-            t = h * 60 + m
-            return float(t / 1140)
+        t = int(float(time))
+        h = t // 100
+        m = t % 100
+        t = h * 60 + m
+        return float(t / 1140)
 
     udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
-    
+
     if usePyspark:
         for c in time_columns_to_convert:
             data = data.withColumn(c, udf_time_conversion(col(c)))
     else:
         for c in time_columns_to_convert:
-            data[c] = data[c].apply(udf_time_conversion)
+            data[c] = data[c].apply(time_to_interval)
 
     return data
 
@@ -301,22 +301,19 @@ def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
 def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
     multiplier: float = float(1) / float(max_distance)
-    udf_numeric_conversion = udf(
+    if usePyspark:
+        udf_numeric_conversion = udf(
             lambda x: float(x) * multiplier, DoubleType())
-    if usePyspark:   
         data = data.withColumn(
             'DISTANCE', udf_numeric_conversion(col('DISTANCE')))
     else:
         for c in numeric_columns_to_convert:
-            data[c].apply(udf_numeric_conversion)
+            data[c] = data[c].apply(lambda x: x * multiplier)
     return data
 
 
 def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
-    # Take 25% of the data set as test set
     if usePyspark:
-        #test_sample = data.sample(fraction=0.25)
-        #training_sample = data.subtract(test_sample)
         test_sample, training_sample = data.randomSplit(
             [0.25, 0.75], seed=4000)
     else:
