@@ -24,6 +24,8 @@ dataframe_schema = StructType([
 spark = SparkSession.builder.appName(
     "Airline Departure").master('local[1]').getOrCreate()
 
+path = './data'
+
 # =================================================================
 
 columns_to_get: list[str] = [

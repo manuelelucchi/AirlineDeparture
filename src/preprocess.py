@@ -79,13 +79,13 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
 
         start_time = tm.time()
         data = read.get_dataset(size, useAllFrames, usePyspark)
-        
+
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset reading concluded: " +
                             str(finish_time) + " seconds")
         if earlyBalance:
             data = early_balance(data, index, balance_size, usePyspark)
-            
+
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:
@@ -146,20 +146,21 @@ def early_balance(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePysp
 
         finish_time = tm.time() - start_time
         print_and_save_time("Early balancing concluded: " +
-                        str(finish_time) + " seconds")
+                            str(finish_time) + " seconds")
         return result
     else:
         finish_time = tm.time() - start_time
         print_and_save_time("Early balancing concluded: " +
                             str(finish_time) + " seconds")
-        return  pd.concat([positives.sample(n), negatives.sample(n)])
+        return pd.concat([positives.sample(n), negatives.sample(n)]).reset_index(drop=True)
+
 
 def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     start_time = tm.time()
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
-        
+
         result = positives.orderBy(rand()).limit(
             n), negatives.orderBy(rand()).limit(n)
         finish_time = tm.time() - start_time
@@ -289,7 +290,7 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
 
     if usePyspark:
         udf_dates_conversion = udf(
-        lambda x: date_to_day_of_year(x), DoubleType())
+            lambda x: date_to_day_of_year(x), DoubleType())
         for c in date_columns_to_convert:
             data = data.withColumn(c, udf_dates_conversion(col(c)))
     else:
