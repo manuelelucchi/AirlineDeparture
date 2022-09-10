@@ -311,17 +311,17 @@ The numbers represents seconds of execution.
         \hline
         Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading        & 20.12526  & 58.69491            & 41.72719               \\
-        Null values removal & 3.96165   & 116.81526           & 112.14040              \\
-        Names conversion    & 114.67961 & 115.43204           & 117.07912              \\
-        Dates conversion    & 51.46286  & 110.92972           & 109.54266              \\
-        Times conversion    & 125.54429 & 111.87970           & 109.56157              \\
-        Distance conversion & 69.56513  & 112.53075           & 110.38996              \\
+        Data reading        & 168.81801  & 58.69491            & 41.72719               \\
+        Null values removal & 3.52260   & 116.81526           & 112.14040              \\
+        Names conversion    & 14.52482 & 115.43204           & 117.07912              \\
+        Dates conversion    & 53.43010  & 110.92972           & 109.54266              \\
+        Times conversion    & 12.46091 & 111.87970           & 109.56157              \\
+        Distance conversion & 1.28371  & 112.53075           & 110.38996              \\
         Strings conversion  & -         & 120.45830           & 110.59919              \\
-        Column removal      & 0.62132   & 111.37853           & 110.63221              \\
-        Balancing           & 0.68836   & 265.81415           & 256.77912              \\
-        Splitting           & 0.045422  & 1190.70186          & 1145.30147             \\
-        Total               & 366.01487 & 2314,63522          & 2223,75289             \\
+        Column removal      & 0.73976   & 111.37853           & 110.63221              \\
+        Balancing           & 0.73683   & 265.81415           & 256.77912              \\
+        Splitting           & 0.04397  & 1190.70186          & 1145.30147             \\
+        Total               & 255.56071 & 2314.63522          & 2223.75289             \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
@@ -329,12 +329,16 @@ The numbers represents seconds of execution.
 
 
 Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, there couldn't be obtained significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
-The first test was conducted using pandas, that was overall faster in each test, \textbf{by a factor of 1000 for some tests}. This could be explained by the big overhead the distributed enviroment creates that cannot be transformed into an advantage given the inadequate hardware.\\
+
+The only section where there is a noticeable improvement is the data reading section, in the remaining ones the performances gets worse, even significantly worse, especially in the splitting section, where PySpark takes an enormous amount of time, to perform
+an operation completed in less than one second by Pandas.
+This difference reaches \textbf{a factor of 1000}, which is the factor describing the overall difference of time required to complete the entire preprocessing..
+This could be explained by the big overhead the distributed enviroment creates that cannot be transformed into an advantage given the inadequate hardware.\\
 
 Another proof to support this thesys, is the comparison between the PySpark experiment forced into one node and the one that lets the system choose how many worker create.
 The first case was just slightly slower than the second, proving that both cases didn't fully use the parallelization the framework is specialized to.
 It's also worth noticing that the Google Collab enviroment was really unstable, with the same sequence of operations taking different times in the order of \textbf{30-40\%} of difference.
-\textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}
+\textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}\\
 
 For completition, the following tables shows the same experiment with the balancing phase executed before the rest of the preprocessing, that greatly decreases the number of records, as stated in \ref{note_on_preprocessing}
 
@@ -343,17 +347,18 @@ For completition, the following tables shows the same experiment with the balanc
         \hline
         Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading        & 20.12526  & 58.69491            & 41.72719               \\
-        Null values removal & 3.96165   & 116.81526           & 112.14040              \\
-        Names conversion    & 114.67961 & 115.43204           & 117.07912              \\
-        Dates conversion    & 51.46286  & 110.92972           & 109.54266              \\
-        Times conversion    & 125.54429 & 111.87970           & 109.56157              \\
-        Distance conversion & 69.56513  & 112.53075           & 110.38996              \\
+        Data reading        & 179.81432  & 58.69491            & 41.72719               \\
+        Early balancing        & 0.63052  & 58.69491            & 41.72719               \\
+        Null values removal & 0.04448   & 116.81526           & 112.14040              \\
+        Names conversion    & 0.07760 & 115.43204           & 117.07912              \\
+        Dates conversion    & 0.22399  & 110.92972           & 109.54266              \\
+        Times conversion    & 0.04854 & 111.87970           & 109.56157              \\
+        Distance conversion & 0.00560  & 112.53075           & 110.38996              \\
         Strings conversion  & -         & 120.45830           & 110.59919              \\
-        Column removal      & 0.62132   & 111.37853           & 110.63221              \\
-        Balancing           & 0.68836   & 265.81415           & 256.77912              \\
-        Splitting           & 0.045422  & 1190.70186          & 1145.30147             \\
-        Total               & 366.01487 & 2314,63522          & 2223,75289             \\
+        Column removal      & 0.00507   & 111.37853           & 110.63221              \\
+        Balancing           & 0.00384   & 265.81415           & 256.77912              \\
+        Splitting           & 0.02637  & 1190.70186          & 1145.30147             \\
+        Total               & 180,85660 & 2314,63522          & 2223,75289             \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing, with just 20000 records}

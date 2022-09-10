@@ -144,6 +144,7 @@ def early_balance(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePysp
         result = positives.orderBy(rand()).limit(
             n).union(negatives.orderBy(rand()).limit(n))
 
+        result.count()
         finish_time = tm.time() - start_time
         print_and_save_time("Early balancing concluded: " +
                             str(finish_time) + " seconds")
@@ -246,6 +247,7 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
     if usePyspark:
         data = data.drop(oppositeIndex)
         data = data.drop('index')
+        data.count()
     else:
         data.drop(oppositeIndex, axis=1, inplace=True)
 
@@ -259,6 +261,7 @@ def convert_strings_into_numbers(data: ps.DataFrame | pd.DataFrame) -> ps.DataFr
     udf_string_conversion = udf(lambda x: float(x), DoubleType())
     for c in string_columns_to_convert:
         data = data.withColumn(c, udf_string_conversion(col(c)))
+    data.count()
     return data
 
 
@@ -273,6 +276,7 @@ def convert_names_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
         udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
         for c in names_columns_to_convert:
             data = data.withColumn(c, udf_names_conversion(col(c)))
+        data.count()
     else:
         for c in names_columns_to_convert:
             data[c] = data[c].apply(str_to_float)
@@ -293,6 +297,7 @@ def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
             lambda x: date_to_day_of_year(x), DoubleType())
         for c in date_columns_to_convert:
             data = data.withColumn(c, udf_dates_conversion(col(c)))
+        data.count()
     else:
         for i in date_columns_to_convert:
             data[i] = data[i].apply(date_to_day_of_year)
@@ -313,6 +318,7 @@ def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bo
         udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
         for c in time_columns_to_convert:
             data = data.withColumn(c, udf_time_conversion(col(c)))
+        data.count()
     else:
         for c in time_columns_to_convert:
             data[c] = data[c].apply(time_to_interval)
@@ -328,6 +334,7 @@ def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark:
             lambda x: float(x) * multiplier, DoubleType())
         data = data.withColumn(
             'DISTANCE', udf_numeric_conversion(col('DISTANCE')))
+        data.count()
     else:
         for c in numeric_columns_to_convert:
             data[c] = data[c].apply(lambda x: x * multiplier)
