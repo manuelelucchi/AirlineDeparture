@@ -1,4 +1,4 @@
-from functions import binary_cross_entropy
+from functions import binary_cross_entropy, normalize
 from model import Model
 from preprocess import preprocess
 from preprocess import preprocess
@@ -22,7 +22,7 @@ def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
     model = Model(learning_rate=lr, batch_size=batch_size, l2=l2)
     (train_losses, gradients) = model.train(train_data,
                                             train_labels, iterations=iterations)
-    res = model.evaluate(test_data)
+    res = model.evaluate(normalize(test_data))
     test_loss = binary_cross_entropy(
         res, test_labels, zeros([res.shape[0]]), 0)
     print_and_save("For Custom, LR: {}, Batch Size: {}, L2: {}, IT: {}".format(
@@ -90,10 +90,23 @@ def make_roc(labels, results, name):
     fig.clear()
     plt.close()
 
+# ============================================================================
+
+
+# If true, the balancing will be done before resulting in a great performances gain
+make_balancing_before_preprocessing = False
+problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
+usePyspark = False  # If true, uses PySpark, otherwise Pandas
+# If false, only #records_per_file records will be sampled from the most recent year csv
+sample_from_all_files = True
+records_per_file = 500000
+# Warning, this number should be smaller or equal than the number of positive cases in the sampled dataset.
+records_for_balancing = 10000
+# Since the sampling is random, the number could vary, thus we don't recomend to use values >10000
 
 # =============================================================================
 train_data, train_labels, test_data, test_labels = preprocess(
-    "CANCELLED", True, 500000, 10000, usePyspark=False)
+    problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark)
 
 # =============================================================================
 
@@ -146,7 +159,7 @@ custom_train_eval(iterations=100, lr=0.001,
 
 # =============================================================================
 
-# L2 Regularization
+# Iterations
 
 custom_train_eval(iterations=100, lr=0.001,
                   batch_size=20, l2=0.01)
