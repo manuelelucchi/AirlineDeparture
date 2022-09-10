@@ -1,6 +1,6 @@
-import datetime as dt
 import sys
 from datetime import datetime as dt
+import time as tm
 import download
 import read
 import numpy
@@ -77,11 +77,11 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
-        start_time = dt.now()
+        start_time = tm.time()
         data = read.get_dataset(size, useAllFrames, usePyspark)
-        finish_time = dt.now() - start_time
+        finish_time = tm.time() - start_time
         print_and_save_time("Dataset reading concluded: " +
-                            str(finish_time.total_seconds()) + " seconds")
+                            str(finish_time) + " seconds")
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
     else:
@@ -95,7 +95,7 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
 
     data_p, data_n = balance_dataframe(data, index, balance_size, usePyspark)
 
-    start_time = dt.now()
+    start_time = tm.time()
     train_data_p, test_data_p = split_data(data_p, usePyspark)
     train_data_n, test_data_n = split_data(data_n, usePyspark)
 
@@ -117,36 +117,36 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
                   numpy.array(test_data.collect()),
                   numpy.array(test_labels.collect()))
 
-        finish_time = dt.now() - start_time
+        finish_time = tm.time() - start_time
         print_and_save_time("Dataset splitting concluded: " +
-                            str(finish_time.total_seconds()) + " seconds")
+                            str(finish_time) + " seconds")
         return result
     else:
         result = (train_data.to_numpy(), train_labels.to_numpy(),
                   test_data.to_numpy(), test_labels.to_numpy())
 
-        finish_time = dt.now() - start_time
+        finish_time = tm.time() - start_time
         print_and_save_time("Dataset splitting concluded: " +
-                            str(finish_time.total_seconds()) + " seconds")
+                            str(finish_time) + " seconds")
         return result
 
 
 def balance_dataframe(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
-    start_time = dt.now()
+    start_time = tm.time()
     positives = data[data[index] == 1]
     negatives = data[data[index] == 0]
     if usePyspark:
         result = positives.orderBy(rand()).limit(
             n), negatives.orderBy(rand()).limit(n)
-        finish_time = dt.now() - start_time
+        finish_time = tm.time() - start_time
         print_and_save_time("Dataset balancing concluded: " +
-                            str(finish_time.total_seconds()) + " seconds")
+                            str(finish_time) + " seconds")
         return result
     else:
         result = positives.sample(n), negatives.sample(n)
-        finish_time = dt.now() - start_time
+        finish_time = tm.time() - start_time
         print_and_save_time("Dataset balancing concluded: " +
-                            str(finish_time.total_seconds()) + " seconds")
+                            str(finish_time) + " seconds")
         return result
 
 
@@ -162,7 +162,7 @@ def split_labels(data: ps.DataFrame | pd.DataFrame, index: str, usePyspark: bool
 
 def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    common_start_time = dt.now()
+    common_start_time = tm.time()
 
     if usePyspark:
         # Replace Nan values with the correct default values
@@ -173,50 +173,50 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
         data.fillna(value=0, inplace=True)
         data.dropna(how='any', axis='index', inplace=True)
 
-    null_removal_finish_time = dt.now() - common_start_time
+    null_removal_finish_time = tm.time() - common_start_time
     print_and_save_time("Null values removal concluded: " +
-                        str(null_removal_finish_time.total_seconds()) + " seconds")
+                        str(null_removal_finish_time) + " seconds")
 
-    names_start_time = dt.now()
+    names_start_time = tm.time()
     data = convert_names_into_numbers(data, usePyspark)
-    names_finish_time = dt.now() - names_start_time
+    names_finish_time = tm.time() - names_start_time
     print_and_save_time("Names conversion concluded: " +
-                        str(names_finish_time.total_seconds()) + " seconds")
+                        str(names_finish_time) + " seconds")
 
-    dates_start_time = dt.now()
+    dates_start_time = tm.time()
     data = convert_dates_into_numbers(data, usePyspark)
-    dates_finish_time = dt.now() - dates_start_time
+    dates_finish_time = tm.time() - dates_start_time
     print_and_save_time("Dates conversion concluded: " +
-                        str(dates_finish_time.total_seconds()) + " seconds")
+                        str(dates_finish_time) + " seconds")
 
-    times_start_time = dt.now()
+    times_start_time = tm.time()
     data = convert_times_into_numbers(data, usePyspark)
-    times_finish_time = dt.now() - times_start_time
+    times_finish_time = tm.time() - times_start_time
     print_and_save_time("Times conversion concluded: " +
-                        str(times_finish_time.total_seconds()) + " seconds")
+                        str(times_finish_time) + " seconds")
 
-    distance_start_time = dt.now()
+    distance_start_time = tm.time()
     data = convert_distance_into_numbers(data, usePyspark)
-    distance_finish_time = dt.now() - distance_start_time
+    distance_finish_time = tm.time() - distance_start_time
     print_and_save_time("Distance conversion concluded: " +
-                        str(distance_finish_time.total_seconds()) + " seconds")
+                        str(distance_finish_time) + " seconds")
 
     if usePyspark:
-        strings_start_time = dt.now()
+        strings_start_time = tm.time()
         data = convert_strings_into_numbers(data, usePyspark)
-        strings_finish_time = dt.now() - strings_start_time
+        strings_finish_time = tm.time() - strings_start_time
         print_and_save_time("Strings conversion concluded: " +
-                            str(strings_finish_time.total_seconds()) + " seconds")
+                            str(strings_finish_time) + " seconds")
 
-    common_finish_time = dt.now() - common_start_time
+    common_finish_time = tm.time() - common_start_time
     print_and_save_time("Common preprocessing concluded: " +
-                        str(common_finish_time.total_seconds()) + " seconds")
+                        str(common_finish_time) + " seconds")
     return data
 
 
 def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    start_time = dt.now()
+    start_time = tm.time()
     oppositeIndex = 'DIVERTED' if index == 'CANCELLED' else 'CANCELLED'
     if usePyspark:
         data = data.drop(oppositeIndex)
@@ -224,9 +224,9 @@ def remove_extra_columns(index: str, data: ps.DataFrame | pd.DataFrame, usePyspa
     else:
         data.drop(oppositeIndex, axis=1, inplace=True)
 
-    finish_time = dt.now() - start_time
+    finish_time = tm.time() - start_time
     print_and_save_time("Extra column removal concluded: " +
-                        str(finish_time.total_seconds()) + " seconds")
+                        str(finish_time) + " seconds")
     return data
 
 
@@ -239,118 +239,76 @@ def convert_strings_into_numbers(data: ps.DataFrame | pd.DataFrame) -> ps.DataFr
 
 def convert_names_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    if usePyspark:
-        def str_to_float(s: str):
+    def str_to_float(s: str):
             encoding = "utf-8"
             b = s.encode(encoding)
             return float(crc32(b) & 0xffffffff) / 2**32
 
-        udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
-
+    udf_names_conversion = udf(lambda x: str_to_float(x), DoubleType())
+    
+    if usePyspark:
         for c in names_columns_to_convert:
             data = data.withColumn(c, udf_names_conversion(col(c)))
     else:
         for c in names_columns_to_convert:
-            unique_values: ndarray = []
-            values_map: dict = {}
-            counter: float = 0
-
-            unique_values = data[c].unique()
-            unique_values = numpy.sort(unique_values)
-            adder: float = 1 / len(unique_values)
-
-            for v in unique_values:
-                values_map[v] = counter
-                counter += adder
-
-            data[c].replace(to_replace=values_map, inplace=True)
+            data[c] = data[c].apply(udf_names_conversion)
     return data
 
 
 def convert_dates_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
     multiplier: float = 1 / 365
-    if usePyspark:
-        def date_to_day_of_year(date_string) -> float:
+    
+    def date_to_day_of_year(date_string) -> float:
 
             date = dt.strptime(date_string, "%Y-%m-%d")
             day = date.timetuple().tm_yday - 1
             return day * multiplier
 
-        udf_dates_conversion = udf(
-            lambda x: date_to_day_of_year(x), DoubleType())
-
+    udf_dates_conversion = udf(
+        lambda x: date_to_day_of_year(x), DoubleType())
+    
+    if usePyspark:       
         for c in date_columns_to_convert:
             data = data.withColumn(c, udf_dates_conversion(col(c)))
     else:
         for i in date_columns_to_convert:
-            unique_values: ndarray = []
-            values_map: dict = {}
-
-            unique_values = numpy.sort(data[i].unique())
-
-            for v in unique_values:
-                day = dt.strptime(v, "%Y-%m-%d").timetuple().tm_yday - 1
-                values_map[v] = day * multiplier
-
-            data[i].replace(to_replace=values_map, inplace=True)
+            data[i] = data[i].apply(udf_dates_conversion)
 
     return data
 
 
 def convert_times_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    if usePyspark:
-        def time_to_interval(time) -> float:
+    def time_to_interval(time) -> float:
             t = int(float(time))
             h = t // 100
             m = t % 100
             t = h * 60 + m
             return float(t / 1140)
 
-        udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
-
+    udf_time_conversion = udf(lambda x: time_to_interval(x), DoubleType())
+    
+    if usePyspark:
         for c in time_columns_to_convert:
             data = data.withColumn(c, udf_time_conversion(col(c)))
     else:
-        multiplier: float = 1 / 2359
-
         for c in time_columns_to_convert:
-            unique_values: ndarray = []
-            values_map: dict = {}
-
-            unique_values = data[c].unique()
-            unique_values = numpy.sort(unique_values)
-
-            for v in unique_values:
-                values_map[v] = v * multiplier
-
-            data[c].replace(to_replace=values_map, inplace=True)
+            data[c] = data[c].apply(udf_time_conversion)
 
     return data
 
 
 def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps.DataFrame | pd.DataFrame:
 
-    if usePyspark:
-        multiplier: float = float(1) / float(max_distance)
-        udf_numeric_conversion = udf(
+    multiplier: float = float(1) / float(max_distance)
+    udf_numeric_conversion = udf(
             lambda x: float(x) * multiplier, DoubleType())
-
+    if usePyspark:   
         data = data.withColumn(
             'DISTANCE', udf_numeric_conversion(col('DISTANCE')))
     else:
         for c in numeric_columns_to_convert:
-            unique_values: ndarray = []
-            values_map: dict = {}
-
-            unique_values = data[c].unique()
-            unique_values = numpy.sort(unique_values)
-            multiplier: float = 1 / unique_values.max()
-
-            for v in unique_values:
-                values_map[v] = v * multiplier
-
-            data[c].replace(to_replace=values_map, inplace=True)
+            data[c].apply(udf_numeric_conversion)
     return data
 
 
