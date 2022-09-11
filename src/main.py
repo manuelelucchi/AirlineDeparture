@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 
 # =============================================================================
 
-file = open('data/results.txt', 'a')
-
 
 def print_and_save(s: str):
+    file = open('data/results.txt', 'a')
     file.write(s + '\n')
     print(s)
 
@@ -97,7 +96,7 @@ def make_roc(labels, results, name):
 # If true, the balancing will be done before resulting in a great performances gain
 earlyBalance = True
 problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
-usePyspark = True  # If true, uses PySpark, otherwise Pandas
+usePyspark = False  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
 sample_from_all_files = True
 records_per_file = 500000
@@ -108,9 +107,9 @@ worker_nodes = "*"
 # Tests have been performed using the value 1 and the *, which means thath Spark automatically set the number of nodes based on the enviroment characteristics
 
 read.spark = SparkSession.builder \
-  .appName("Airline Departure") \
-  .master('local['+ worker_nodes +']') \
-  .getOrCreate()
+    .appName("Airline Departure") \
+    .master('local[' + worker_nodes + ']') \
+    .getOrCreate()
 # =============================================================================
 train_data, train_labels, test_data, test_labels = preprocess(
     problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark, earlyBalance=earlyBalance)
