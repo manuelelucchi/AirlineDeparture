@@ -309,7 +309,14 @@ They are sampled from each file following a uniform distribution and contain equ
 
 \subsection{Preprocessing Performance}
 
-The table below summarizes the time required by the \textbf{Colab enviroment} to complete various parts of the preprocessing section.
+The table below summarizes the time required by the \textbf{Colab enviroment} to complete various parts of the preprocessing section.\\
+
+In order to collect the data of PySpark, at the end of every section the method count() was launched, forcing the library to execute immediately the operation requested.\\
+
+Without these requests, the lazy behaviour of PySpark data structures makes any type of benchmarking impossible.This probably makes the times of execution longer, due to
+the execution of the count operations, and the \textbf{loss of some optimization} thath could be done if the library evaluates all the operations in one run.
+This delay must be taken into consideration, but should not alter the overall results of the tests.\\
+
 The numbers represents seconds of execution.
 
 \begin{center}
