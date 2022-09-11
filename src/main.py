@@ -96,7 +96,7 @@ def make_roc(labels, results, name):
 # If true, the balancing will be done before resulting in a great performances gain
 earlyBalance = True
 problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
-usePyspark = False  # If true, uses PySpark, otherwise Pandas
+usePyspark = True  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
 sample_from_all_files = True
 records_per_file = 500000

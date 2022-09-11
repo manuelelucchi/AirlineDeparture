@@ -121,6 +121,9 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
                   numpy.array(test_data.collect()),
                   numpy.array(test_labels.collect()))
 
+        result[1].shape = [result[1].shape[0]]
+        result[3].shape = [result[3].shape[0]]
+
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset splitting concluded: " +
                             str(finish_time) + " seconds")
