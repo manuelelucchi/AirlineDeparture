@@ -229,7 +229,7 @@ def common_preprocess(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> ps
 
     if usePyspark:
         strings_start_time = tm.time()
-        data = convert_strings_into_numbers(data, usePyspark)
+        data = convert_strings_into_numbers(data)
         strings_finish_time = tm.time() - strings_start_time
         print_and_save_time("Strings conversion concluded: " +
                             str(strings_finish_time) + " seconds")
