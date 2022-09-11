@@ -138,7 +138,7 @@ Then the data not already represented as real numbers has been converted; airpor
 
 \subsubsection{Hashing}
 
-Particularly, to convert the identifiers, the checksum function \textbf{crc32} \cite{crc32} has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer. Finally, the value is normnalized dividing it for the max integer value.
+Particularly, to convert the identifiers, the checksum function \textbf{crc32} \cite{crc32} has been used, then the result has been put in END with the bytes representing the number -1, to ensure to get an unsigned integer. Finally, the value is normalized dividing it for the max integer value.
 This function has been choosen because is one of the fastest way to hash short strings, which is what is needed here, compared to other alghoritims like the SHA or MD5.\\
 
 \subsubsection{Normalization}
@@ -311,16 +311,16 @@ The numbers represents seconds of execution.
         \hline
         Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading        & 168.81801  & 58.69491            & 41.72719               \\
+        Data reading        & 168.81801 & 58.69491            & 41.72719               \\
         Null values removal & 3.52260   & 116.81526           & 112.14040              \\
-        Names conversion    & 14.52482 & 115.43204           & 117.07912              \\
+        Names conversion    & 14.52482  & 115.43204           & 117.07912              \\
         Dates conversion    & 53.43010  & 110.92972           & 109.54266              \\
-        Times conversion    & 12.46091 & 111.87970           & 109.56157              \\
-        Distance conversion & 1.28371  & 112.53075           & 110.38996              \\
+        Times conversion    & 12.46091  & 111.87970           & 109.56157              \\
+        Distance conversion & 1.28371   & 112.53075           & 110.38996              \\
         Strings conversion  & -         & 120.45830           & 110.59919              \\
         Column removal      & 0.73976   & 111.37853           & 110.63221              \\
         Balancing           & 0.73683   & 265.81415           & 256.77912              \\
-        Splitting           & 0.04397  & 1190.70186          & 1145.30147             \\
+        Splitting           & 0.04397   & 1190.70186          & 1145.30147             \\
         Total               & 255.56071 & 2314.63522          & 2223.75289             \\
         \hline
     \end{tabular}
@@ -347,18 +347,18 @@ For completition, the following tables shows the same experiment with the balanc
         \hline
         Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading        & 179.81432  & 24.72598            & 40.64999               \\
-        Early balancing        & 0.63052  & 55.55881            & 60.29146               \\
+        Data reading        & 179.81432 & 24.72598            & 40.64999               \\
+        Early balancing     & 0.63052   & 55.55881            & 60.29146               \\
         Null values removal & 0.04448   & 111.82450           & 112.65933              \\
-        Names conversion    & 0.07760 & 109.92273           & 110.72936              \\
-        Dates conversion    & 0.22399  & 110.83473           & 109.68199              \\
-        Times conversion    & 0.04854 & 116.25847           & 108.61510              \\
-        Distance conversion & 0.00560  & 110.05368           & 107.94065              \\
+        Names conversion    & 0.07760   & 109.92273           & 110.72936              \\
+        Dates conversion    & 0.22399   & 110.83473           & 109.68199              \\
+        Times conversion    & 0.04854   & 116.25847           & 108.61510              \\
+        Distance conversion & 0.00560   & 110.05368           & 107.94065              \\
         Strings conversion  & -         & 109.58877           & 108.42743              \\
         Column removal      & 0.00507   & 110.72890           & 110.85607              \\
         Balancing           & 0.00384   & 224.42019           & 218.66665              \\
-        Splitting           & 0.02637  & 501.79631         & 492.85677             \\
-        Total               & 180,85660 & 1585,71307          & 1581,3748             \\
+        Splitting           & 0.02637   & 501.79631           & 492.85677              \\
+        Total               & 180,85660 & 1585,71307          & 1581,3748              \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing, with just 20000 records}
