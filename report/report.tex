@@ -347,24 +347,30 @@ For completition, the following tables shows the same experiment with the balanc
         \hline
         Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
         \hline
-        Data reading        & 179.81432  & 58.69491            & 41.72719               \\
-        Early balancing        & 0.63052  & 58.69491            & 41.72719               \\
-        Null values removal & 0.04448   & 116.81526           & 112.14040              \\
-        Names conversion    & 0.07760 & 115.43204           & 117.07912              \\
-        Dates conversion    & 0.22399  & 110.92972           & 109.54266              \\
-        Times conversion    & 0.04854 & 111.87970           & 109.56157              \\
-        Distance conversion & 0.00560  & 112.53075           & 110.38996              \\
-        Strings conversion  & -         & 120.45830           & 110.59919              \\
-        Column removal      & 0.00507   & 111.37853           & 110.63221              \\
-        Balancing           & 0.00384   & 265.81415           & 256.77912              \\
-        Splitting           & 0.02637  & 1190.70186          & 1145.30147             \\
-        Total               & 180,85660 & 2314,63522          & 2223,75289             \\
+        Data reading        & 179.81432  & 24.72598            & 40.64999               \\
+        Early balancing        & 0.63052  & 55.55881            & 60.29146               \\
+        Null values removal & 0.04448   & 111.82450           & 112.65933              \\
+        Names conversion    & 0.07760 & 109.92273           & 110.72936              \\
+        Dates conversion    & 0.22399  & 110.83473           & 109.68199              \\
+        Times conversion    & 0.04854 & 116.25847           & 108.61510              \\
+        Distance conversion & 0.00560  & 110.05368           & 107.94065              \\
+        Strings conversion  & -         & 109.58877           & 108.42743              \\
+        Column removal      & 0.00507   & 110.72890           & 110.85607              \\
+        Balancing           & 0.00384   & 224.42019           & 218.66665              \\
+        Splitting           & 0.02637  & 501.79631         & 492.85677             \\
+        Total               & 180,85660 & 1585,71307          & 1581,3748             \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing, with just 20000 records}
 \end{center}
 
-AGGIUNGERE COMMENTO
+Looking at the tests performed using an early balancing before all the preprocessing procedures, the Pandas library performances have improved accordingly with the reduction of the input dimensions.
+This was not the case for the PySpark performances, the vast majority of the sections require a time interval similar to the previous table, with the exception of the splitting section where the time required went down, but not proportionally to the input reduction.\\
+
+This suggests that the PySpark processing procedure would gain advantage over Pandas only over a really large dataset, where the time used to put up the processing infrastructure is justified by the huge amount of data to be processed.
+In this case instead, it seems that most of the time required by PySpark is wasted organizing the computation, without gaining any advantage from this organization, over a library that procedes straight up to the calculation of the results.\\
+
+It si also possible that the time required would go down if the execution took place on a more parallelized machine than the Colab enviroment, giving PySpark the opportunity to take advantage of work distribution on a higher number of nodes.
 
 \subsection{Canceled Flights}
 
