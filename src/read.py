@@ -21,8 +21,7 @@ dataframe_schema = StructType([
     StructField('DISTANCE', StringType(), True)
 ])
 
-spark = SparkSession.builder.appName(
-    "Airline Departure").master('local[1]').getOrCreate()
+spark: SparkSession = None
 
 path = './data'
 

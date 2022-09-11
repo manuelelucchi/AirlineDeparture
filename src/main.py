@@ -1,6 +1,8 @@
 from functions import binary_cross_entropy, normalize
 from model import Model
 from preprocess import preprocess
+import read
+from pyspark.sql import SparkSession
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from numpy import zeros
@@ -95,14 +97,20 @@ def make_roc(labels, results, name):
 # If true, the balancing will be done before resulting in a great performances gain
 earlyBalance = True
 problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
-usePyspark = False  # If true, uses PySpark, otherwise Pandas
+usePyspark = True  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
 sample_from_all_files = True
 records_per_file = 500000
 # Warning, this number should be smaller or equal than the number of positive cases in the sampled dataset.
 records_for_balancing = 10000
 # Since the sampling is random, the number could vary, thus we don't recomend to use values >10000
+worker_nodes = "*"
+# Tests have been performed using the value 1 and the *, which means thath Spark automatically set the number of nodes based on the enviroment characteristics
 
+read.spark = SparkSession.builder \
+  .appName("Airline Departure") \
+  .master('local['+ worker_nodes +']') \
+  .getOrCreate()
 # =============================================================================
 train_data, train_labels, test_data, test_labels = preprocess(
     problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark, earlyBalance=earlyBalance)
