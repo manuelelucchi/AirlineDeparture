@@ -241,7 +241,7 @@ $$ b' = b - \mu \nabla b $$
 For the loss the \textbf{Binary Cross Entropy} \cite{binarycrossentropy} function, also called \textbf{Log Loss}, was used.
 It is defined as
 $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) $$
-This particular function is used since to perform the gradient descent it can be derived and conducted to the weights update formula to minimize it in the same way as it's done for the MSE \cite{mse} for the Linear Regression.\\
+This particular function is used since, to perform the gradient descent, it can be derived and conducted to the weights update formula to minimize the loss in the same way as it's done for the MSE \cite{mse} in the Linear Regression.\\
 
 For the MSE and Linear Regression
 
@@ -628,6 +628,7 @@ For this reason, the results obtained are equivalent, so they will just be repor
 
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
 The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
+It's still important to notice that the parallelization overhead was strangely high even on a single worker configuration, leading to think part of it is by default in PySpark.\\
 Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.\\
 Both of the models probably converged on a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
 
