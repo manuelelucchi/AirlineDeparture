@@ -466,8 +466,8 @@ As described before, to avoid overfitting, a regularization term has been added,
     \captionof{table}{Training and Test Loss for a different value of the L2 term}
 \end{center}
 
-Since the model didn't appear to be overfitting from the start, the regularization doesn't show any significant benefit.\\
-The following experiments used $\lambda = 0.1$
+Since the model didn't appear to be overfitting from the start, adding the regularization doesn't show any significant benefit.\\
+The following experiments will use $\lambda = 0.1$
 
 \subsubsection{More iterations}
 
@@ -496,7 +496,7 @@ The apparently better performing configuration of the hyperparameters has the fo
     %\label{roc1}
 \end{center}
 
-It has a decent ability to predict, but as an inverse predictor, suggesting that mini batch feature
+It has a decent ability to predict, but as an inverse predictor, suggesting that the model found easier to predict that a flight would be canceled because most of the dataset had similar values.
 
 A notable case is the experiment with the same learning rate but without the Mini Batch feature.
 
@@ -506,7 +506,7 @@ A notable case is the experiment with the same learning rate but without the Min
     %\label{roc2}
 \end{center}
 
-It has a similar curve to the previous case, but this time it's not predicting the inverse. This is interesting since the loss of this configuration is really high loss and it suffers of vanishing gradient as can be seen from the following chart
+It has a similar (but worse) curve to the previous case, but this time it's not predicting the inverse. This is interesting since the loss of this configuration is really high and it suffers of vanishing gradient as can be seen from the following chart
 
 \begin{center}
     \includegraphics[width=10cm]{../images/graph_3.png}
@@ -630,8 +630,9 @@ For this reason, the results obtained are equivalent, so they will just be repor
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
 The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
 It's still important to notice that the parallelization overhead was strangely high even on a single worker configuration, leading to think part of it is by default in PySpark.\\
+
 Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.\\
-Both of the models probably converged on a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
+Both of the models probably converged to a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
