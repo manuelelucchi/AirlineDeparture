@@ -90,6 +90,15 @@ def make_roc(labels, results, name):
     fig.clear()
     plt.close()
 
+
+# To summarize, there is a bias-variance trade-off associated with the choice of k in k-fold cross-validation.
+# Typically, given these considerations, one performs k-fold cross-validation using k = 5 or k = 10, as these values have been shown empirically to yield test error rate estimates that suffer neither from excessively high bias nor from very high variance.
+
+def k_folds(data, labels, n):
+    d = np.split(data, n)
+    l = np.split(labels, n)
+    return list(zip(d, l))
+
 # ============================================================================
 
 
