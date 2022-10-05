@@ -344,11 +344,29 @@ def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark:
     return data
 
 
-def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
+def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
     if usePyspark:
         test_sample, training_sample = data.randomSplit(
             [0.25, 0.75], seed=4000)
     else:
-        test_sample = data.sample(round(len(data.index) / 4))
-        training_sample = data.drop(test_sample.index)
+        positives_filter = data[label] == 1
+        negatives_filter = data[label] == 0
+        total_positives = data.where(positives_filter).count()
+        total_negatives = data.where(negatives_filter).count()
+        positives_negatives_ratio = total_positives/total_negatives
+
+        test_elements_number = round(len(data.index) / 4)
+        training_elements_number = test_elements_number * 3
+
+        training_positives_elements = round(
+            training_elements_number * positives_negatives_ratio)
+        training_negatives_elements = round(
+            training_elements_number * (1 - positives_negatives_ratio))
+        training_sample = data.where(positives_filter).limit(
+            training_positives_elements)
+        training_sample = pd.concat([training_sample, data.where(
+            negatives_filter).limit(training_negatives_elements)])
+
+        # test_sample = data.sample(round(len(data.index) / 4))
+        # training_sample = data.drop(test_sample.index)
     return training_sample, test_sample
