@@ -73,7 +73,7 @@ def print_and_save_time(s: str):
     print(s)
 
 
-def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool, earlyBalance: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+def preprocess(index: str, split_number: int, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool, earlyBalance: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
@@ -97,45 +97,44 @@ def preprocess(index: str, useAllFrames: bool, size: int, balance_size: int, use
 
     data = remove_extra_columns(index, data, usePyspark)
 
-    data_p, data_n = balance_dataframe(data, index, balance_size, usePyspark)
+    #data_p, data_n = balance_dataframe(data, index, balance_size, usePyspark)
 
     start_time = tm.time()
-    train_data_p, test_data_p = split_data(data_p, usePyspark)
-    train_data_n, test_data_n = split_data(data_n, usePyspark)
+    splits = split_data(data, usePyspark, index, split_number)
 
     if usePyspark:
-        train_data = train_data_p.union(train_data_n)
-        test_data = test_data_p.union(test_data_n)
-    else:
-        train_data = pd.concat(
-            [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
-        test_data = pd.concat(
-            [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
+        #    train_data = train_data_p.union(train_data_n)
+        #    test_data = test_data_p.union(test_data_n)
+        # else:
+        #    train_data = pd.concat(
+        #        [train_data_p, train_data_n]).drop_duplicates().reset_index(drop=True)
+        #    test_data = pd.concat(
+        #        [test_data_p, test_data_n]).drop_duplicates().reset_index(drop=True)
 
-    (train_data, train_labels) = split_labels(train_data, index, usePyspark)
-    (test_data, test_labels) = split_labels(test_data, index, usePyspark)
+        #(train_data, train_labels) = split_labels(train_data, index, usePyspark)
+        #(test_data, test_labels) = split_labels(test_data, index, usePyspark)
 
-    if usePyspark:
-        result = (numpy.array(train_data.collect()),
-                  numpy.array(train_labels.collect()),
-                  numpy.array(test_data.collect()),
-                  numpy.array(test_labels.collect()))
+        # if usePyspark:
+        #    result = (numpy.array(train_data.collect()),
+        #              numpy.array(train_labels.collect()),
+        #              numpy.array(test_data.collect()),
+        #              numpy.array(test_labels.collect()))
 
-        result[1].shape = [result[1].shape[0]]
-        result[3].shape = [result[3].shape[0]]
+        #    result[1].shape = [result[1].shape[0]]
+        #    result[3].shape = [result[3].shape[0]]
 
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset splitting concluded: " +
                             str(finish_time) + " seconds")
-        return result
+        return splits
     else:
-        result = (train_data.to_numpy(), train_labels.to_numpy(),
-                  test_data.to_numpy(), test_labels.to_numpy())
+        #    result = (train_data.to_numpy(), train_labels.to_numpy(),
+        #              test_data.to_numpy(), test_labels.to_numpy())
 
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset splitting concluded: " +
                             str(finish_time) + " seconds")
-        return result
+        return splits
 
 
 def early_balance(data: ps.DataFrame | pd.DataFrame, index: str, n: int, usePyspark: bool):
@@ -344,29 +343,40 @@ def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark:
     return data
 
 
-def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
+def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, k: int) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
+
+    positives_filter = data[label] == 1
+    negatives_filter = data[label] == 0
+    total_positives = data.where(positives_filter).count()
+    total_negatives = data.where(negatives_filter).count()
+    positives_negatives_ratio = total_positives/total_negatives
+    k_elements_number = round(data.count() / k)
+
+    k_positive_elements = round(
+        k_elements_number * positives_negatives_ratio)
+    k_negative_elements = round(
+        k_elements_number * (1 - positives_negatives_ratio))
+
+    split_list = []
+
     if usePyspark:
-        test_sample, training_sample = data.randomSplit(
-            [0.25, 0.75], seed=4000)
+        i = 0
+        while i < k:
+            k_sample = data.where(positives_filter).limit(k_positive_elements)
+            k_sample = k_sample.union(data.where(
+                negatives_filter).limit(k_negative_elements))
+            split_list.append(k_sample)
+            data = data.subtract(k_sample)
+            i += 1
+
     else:
-        positives_filter = data[label] == 1
-        negatives_filter = data[label] == 0
-        total_positives = data.where(positives_filter).count()
-        total_negatives = data.where(negatives_filter).count()
-        positives_negatives_ratio = total_positives/total_negatives
 
-        test_elements_number = round(len(data.index) / 4)
-        training_elements_number = test_elements_number * 3
+        for i in range(1, k + 1):
+            k_sample = data.where(positives_filter).limit(
+                k_positive_elements)
+            k_sample = pd.concat([k_sample, data.where(
+                negatives_filter).limit(k_negative_elements)])
+            split_list.append(k_sample)
+            data = data.drop(k_sample.index)
 
-        training_positives_elements = round(
-            training_elements_number * positives_negatives_ratio)
-        training_negatives_elements = round(
-            training_elements_number * (1 - positives_negatives_ratio))
-        training_sample = data.where(positives_filter).limit(
-            training_positives_elements)
-        training_sample = pd.concat([training_sample, data.where(
-            negatives_filter).limit(training_negatives_elements)])
-
-        # test_sample = data.sample(round(len(data.index) / 4))
-        # training_sample = data.drop(test_sample.index)
-    return training_sample, test_sample
+    return split_list
