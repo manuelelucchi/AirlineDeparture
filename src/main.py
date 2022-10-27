@@ -1,9 +1,10 @@
+from linear_regression import LinearRegression
 from functions import binary_cross_entropy, normalize
-from model import Model
+from logistic_regression import LogisticRegression
 from preprocess import preprocess
 import read
 from pyspark.sql import SparkSession
-from sklearn.linear_model import LogisticRegression
+import sklearn.linear_model as sk
 from sklearn.metrics import log_loss
 from numpy import zeros
 import numpy as np
@@ -18,8 +19,8 @@ def print_and_save(s: str):
     print(s)
 
 
-def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
-    model = Model(learning_rate=lr, batch_size=batch_size, l2=l2)
+def logistic_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
+    model = LogisticRegression(learning_rate=lr, batch_size=batch_size, l2=l2)
     (train_losses, gradients) = model.train(train_data,
                                             train_labels, iterations=iterations)
     res = model.evaluate(normalize(test_data))
@@ -29,20 +30,33 @@ def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
         lr, batch_size, l2, iterations))
     print_and_save("The last train loss is: {}".format(train_losses[-1]))
     print_and_save("The average test loss is: {}".format(test_loss))
-    fig, ax = plt.subplots()
-    ax.set_xlabel('Iterations')
-    ax.set_ylabel('Loss/Gradient')
-    ax.set_title('IT={} LR={} Batch Size={} L2={}'.format(iterations,
-                                                          lr, batch_size, l2))
-    ax.plot(range(iterations), train_losses, label='Loss')
-    ax.plot(range(iterations), gradients, label='Gradient')
-    ax.grid()
-    ax.legend()
+
     name = "IT={}_LR={}_BatchSize={}_L2={}".format(
         iterations, lr, batch_size, l2)
-    fig.savefig("./data/{}.png".format(name))
-    fig.clear()
-    plt.close()
+
+    plot_loss_gradient(iterations, train_losses, gradients, name)
+
+    make_roc(test_labels, res, name)
+
+    print_and_save("=====================================================")
+
+
+def linear_train_eval(iterations=100, lr=1, batch_size=20) -> float:
+    model = LinearRegression(learning_rate=lr, batch_size=batch_size)
+    (train_losses, gradients) = model.train(train_data,
+                                            train_labels, iterations=iterations)
+    res = model.evaluate(normalize(test_data))
+    test_loss = binary_cross_entropy(
+        res, test_labels, zeros([res.shape[0]]), 0)
+    print_and_save("For Custom, LR: {}, Batch Size: {}, IT: {}".format(
+        lr, batch_size, iterations))
+    print_and_save("The last train loss is: {}".format(train_losses[-1]))
+    print_and_save("The average test loss is: {}".format(test_loss))
+
+    name = "IT={}_LR={}_BatchSize={}".format(
+        iterations, lr, batch_size)
+
+    plot_loss_gradient(iterations, train_losses, gradients, name)
 
     make_roc(test_labels, res, name)
 
@@ -50,7 +64,7 @@ def custom_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
 
 
 def sklearn_train_eval() -> float:
-    model = LogisticRegression()
+    model = sk.LogisticRegression()
     model.fit(train_data, train_labels)
     res = list(map(lambda x: x[1], model.predict_proba(
         test_data)))
@@ -58,6 +72,21 @@ def sklearn_train_eval() -> float:
     print_and_save(
         "For Sklearn, IT: {}, the average test loss is: {}".format(100, loss))
     print_and_save("=====================================================")
+
+
+def plot_loss_gradient(iterations, train_losses, gradients, name):
+    fig, ax = plt.subplots()
+    ax.set_xlabel('Iterations')
+    ax.set_ylabel('Loss/Gradient')
+    ax.set_title(name)
+    ax.plot(range(iterations), train_losses, label='Loss')
+    ax.plot(range(iterations), gradients, label='Gradient')
+    ax.grid()
+    ax.legend()
+
+    fig.savefig("./data/{}.png".format(name))
+    fig.clear()
+    plt.close()
 
 
 def make_roc(labels, results, name):
@@ -94,18 +123,13 @@ def make_roc(labels, results, name):
 # To summarize, there is a bias-variance trade-off associated with the choice of k in k-fold cross-validation.
 # Typically, given these considerations, one performs k-fold cross-validation using k = 5 or k = 10, as these values have been shown empirically to yield test error rate estimates that suffer neither from excessively high bias nor from very high variance.
 
-def k_folds(data, labels, n):
-    d = np.split(data, n)
-    l = np.split(labels, n)
-    return list(zip(d, l))
-
 # ============================================================================
 
 
 # If true, the balancing will be done before resulting in a great performances gain
 earlyBalance = True
 problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
-usePyspark = True  # If true, uses PySpark, otherwise Pandas
+usePyspark = False  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
 sample_from_all_files = True
 records_per_file = 500000
@@ -125,68 +149,74 @@ train_data, train_labels, test_data, test_labels = preprocess(
 
 # =============================================================================
 
+"""
+
 # Learning Rate
 
-custom_train_eval(iterations=100, lr=0.1,
-                  batch_size=train_data.shape[0], l2=0)
+logistic_train_eval(iterations=100, lr=0.1,
+                    batch_size=train_data.shape[0], l2=0)
 
-custom_train_eval(iterations=100, lr=0.01,
-                  batch_size=train_data.shape[0], l2=0)
+logistic_train_eval(iterations=100, lr=0.01,
+                    batch_size=train_data.shape[0], l2=0)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=train_data.shape[0], l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=train_data.shape[0], l2=0)
 
-custom_train_eval(iterations=100, lr=0.0001,
-                  batch_size=train_data.shape[0], l2=0)
+logistic_train_eval(iterations=100, lr=0.0001,
+                    batch_size=train_data.shape[0], l2=0)
 
 # =============================================================================
 
 # Batch Size
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=1, l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=1, l2=0)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=1000, l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=1000, l2=0)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=train_data.shape[0], l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=train_data.shape[0], l2=0)
 
 # =============================================================================
 
 # L2 Regularization
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0.1)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0.1)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0.01)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0.01)
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0.001)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0.001)
 
 
 # =============================================================================
 
 # Iterations
 
-custom_train_eval(iterations=100, lr=0.001,
-                  batch_size=20, l2=0.01)
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0.01)
 
-custom_train_eval(iterations=200, lr=0.001,
-                  batch_size=20, l2=0.01)
+logistic_train_eval(iterations=200, lr=0.001,
+                    batch_size=20, l2=0.01)
 
-custom_train_eval(iterations=1000, lr=0.001,
-                  batch_size=20, l2=0.01)
+logistic_train_eval(iterations=1000, lr=0.001,
+                    batch_size=20, l2=0.01)
 
 # =============================================================================
 
 sklearn_train_eval()
 
 # =============================================================================
+
+"""
+
+linear_train_eval(iterations=1000, lr=-0.001, batch_size=20)

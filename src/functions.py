@@ -21,6 +21,10 @@ def binary_cross_entropy(y: ndarray, y_label: ndarray, w: ndarray, l2: ndarray):
     return loss
 
 
+def mse(y: ndarray, y_label: ndarray):
+    return np.square(np.subtract(y_label, y)).mean()
+
+
 def regularize(W: ndarray, l2: float) -> float:
     '''
     Calculates the regularization term for the loss
@@ -42,12 +46,12 @@ def normalize(X: ndarray) -> ndarray:
     return X
 
 
-def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float) -> tuple[ndarray, ndarray]:
+def logistic_gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float) -> tuple[ndarray, ndarray]:
     '''
     Calculates the gradient w.r.t weights and bias
     '''
 
-    # m-> number of training examples.
+    # Number of training examples.
     m = X.shape[0]
 
     # Gradient of loss w.r.t weights with regularization
@@ -55,6 +59,21 @@ def gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2: float) -
 
     # Gradient of loss w.r.t bias with regularization
     db = (1/m)*np.sum((Y - Y_label))
+
+    return dw, db
+
+
+def linear_gradients(X: ndarray, Y: ndarray, Y_label: ndarray):
+    '''
+    Calculates the gradient w.r.t weights and bias
+    '''
+
+    # Number of training examples.
+    m = X.shape[0]
+
+    dw = - (2 * (X.T).dot(Y_label - Y)) / m
+
+    db = - 2 * np.sum(Y_label - Y) / m
 
     return dw, db
 

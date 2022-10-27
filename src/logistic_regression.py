@@ -1,11 +1,11 @@
 import numpy as np
 from numpy import ndarray
-from functions import binary_cross_entropy, gradients, normalize, sigmoid
+from functions import binary_cross_entropy, logistic_gradients, normalize, sigmoid
 
 # =======================================================================================
 
 
-class Model():
+class LogisticRegression():
     def __init__(self, learning_rate: float, batch_size: int, l2: float):
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -21,7 +21,7 @@ class Model():
         return Z
 
     def gradient(self, X: ndarray, Y: ndarray, Y_label: ndarray):
-        return gradients(X, Y, Y_label, self.W, self.l2)
+        return logistic_gradients(X, Y, Y_label, self.W, self.l2)
 
     def update(self, dW: ndarray, db: float):
         self.W = self.W - self.learning_rate * dW
