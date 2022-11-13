@@ -1,4 +1,3 @@
-from linear_regression import LinearRegression
 from functions import binary_cross_entropy, normalize
 from logistic_regression import LogisticRegression
 from preprocess import preprocess
@@ -41,36 +40,25 @@ def logistic_train_eval(iterations=100, lr=1, batch_size=20, l2=0.01) -> float:
     print_and_save("=====================================================")
 
 
-def linear_train_eval(iterations=100, lr=1, batch_size=20) -> float:
-    model = LinearRegression(learning_rate=lr, batch_size=batch_size)
-    (train_losses, gradients) = model.train(train_data,
-                                            train_labels, iterations=iterations)
-    res = model.evaluate(normalize(test_data))
-    test_loss = binary_cross_entropy(
-        res, test_labels, zeros([res.shape[0]]), 0)
-    print_and_save("For Custom, LR: {}, Batch Size: {}, IT: {}".format(
-        lr, batch_size, iterations))
-    print_and_save("The last train loss is: {}".format(train_losses[-1]))
-    print_and_save("The average test loss is: {}".format(test_loss))
-
-    name = "IT={}_LR={}_BatchSize={}".format(
-        iterations, lr, batch_size)
-
-    plot_loss_gradient(iterations, train_losses, gradients, name)
-
-    make_roc(test_labels, res, name)
-
+def sklearn_linear_train_eval() -> float:
+    model = sk.LinearRegression()
+    model.fit(train_data, train_labels)
+    res = list(model.predict(
+        test_data))
+    loss = log_loss(test_labels, res)
+    print_and_save(
+        "For Sklearn Linear, IT: {}, the average test loss is: {}".format(100, loss))
     print_and_save("=====================================================")
 
 
-def sklearn_train_eval() -> float:
+def sklearn_logistic_train_eval() -> float:
     model = sk.LogisticRegression()
     model.fit(train_data, train_labels)
     res = list(map(lambda x: x[1], model.predict_proba(
         test_data)))
     loss = log_loss(test_labels, res)
     print_and_save(
-        "For Sklearn, IT: {}, the average test loss is: {}".format(100, loss))
+        "For Sklearn Logistic, IT: {}, the average test loss is: {}".format(100, loss))
     print_and_save("=====================================================")
 
 
@@ -219,4 +207,9 @@ sklearn_train_eval()
 
 """
 
-linear_train_eval(iterations=1000, lr=-0.001, batch_size=20)
+sklearn_linear_train_eval()
+
+sklearn_logistic_train_eval()
+
+logistic_train_eval(iterations=100, lr=0.001,
+                    batch_size=20, l2=0.01)
