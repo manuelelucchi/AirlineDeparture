@@ -62,19 +62,4 @@ def logistic_gradients(X: ndarray, Y: ndarray, Y_label: ndarray, W: ndarray, l2:
 
     return dw, db
 
-
-def linear_gradients(X: ndarray, Y: ndarray, Y_label: ndarray):
-    '''
-    Calculates the gradient w.r.t weights and bias
-    '''
-
-    # Number of training examples.
-    m = X.shape[0]
-
-    dw = - (2 * (X.T).dot(Y_label - Y)) / m
-
-    db = - 2 * np.sum(Y_label - Y) / m
-
-    return dw, db
-
 # =======================================================================================================

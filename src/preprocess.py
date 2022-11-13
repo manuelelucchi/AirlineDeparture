@@ -73,7 +73,7 @@ def print_and_save_time(s: str):
     print(s)
 
 
-def preprocess(index: str, split_number: int, useAllFrames: bool, size: int, balance_size: int, usePyspark: bool, earlyBalance: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
+def preprocess(index: str, split_number: int, useAllFrames: bool, size: int, usePyspark: bool) -> tuple[ndarray, ndarray, ndarray, ndarray]:
     if not read.check_preprocessed_data_exists():
         download.download_dataset()
 
@@ -83,8 +83,8 @@ def preprocess(index: str, split_number: int, useAllFrames: bool, size: int, bal
         finish_time = tm.time() - start_time
         print_and_save_time("Dataset reading concluded: " +
                             str(finish_time) + " seconds")
-        if earlyBalance:
-            data = early_balance(data, index, balance_size, usePyspark)
+        # if earlyBalance:
+        #data = early_balance(data, index, balance_size, usePyspark)
 
         data = common_preprocess(data, usePyspark)
         read.save_dataset(data, usePyspark)
@@ -347,10 +347,10 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, 
 
     positives_filter = data[label] == 1
     negatives_filter = data[label] == 0
-    total_positives = data.where(positives_filter).count()
-    total_negatives = data.where(negatives_filter).count()
+    total_positives = len(data.where(positives_filter))
+    total_negatives = len(negatives_filter)
     positives_negatives_ratio = total_positives/total_negatives
-    k_elements_number = round(data.count() / k)
+    k_elements_number = round(len(data) / k)
 
     k_positive_elements = round(
         k_elements_number * positives_negatives_ratio)
@@ -372,10 +372,10 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, 
     else:
 
         for i in range(1, k + 1):
-            k_sample = data.where(positives_filter).limit(
-                k_positive_elements)
+            k_sample = data.where(positives_filter).iloc[:
+                                                         k_positive_elements]
             k_sample = pd.concat([k_sample, data.where(
-                negatives_filter).limit(k_negative_elements)])
+                negatives_filter).iloc[:k_negative_elements]])
             split_list.append(k_sample)
             data = data.drop(k_sample.index)
 

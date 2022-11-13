@@ -120,7 +120,6 @@ problem_to_solve = 'CANCELLED'  # The alternative is 'DIVERTED'
 usePyspark = False  # If true, uses PySpark, otherwise Pandas
 # If false, only #records_per_file records will be sampled from the most recent year csv
 sample_from_all_files = True
-records_per_file = 500000
 # Warning, this number should be smaller or equal than the number of positive cases in the sampled dataset.
 records_for_balancing = 10000
 # Since the sampling is random, the number could vary, thus we don't recomend to use values >10000
@@ -132,8 +131,8 @@ read.spark = SparkSession.builder \
     .master('local[' + worker_nodes + ']') \
     .getOrCreate()
 # =============================================================================
-train_data, train_labels, test_data, test_labels = preprocess(
-    problem_to_solve, sample_from_all_files, records_per_file, records_for_balancing, usePyspark=usePyspark, earlyBalance=earlyBalance)
+data = preprocess(
+    problem_to_solve, 10, sample_from_all_files, records_for_balancing, usePyspark=usePyspark)
 
 # =============================================================================
 
