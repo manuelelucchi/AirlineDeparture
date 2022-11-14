@@ -51,8 +51,23 @@ def check_preprocessed_data_exists() -> bool:
 
 def load_dataset(usePyspark: bool) -> pd.DataFrame:
     if usePyspark:
-        data = spark.read.option("header", True).csv(
-            path + '/preprocessed')
+        schema = StructType(
+            [StructField('Index', IntegerType(), True),
+             StructField('FL_DATE', FloatType(), True),
+             StructField('OP_CARRIER', FloatType(), True),
+             StructField('ORIGIN', FloatType(), True),
+             StructField('DEST', FloatType(), True),
+             StructField('CRS_DEP_TIME', FloatType(), True),
+             StructField('CRS_ARR_TIME', FloatType(), True),
+             StructField('CANCELLED', FloatType(), True),
+             StructField('DIVERTED', FloatType(), True),
+             StructField('CRS_ELAPSED_TIME', FloatType(), True),
+             StructField('DISTANCE', FloatType(), True)
+             ]
+        )
+        data = spark.read.format("csv") \
+            .option("header", True) \
+            .load(path + '/preprocessed')
     else:
         data = pd.read_csv(filepath_or_buffer=path + '/' + 'preprocessed.csv')
 

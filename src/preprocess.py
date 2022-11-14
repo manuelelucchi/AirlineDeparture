@@ -344,39 +344,61 @@ def convert_distance_into_numbers(data: ps.DataFrame | pd.DataFrame, usePyspark:
 
 
 def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, k: int) -> tuple[ps.DataFrame | pd.DataFrame, ps.DataFrame | pd.DataFrame]:
-
-    positives_filter = data[label] == 1
-    negatives_filter = data[label] == 0
-    total_positives = len(data.where(positives_filter))
-    total_negatives = len(negatives_filter)
-    positives_negatives_ratio = total_positives/total_negatives
-    k_elements_number = round(len(data) / k)
-
-    k_positive_elements = round(
-        k_elements_number * positives_negatives_ratio)
-    k_negative_elements = round(
-        k_elements_number * (1 - positives_negatives_ratio))
-
     split_list = []
 
     if usePyspark:
+
+        total_positives = data.filter(col(label) == 1).count()
+        total_negatives = data.filter(col(label) == 0).count()
+        positives_negatives_ratio = total_positives/total_negatives
+        k_elements_number = round(data.count() / k)
+
+        k_positive_elements = round(
+            k_elements_number * positives_negatives_ratio)
+        k_negative_elements = round(
+            k_elements_number * (1 - positives_negatives_ratio))
+
         i = 0
         while i < k:
-            k_sample = data.where(positives_filter).limit(k_positive_elements)
-            k_sample = k_sample.union(data.where(
-                negatives_filter).limit(k_negative_elements))
+            k_positive_sample = data.where(
+                col(label) == 1).limit(k_positive_elements)
+            print(k_positive_sample.count())
+            k_negative_sample = data.where(
+                col(label) == 0).limit(k_negative_elements)
+            print(k_negative_sample.count())
+            k_sample = k_positive_sample.union(k_negative_sample)
+            print(k_sample.count())
+
             split_list.append(k_sample)
+            print(data.count())
             data = data.subtract(k_sample)
+            print(data.count())
+            print("Concluso giro numero " + str(i))
             i += 1
 
     else:
 
+        data_positives = data.query(label + ' == 1')
+        data_negatives = data.query(label + ' == 0')
+
+        total_positives = len(data_positives)
+        total_negatives = len(data_negatives)
+        positives_negatives_ratio = total_positives/total_negatives
+
+        k_elements_number = round(len(data) / k)
+
+        k_positive_elements = round(
+            k_elements_number * positives_negatives_ratio)
+        k_negative_elements = round(
+            k_elements_number * (1 - positives_negatives_ratio))
+
         for i in range(1, k + 1):
-            k_sample = data.where(positives_filter).iloc[:
-                                                         k_positive_elements]
-            k_sample = pd.concat([k_sample, data.where(
-                negatives_filter).iloc[:k_negative_elements]])
-            split_list.append(k_sample)
-            data = data.drop(k_sample.index)
+            k_positive_sample = data_positives.head(k_positive_elements)
+            k_negative_sample = data_negatives.head(k_negative_elements)
+            k_sample = pd.concat([k_positive_sample, k_negative_sample])
+
+            split_list.append(k_sample.to_numpy())
+            data_positives = data_positives.drop(k_positive_sample.index)
+            data_negatives = data_negatives.drop(k_negative_sample.index)
 
     return split_list
