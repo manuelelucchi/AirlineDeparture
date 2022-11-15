@@ -348,6 +348,8 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, 
 
     if usePyspark:
 
+        data = data.dropDuplicates()
+
         total_positives = data.filter(col(label) == 1).count()
         total_negatives = data.filter(col(label) == 0).count()
         positives_negatives_ratio = total_positives/total_negatives
@@ -362,21 +364,17 @@ def split_data(data: ps.DataFrame | pd.DataFrame, usePyspark: bool, label: str, 
         while i < k:
             k_positive_sample = data.where(
                 col(label) == 1).limit(k_positive_elements)
-            print(k_positive_sample.count())
             k_negative_sample = data.where(
                 col(label) == 0).limit(k_negative_elements)
-            print(k_negative_sample.count())
             k_sample = k_positive_sample.union(k_negative_sample)
-            print(k_sample.count())
 
-            split_list.append(k_sample)
-            print(data.count())
+            split_list.append(numpy.array(k_sample.collect()))
             data = data.subtract(k_sample)
-            print(data.count())
-            print("Concluso giro numero " + str(i))
             i += 1
 
     else:
+
+        data.drop_duplicates(inplace=True)
 
         data_positives = data.query(label + ' == 1')
         data_negatives = data.query(label + ' == 0')
