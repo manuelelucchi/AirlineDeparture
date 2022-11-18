@@ -4,13 +4,6 @@ from numpy import ndarray
 
 # ===============================================================================================================
 
-def sigmoid(x: ndarray) -> ndarray:
-    '''
-    Calculates the sigmoid of the given data
-    '''
-    g = 1.0 / (1.0 + np.exp(-x))
-    return g
-
 
 def binary_cross_entropy(y: ndarray, y_label: ndarray, w: ndarray, l2: ndarray):
     '''

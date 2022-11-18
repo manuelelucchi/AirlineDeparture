@@ -2,7 +2,7 @@
 
 ## Colab
 
-The colab version of this repository can be found [here](https://colab.research.google.com/drive/1T0oWr1FwczeJGQHIhp7R8EcoRfn_71gt?usp=sharing)
+The colab version of this repository can be found [here](https://colab.research.google.com/github/manuelelucchi/AirlineDeparture/blob/develop/AirlineDeparture.ipynb)
 
 ## Local
 
