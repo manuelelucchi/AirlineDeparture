@@ -162,8 +162,14 @@ As a note, this last operation could have been performed before the others to gr
 
 To speed up test runs a flag has been added to decide if perform the balancinbg before the preprocessing or not.
 
-\subsubsection{Splitting}
-Lastly, the data was splitted between the \textbf{training set} (75\%) and the \textbf{test set} (25\%).\\
+\subsubsection{Z-Score Normalization}
+Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.
+
+\subsubsection{K Fold Cross Validation}
+After the dataset has been processed, the resulting data must be splitted into a \textbf{training} part and a \textbf{testing} part. To avoid bias towards specific parts of the dataset, the K-Fold Cross Validation (https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1974.tb00994.x) \cite{crossvalidation} was used.\\
+This technique consists on splitting the dataset into K equally distributed and sized parts called folds, and while K-1 folds will be used for the training, the other one will be used for testing. This process will be repeated for K time, using each time a differend fold for the testing (and consequently excluding it from the training)
+
+$$ x' = \frac{x - \mu}{\sigma} $$
 
 \subsection{Parallelization}
 
@@ -207,11 +213,6 @@ Parameters such as Weights and Bias are initialized using a \textbf{uniform dist
 The other hyperparameters were tuned throught various experiments that will be detailed later.
 
 \subsection{Algorithm}
-
-\subsubsection{Normalization}
-Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization}.
-
-$$ x' = \frac{x - \mu}{\sigma} $$
 
 \subsubsection{Estimate}
 The estimate is computed as follows
