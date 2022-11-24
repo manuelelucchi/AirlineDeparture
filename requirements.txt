@@ -2,3 +2,4 @@ numpy
 kaggle
 pandas
 pyspark
+findspark
