@@ -3,3 +3,4 @@ kaggle
 pandas
 pyspark
 findspark
+matplotlib
