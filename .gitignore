@@ -151,3 +151,7 @@ data/preprocessed
 data/*.txt
 
 data/*.png
+
+preprocessed/
+
+output/
