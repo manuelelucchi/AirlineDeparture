@@ -120,7 +120,8 @@ The carrier code is a two characters alphanumeric code, the origin and destinati
 Flight date, departure time and arrival time are dates, while the elapsed time and the distance are real numbers.\\
 Cancelled and diverted are either 0 or 1.\\
 
-500,000 records sampled with an uniform distributed were took from each year file to perform the preprocessing.
+100,000 records sampled with an uniform distributed were took from each year file to perform the preprocessing. This number is due to the limited memory
+possessed by the machine on which the tests have been performed.
 
 %----------------------------------------------------------------------------------------
 %	PREPROCESSING
@@ -132,9 +133,29 @@ Cancelled and diverted are either 0 or 1.\\
 
 Multiple preprocessing techniques were used.\\
 
-Initially the rows without valid key values are removed, while the ones with invalid data inside the columns for which is possible to assign a default value are eventually corrected.\\
+The first operation consisted in the removal of the rows with null values, after counting them we concluded that the null values are really rare in the dataset, so it was possible to remove the rows entirely, without any significant loss of informations.\\
 
-Then the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
+\subsection{Data Analysis}
+After the null rows removal, some analysys have been performe using the charts of the MatPlotLib library, especially the bar charts.\\
+The main objective of this analysis was to find an eventual correlation between the various features used and the probability that a flight would be cancelled dor diverted.\\
+
+Unfortunately, none of the features showed significative patterns nor tendencies of the problematic flights to increase in relation to a particular value of a feature or a combination of features.\\
+
+\subsubsection{Problematic flights per carrier}
+The first chart we draw tried to correlate the carriers with an abnormal number of the cancelled flights, to make the chart more readable, we aggregated in one column every carrier with a percentage lower than the mean of all carriers, to show only the highest percentages.\\
+
+The result was a chart showing some carriers with a slightly-above-average number of cancelled flights, and a peak of 4 flights every 100 cancelled, but considering the huge number of distinct carriers in the dataset, the impact of this feature will probably be very low.
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/problematics_per_carrier.png}
+\end{center}
+
+\subsubsection{Problematics flights per origin}
+The second analysis was performed on the origin feature.
+
+\subsection{Data conversions}
+
+All the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
 
 \subsubsection{Hashing}
 
@@ -154,13 +175,11 @@ The converted values were also limited between 0 and 1, to avoid exploding value
 \subsubsection{Balancing}
 
 This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
-this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it has been trained on a dataset with basically zero problematic flights.
-To solve the problem an \textbf{Oversampling} has been applied, matching the number of normal flights and problematic flights.\\
+this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it has been trained on a dataset with basically zero problematic flights.\\
 
-Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, just 20000 of records could be used for the experiments, half with positive outcomes and half with negative ones.
-As a note, this last operation could have been performed before the others to greatly boost the overall performances of the preprocessing, but then the first part of the objective, to measure the performances of a system that scales with massive datasets, would not have been really useful. \label{note_on_preprocessing}
+To solve the problem, we used the \textbf{Undersampling} technique, matching the number of normal flights and problematic flights, limiting the amount of normal flights that has been kept.\\
 
-To speed up test runs a flag has been added to decide if perform the balancinbg before the preprocessing or not.
+Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the recordsa remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
 
 \subsubsection{Z-Score Normalization}
 Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.
@@ -185,19 +204,19 @@ The library handles automatically the work distribution on the available nodes t
 The usage of this library created some compatibility issues, because the data structures used by PySpark were not compatible with various parts of the preprocessing section, which had been written initially using the data science library Pandas \cite{pandas}.\\
 
 To solve these problems, it wasn't possible to simply use a conversion and leave the parts written in Pandas as they were, because the computation would have run on a single machine, without parallelization, making the use of PySpark completely pointless.
-The issue has been addressed using the \textbf{PySpark.SQL} functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.\\
+The issue has been addressed using the \textbf{PySpark.SQL} functionality, which allow to execute queries on a distributed dataframe. For our purposes various UDF (User Defined Functions), have been created, which then have been applied to every column containing certain types of data.
+When it was possible, the conversions have been accomplished using a select method only, because the UDF functions are not as optimized as the native ones, making the computations with UDF significantly longer.\\
 
-To evaluate the differences between the PySpark and Pandas performances, the preprocessing part has been implemented using both methods, with the possibility to choose which library to use at the start of the computation using a flag.
+To evaluate the differences between the PySpark and Pandas performances, the preprocessing part has been implemented using both methods, with the possibility to test the Pandas implementation in its own code cell.
 
 \subsubsection{I/O}
 
-The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes. The data saved on the intermediate CSV is valid for both the tasks that are the goal of the paper.\\
+The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes. There are two intermediate csv files, one for the 'cancelled' problem and one for the 'diverted' problem.\\
 
 \subsubsection{Integration}
 
-The preprocessing part of the solution is therefore computed in a distributed manner, using the PySpark dataframe as main data structure to perform the various calculations on the columns of the dataset.
-At the end of this section of the solution, the distributed dataframes are merged into one using the \texttt{collect} method. This operation can create memory problems if the dataset is extremely large, but the model training and computing can't be efficiently distributed
-as easily as the preprocessing, so the main part of the solution will be computed using standard Python data structures.
+The preprocessing part of the solution uses the PySpark \textbf{Dataframe} structure, the main reason for this choice is to take advantage of the column notation. This makes the code cleaner and easier to read, than the standard RDD (Resilient Distributed Dataset) implementation. The dataframe SQL functions are also really handy to convert efficienlty the various columns of the dataframes.
+However, after the preprocessing, entering the training section of the project, we noticed that the RDD structure was better suited to accomplish the various calculations required by the model, so the folded dataframes were converted to RDDs before passing them to the next section.
 
 %----------------------------------------------------------------------------------------
 %	MODEL
