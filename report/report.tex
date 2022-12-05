@@ -305,6 +305,10 @@ $$ loss(\hat{y}, y) = -\frac{1}{n}(y log(\hat{y}) + (1-y)log(1-\hat{y})) + \bold
 While the weights gradients formula becomes
 $$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) \boldsymbol{+ \lambda w} $$
 
+\subsubsection{K-Fold Cross Validation}
+
+\subsection{Differences with Pyspark ML Implementation}
+
 \subsection{Differences with Sklearn implementation}
 
 In the following chapters the presented model performances will be compared with the Sklearn implementation \cite{logisticsklearn}, that has quite some differences.\\
@@ -317,6 +321,7 @@ Also, with this implementation, the L2 Regularization is enabled by default as w
 % https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
 % https://satishkumarmoparthi.medium.com/logistic-regression-with-l2-regularization-using-sgd-from-scratch-893692b48362
 % https://towardsdatascience.com/batch-mini-batch-and-stochastic-gradient-descent-for-linear-regression-9fe4eefa637c
+
 
 %----------------------------------------------------------------------------------------
 %	EXPERIMENTS
@@ -564,6 +569,10 @@ Instead it uses \textbf{L-BFGS-B} \cite{lbfgsb}, a solver for Large-scale Bound-
 
 The results are very close, with the Sklearn implementation being slightly better.
 
+\subsubsection{Comparison with Pyspark ML Logistic Regression}
+
+\subsubsection{Comparison with Pyspark ML Tree Classifier}
+
 \subsection{Diverted Flights}
 
 As stated before, the two problems (canceled and diverted flights) are virtually the same problem. They are both a binary classification and both uses the same columns, since they are influenced by the same factors and all are known until before the takeoff.\\
@@ -646,7 +655,6 @@ For this reason, the results obtained are equivalent, so they will just be repor
     \end{tabular}
     \captionof{table}{Training and Test Loss comparison with Sklearn with the best hyperparameters values for both}
 \end{center}
-
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
