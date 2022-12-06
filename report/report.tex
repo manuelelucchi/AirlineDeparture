@@ -155,7 +155,7 @@ The second analysis was performed on the origin feature.
 The first chart plotted was a box plot, because due to the high number of airports, the bar was overcrowded and diffcult to read.\\
 
 The result can be considered an improvement regarding the correlation between a feature and the result, because thre are some origins that posses a significant percentage
-of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majoerity of the origins (at least two quartiles), show no evident correlation with this feature.  
+of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majoerity of the origins (at least two quartiles), show no evident correlation with this feature.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/problematics_box_per_origin.png}
@@ -354,6 +354,14 @@ First, the Sklearn version doesn't use the SGD solver, it uses \textbf{L-BFGS-B 
 % http://users.iems.northwestern.edu/~nocedal/lbfgsb.html
 For this reason, the solver doesn't need any form of Learning Rate.\\
 Also, with this implementation, the L2 Regularization is enabled by default as well.
+
+\subsection{Differences with other algorithms: Decision Tree}
+The Decision tree is a predictive model where each node represents a variable, each arc is a possible value for that property and each leaf is the predicted value for that variable based on the values of the other properties.
+ALTRO\\
+To compare the previous results to a Decision Tree Classifier, the Pyspark ML implementation has been used. This version supports both binary and multiclass classification, as well as both continuous and categorical features.\\
+Due to the structure of the problem, only the binary classification is needed. Also, since the dataset is already converted from categorical to continuous data, there's no need for other conversions.\\
+Similarly to the Logistic Regression library from Pyspark, the model accepts directly a parallel DataFrame.
+
 
 % https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
 % https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
