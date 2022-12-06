@@ -144,7 +144,7 @@ Unfortunately, none of the features showed significative patterns nor tendencies
 \subsubsection{Problematic flights per carrier}
 The first chart we draw tried to correlate the carriers with an abnormal number of the cancelled flights, to make the chart more readable, we aggregated in one column every carrier with a percentage lower than the mean of all carriers, to show only the highest percentages.\\
 
-The result was a chart showing some carriers with a slightly-above-average number of cancelled flights, and a peak of 4 flights every 100 cancelled, but considering the huge number of distinct carriers in the dataset, the impact of this feature will probably be very low.
+The result was a chart showing some carriers with a slightly-above-average number of cancelled flights, and a peak of 4\% of the flights  cancelled, but considering the huge number of distinct carriers in the dataset, the impact of this feature will probably be very low.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/problematics_per_carrier.png}
@@ -152,6 +152,39 @@ The result was a chart showing some carriers with a slightly-above-average numbe
 
 \subsubsection{Problematics flights per origin}
 The second analysis was performed on the origin feature.
+The first chart plotted was a box plot, because due to the high number of airports, the bar was overcrowded and diffcult to read.\\
+
+The result can be considered an improvement regarding the correlation between a feature and the result, because thre are some origins that posses a significant percentage
+of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majoerity of the origins (at least two quartiles), show no evident correlation with this feature.  
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/problematics_box_per_origin.png}
+\end{center}
+
+To show a readable bar chart, the same technique as before has been applied, aggregating the values of the majority of origins inside one column. This time though it was not enough to aggregate columns aunder the mean of the values, so we used a fixed number to aggregate, which is switched based on the problem to solve,
+because the diverted problem posesses lower percentages of problematic flights.
+
+\begin{center}
+    \includegraphics[width=14cm]{../images/problematics_per_origin.png}
+\end{center}
+\newpage
+
+\subsubsection{Problematics flights per month}
+Trying to find a correlation between the year period and the problematic flights, we plotted a chart based on the month of the flight. The result was expectedly skewed towards the winter months, where the bad weather conditions can influence the flight departures, but even in this case, the difference was not so dramatic, always remaining in a few percentage points.
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/problematics_per_month.png}
+\end{center}
+
+\subsubsection{Problematics flights per weekday}
+
+The last chart we plotted was based on the weekday of the flight, trying to see if there was a relation between particular days and the rise of problematic flights.\\
+
+Unfortunately this was the more useless analysys performed, with every column of the chart being almost identical to each other, basically this information doesn't tell anything about the probability of a flight of being problematic or regular.
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/problematics_per_weekday.png}
+\end{center}
 
 \subsection{Data conversions}
 
