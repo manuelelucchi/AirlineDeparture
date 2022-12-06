@@ -215,11 +215,16 @@ To solve the problem, we used the \textbf{Undersampling} technique, matching the
 Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the recordsa remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
 
 \subsubsection{Z-Score Normalization}
-Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.
+Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.\\
+
+The purpose of this normalization is to present to the model data that possesses less noise, improving the training performance. Particularly in this scenario, where the model proposed is simple and not sophisticated enough to work well with data that are not normalized.
 
 \subsubsection{K Fold Cross Validation}
 After the dataset has been processed, the resulting data must be splitted into a \textbf{training} part and a \textbf{testing} part. To avoid bias towards specific parts of the dataset, the K-Fold Cross Validation (https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1974.tb00994.x) \cite{crossvalidation} was used.\\
-This technique consists on splitting the dataset into K equally distributed and sized parts called folds, and while K-1 folds will be used for the training, the other one will be used for testing. This process will be repeated for K time, using each time a differend fold for the testing (and consequently excluding it from the training)
+
+This technique consists on splitting the dataset into K equally distributed and sized parts called folds, and while K-1 folds will be used for the training, the other one will be used for testing. This process will be repeated for K time, using each time a differend fold for the testing (and consequently excluding it from the training)\\
+
+During the split, the percentages of positives and negatives cases have been kept costant for every partition, we also ensured that every fold has a different set of rows to avoid overlapping of any kind.
 
 $$ x' = \frac{x - \mu}{\sigma} $$
 
@@ -246,7 +251,7 @@ To evaluate the differences between the PySpark and Pandas performances, the pre
 
 The library PySpark is also able to handle the csv file reading and writing, so it has been used to save the preprocessed data to speed up multiple runs on the dataset. To carry out the writing of the various distributed dataframes, various files are created, then at the time of reading, the data is distributed to the various nodes. There are two intermediate csv files, one for the 'cancelled' problem and one for the 'diverted' problem.\\
 
-\subsubsection{Integration}
+\subsubsection{Data structures}
 
 The preprocessing part of the solution uses the PySpark \textbf{Dataframe} structure, the main reason for this choice is to take advantage of the column notation. This makes the code cleaner and easier to read, than the standard RDD (Resilient Distributed Dataset) implementation. The dataframe SQL functions are also really handy to convert efficienlty the various columns of the dataframes.
 However, after the preprocessing, entering the training section of the project, we noticed that the RDD structure was better suited to accomplish the various calculations required by the model, so the folded dataframes were converted to RDDs before passing them to the next section.
