@@ -1,0 +1,240 @@
+\subsubsection{Changing the Learning Rate}
+
+The following experiment consists on the training and evaluation of the model with different values of the Learning Rate. The training is fixed at 100 iterations.
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        LR     & Train Loss & Test Loss \\
+        \hline
+        0.1    & 0.68296    & 0.69123   \\
+        0.01   & 1.12164    & 1.02453   \\
+        0.001  & 1.27019    & 1.21357   \\
+        0.0001 & 1.11576    & 1.30633   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different values of the Learning Rate}
+\end{center}
+
+As the results shows, an higher learning rate seems to perform better, therefore a learning rate of 1 has been tried showing similar results.\\
+This is an unexpected behavior, since usually the gradient descent performs better with a lower learning rate. Given the complexity of the problem for a simple model like the Logistic Regression, another experiment has been made to choose the best Learning Rate.\\
+
+Using the Mini-Batch technique for $\mu=0.001$ and $Batch Size = 20$ (whose experiment will be detailed in the section below) a difference with this test can be found.
+
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{../images/graph_1.png}
+        \caption{$\mu = 0.001$ and $Batch Size = 20$}
+        \label{fig:left}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width = \textwidth]{../images/graph_2.png}
+        \caption{$\mu = 0.1 $ and $Batch Size = Max$}
+        \label{fig:right}
+    \end{subfigure}
+    \label{fig:combined}
+\end{figure}
+
+As the charts shows, while both the hyperparameters configurations converge to the same (local) minimum, the one that uses mini batch and a lower learning rate converges at a much faster speed.
+In the following experiments, this configuration will be the one used.
+
+\subsubsection{Implementing Mini-Batch}
+
+As anticipated before, the mini-batch technique has been used. Being able to train the model with a fraction of the dataset at time resulted in a great reduction of the loss.
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        Batch Size & Train Loss & Test Loss \\
+        \hline
+        1          & 0.37784    & 1.02391   \\
+        20         & 0.60918    & 0.70032   \\
+        1000       & 1.23453    & 0.92476   \\
+        Max        & 1.02630    & 1.01142   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different size of batches}
+\end{center}
+
+In the first case, the model has been updated for each sample. This caused a degradation on performances and while the training loss is low, the test loss is three times higher, which lead to think the model is overfitted.\\
+
+In the second case, the test loss is much lower and similar to the train loss, while on the last two cases it's just a worse result in general. Thus, for the next experiments, a \textbf{Batch Size of 20} has been chosen.
+
+\subsubsection{Adding the L2 regularization}
+
+As described before, to avoid overfitting, a regularization term has been added, in this case the L2.
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        L2    & Train Loss & Test Loss \\
+        \hline
+        0     & 0.60740    & 0.70037   \\
+        0.1   & 0.61829    & 0.69714   \\
+        0.01  & 0.61010    & 0.69960   \\
+        0.001 & 0.60819    & 0.70023   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for a different value of the L2 term}
+\end{center}
+
+Since the model didn't appear to be overfitting from the start, adding the regularization doesn't show any significant benefit.\\
+The following experiments will use $\lambda = 0.1$
+
+\subsubsection{More iterations}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        Iterations & Train Loss & Test Loss \\
+        \hline
+        100        & 0.60978    & 0.69974   \\
+        200        & 0.60978    & 0.69969   \\
+        1000       & 0.60962    & 0.69971   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different number of iterations}
+\end{center}
+
+Increasing the number of iterations didn't lead to any noticeable improvement.
+
+\subsubsection{ROC Curve}
+
+The apparently better performing configuration of the hyperparameters has the following \textbf{ROC curve}
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/roc_1.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = 20$}
+    %\label{roc1}
+\end{center}
+
+It has a decent ability to predict, but as an inverse predictor, suggesting that the model found easier to predict that a flight would be canceled because most of the dataset had similar values.
+
+A notable case is the experiment with the same learning rate but without the Mini Batch feature.
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/roc_2.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = Max$}
+    %\label{roc2}
+\end{center}
+
+It has a similar (but worse) curve to the previous case, but this time it's not predicting the inverse. This is interesting since the loss of this configuration is really high and it suffers of vanishing gradient as can be seen from the following chart
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/graph_3.png}
+    %\captionof{$\mu = 0.001$ and $Batch Size = Max$}
+    %\label{graph3}
+\end{center}
+
+It's safe to say that this model is not really reliable, and just underfitted.
+
+\subsubsection{Comparison with Sklearn}
+
+To conclude the experiments, the instance with the best hyperparameters from the previous experiments has been compared with the Sklearn implementation.\\
+
+The Sklearn one uses the same number of iterations and uses L2 regularization, but doesn't use the SGD (and thus the Learning Rate) or the batching.
+Instead it uses \textbf{L-BFGS-B} \cite{lbfgsb}, a solver for Large-scale Bound-constrained Optimization.
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c| }
+        \hline
+        Model   & Iterations & LR    & Batch Size & L2      & Train Loss & Test Loss \\
+        \hline
+        Custom  & 100        & 0.001 & 20         & 0.1     & 0.60978    & 0.69974   \\
+        Sklearn & 100        & N/A   & N/A        & Unknown & N/A        & 0.66953   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss comparison with Sklearn with the best hyperparameters values for both}
+\end{center}
+
+The results are very close, with the Sklearn implementation being slightly better.
+
+\subsubsection{Comparison with Pyspark ML Logistic Regression}
+
+\subsubsection{Comparison with Pyspark ML Tree Classifier}
+
+\subsection{Diverted Flights}
+
+As stated before, the two problems (canceled and diverted flights) are virtually the same problem. They are both a binary classification and both uses the same columns, since they are influenced by the same factors and all are known until before the takeoff.\\
+
+For this reason, the results obtained are equivalent, so they will just be reported in the following sections, with the comments for the previous section being valid for this one.
+
+\subsubsection{Changing the Learning Rate}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        LR     & Train Loss & Test Loss \\
+        \hline
+        0.1    & 0.67999    & 0.69171   \\
+        0.01   & 0.90016    & 0.91724   \\
+        0.001  & 0.94824    & 1.16871   \\
+        0.0001 & 1.03176    & 1.30609   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different values of the Learning Rate}
+\end{center}
+
+\subsubsection{Implementing Mini-Batch}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        Batch Size & Train Loss & Test Loss \\
+        \hline
+        1          & 0.17018    & 0.99730   \\
+        20         & 0.61886    & 0.69662   \\
+        1000       & 1.24722    & 1.13225   \\
+        Max        & 0.93345    & 1.03499   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different size of batches}
+\end{center}
+
+\subsubsection{Adding the L2 regularization}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        L2    & Train Loss & Test Loss \\
+        \hline
+        0     & 0.61563    & 0.69760   \\
+        0.1   & 0.62842    & 0.69513   \\
+        0.01  & 0.61832    & 0.69720   \\
+        0.001 & 0.61989    & 0.69576   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for a different value of the L2 term}
+\end{center}
+
+\subsubsection{More iterations}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        Iterations & Train Loss & Test Loss \\
+        \hline
+        100        & 0.62105    & 0.69645   \\
+        200        & 0.61847    & 0.69721   \\
+        1000       & 0.61822    & 0.69749   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss for different number of iterations}
+\end{center}
+
+\subsubsection{Comparison with Sklearn}
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c| }
+        \hline
+        Model   & Iterations & LR    & Batch Size & L2      & Train Loss & Test Loss \\
+        \hline
+        Custom  & 100        & 0.001 & 20         & 0.1     & 0.62105    & 0.69645   \\
+        Sklearn & 100        & N/A   & N/A        & Unknown & N/A        & 0.67672   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Training and Test Loss comparison with Sklearn with the best hyperparameters values for both}
+\end{center}
