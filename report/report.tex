@@ -464,6 +464,84 @@ To choose the hyperparameters tuple $\theta$ such that the loss of the model tra
 This technique consists on the choice of multiple different values for each parameter and the creation of a permutation that leaves a set of tuples with all possible combinations.\\
 The model is then trained for each tuple and the losses compared, resulting on the best model the one with the lowest loss.
 
+\begin{center}
+    \includegraphics[width=10cm]{../images/3d.png}
+\end{center}
+
+As can be seen in the 3D chart above, that represents the resulting losses for each different configuration of parameters (also called hyperparameters space), some values like a very small Learning Rate results in an high loss.\\
+What follows are the values for the best configuration
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c| }
+        \hline
+        Iterations & LR  & L2 & Loss       \\
+        \hline
+        10         & 0.1 & 1  & 0.69314704 \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+For the same configuration
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+        \hline
+        TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        \hline
+        0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+And the following ROC curve
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/parallel_roc.png}
+\end{center}
+
+TEMPI
+
+\subsection{Mini Batch}
+
+testo
+
+valori
+
+TEMPI
+
+conclusioni
+
+\subsection{Sequential Implementation}
+
+Time comparison
+
+\subsection{Pyspark ML Logistic Regression}
+
+comparazione con np alllose
+
+\subsection{Pyspark ML Decision Tree}
+
+For the same configuration
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+        \hline
+        Loss & TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        \hline
+        0    & 0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+And the following ROC curve
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/tree_roc.png}
+\end{center}
+
 \section{Diverted Flights}
 
 %----------------------------------------------------------------------------------------
