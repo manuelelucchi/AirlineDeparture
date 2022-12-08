@@ -396,19 +396,15 @@ The numbers represents seconds of execution.
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
+        Section               & Pandas    & PySpark    \\
         \hline
-        Data reading        & 168.81801 & 58.69491            & 41.72719               \\
-        Null values removal & 3.52260   & 116.81526           & 112.14040              \\
-        Names conversion    & 14.52482  & 115.43204           & 117.07912              \\
-        Dates conversion    & 53.43010  & 110.92972           & 109.54266              \\
-        Times conversion    & 12.46091  & 111.87970           & 109.56157              \\
-        Distance conversion & 1.28371   & 112.53075           & 110.38996              \\
-        Strings conversion  & -         & 120.45830           & 110.59919              \\
-        Column removal      & 0.73976   & 111.37853           & 110.63221              \\
-        Balancing           & 0.73683   & 265.81415           & 256.77912              \\
-        Splitting           & 0.04397   & 1190.70186          & 1145.30147             \\
-        Total               & 255.56071 & 2314.63522          & 2223.75289             \\
+        Data reading          & 198.27791 & 98.55025   \\
+        Null values removal   & 0.34007   & 279.05297  \\
+        Balancing             & 0.16137   & 64.49511   \\
+        Column conversions    & 0.87877   & 7.41825    \\
+        Normalization         & 0.32756   & 353.20140  \\
+        Folding               & 0.33897   & 670.85012  \\
+        Total                 & 200.32465 & 1473.5681  \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
@@ -420,11 +416,10 @@ Due to the limitations of the hardware used during the experiments, both locally
 The only section where there is a noticeable improvement is the data reading section, in the remaining ones the performances gets worse, even significantly worse, especially in the splitting section, where PySpark takes an enormous amount of time, to perform
 an operation completed in less than one second by Pandas.\\
 
-This difference reaches \textbf{a factor of 1000}, which is the factor describing the overall difference of time required to complete the entire preprocessing.
+The differences found are not stable between the various phases of preprocessing, this seems to suggest that some operations, like the normalization or the null dropping, take a higher toll over the distributed system of PySpark,
+forcing it to waste more time than others to organize the parallel computation, even if they appear as simpler processes.
 This could be explained by the big overhead the distributed enviroment creates that cannot be transformed into an advantage given the inadequate hardware.\\
 
-Another proof to support this thesys, is the comparison between the PySpark experiment forced into one node and the one that lets the system choose how many worker create.
-The first case was just slightly slower than the second, proving that both cases didn't fully use the parallelization the framework is specialized to.
 It's also worth noticing that the Google Colab enviroment was really unstable, with the same sequence of operations taking different times in the order of \textbf{30-40\%} of difference.
 \textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}\\
 
