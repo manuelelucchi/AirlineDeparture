@@ -348,6 +348,9 @@ Descrivere gli iperparametri individuati
 
 \subsubsection{K-Fold Cross Validation}
 
+\subsection{Model Implementation}
+PARLARE DI MAP REDUCE
+
 \subsection{Differences with Pyspark ML Implementation}
 
 \subsection{Differences with Sklearn implementation}
@@ -505,9 +508,22 @@ TEMPI
 
 \subsection{Mini Batch}
 
-testo
+Another technique described before is the use of Mini Batches, chunk of the train datasets after each one the parameters are updated that should result in a better convergence rate.\\
+However OCNTINUARE
 
-valori
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+        \hline
+        TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        \hline
+        0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+The performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased by a factor of 10.\\
+This can be reconducted on the overhead added by the exchange of messages, that increases with the fragmentation of the memory and computations.
 
 TEMPI
 
@@ -515,11 +531,57 @@ conclusioni
 
 \subsection{Sequential Implementation}
 
+Since the Pyspark implementation is full of options and various optimizations, it's difficult to compare it in term of speed with the proposed implementation.\\
+Thus, a sequential version with the same algorithm has been implemented. The difference is not functional but just technical, since the computation is entirely done by numpy and not also by PySpark MapReduce
+
+
 Time comparison
 
 \subsection{Pyspark ML Logistic Regression}
 
-comparazione con np alllose
+cose
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+        \hline
+        Loss & TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        \hline
+        0    & 0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+And the following ROC curve
+
+\begin{center}
+    \includegraphics[width=10cm]{../images/ml_logistic.png}
+\end{center}
+
+To compare the quality of the custom trained model and the Pyspark model, weights value can be compared. The following table shows the values of each element of the weights for each model and their absolute difference
+
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+        \hline
+        Custom & Pyspark & Absolute difference \\
+        \hline
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        0      & 0       & 0                   \\
+        \hline
+    \end{tabular}
+    \captionof{table}{TODO}
+\end{center}
+
+This comparison can also be easily done in the code using the \textbf{np.allclose}, that compares two vectors elementwise.
+As can be seen the elements are close by INSERIRE VALORE, a very small value that implies for the same evaluation algorithm.\\
+
+It's worth notice the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
+It's then clear that the Logistic Regression is not the correct choice for this complex problem.
 
 \subsection{Pyspark ML Decision Tree}
 
