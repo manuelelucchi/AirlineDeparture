@@ -382,7 +382,8 @@ The first wave of experiments follows the performances and results of the techni
 
 \subsection{Preprocessing Performance}
 
-The table below summarizes the time required by the \textbf{Colab enviroment} to complete various parts of the preprocessing section.\\
+The table below summarizes the time required to complete various parts of the preprocessing section.\\
+All this tests have been performed on the same machine to avoid differences due to hardware performances.
 
 In order to collect the data of PySpark, at the end of every section the method count() was launched, forcing the library to execute immediately the operation requested.\\
 
@@ -426,33 +427,6 @@ Another proof to support this thesys, is the comparison between the PySpark expe
 The first case was just slightly slower than the second, proving that both cases didn't fully use the parallelization the framework is specialized to.
 It's also worth noticing that the Google Colab enviroment was really unstable, with the same sequence of operations taking different times in the order of \textbf{30-40\%} of difference.
 \textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}\\
-
-For completition, the following tables shows the same experiment with the balancing phase executed before the rest of the preprocessing, that greatly decreases the number of records, as stated in \ref{note_on_preprocessing}
-
-\begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c| }
-        \hline
-        Section             & Pandas    & PySpark Single Node & PySpark Multiple Nodes \\
-        \hline
-        Data reading        & 179.81432 & 24.72598            & 40.64999               \\
-        Early balancing     & 0.63052   & 55.55881            & 60.29146               \\
-        Null values removal & 0.04448   & 111.82450           & 112.65933              \\
-        Names conversion    & 0.07760   & 109.92273           & 110.72936              \\
-        Dates conversion    & 0.22399   & 110.83473           & 109.68199              \\
-        Times conversion    & 0.04854   & 116.25847           & 108.61510              \\
-        Distance conversion & 0.00560   & 110.05368           & 107.94065              \\
-        Strings conversion  & -         & 109.58877           & 108.42743              \\
-        Column removal      & 0.00507   & 110.72890           & 110.85607              \\
-        Balancing           & 0.00384   & 224.42019           & 218.66665              \\
-        Splitting           & 0.02637   & 501.79631           & 492.85677              \\
-        Total               & 180,85660 & 1585,71307          & 1581,3748              \\
-        \hline
-    \end{tabular}
-    \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing, with just 20000 records}
-\end{center}
-
-According to the tests performed using an early balancing before all the preprocessing procedures, the Pandas library performances have improved accordingly with the reduction of the input dimensions.
-This was not the case for the PySpark performances, the vast majority of the sections require a time interval similar to the previous table, with the exception of the splitting section where the time required went down, but not proportionally to the input reduction.\\
 
 This suggests that the PySpark processing procedure would gain advantage over Pandas only over a really large dataset, where the time used to put up the processing infrastructure is justified by the huge amount of data to be processed.
 In this case instead, it seems that most of the time required by PySpark is wasted organizing the computation, without gaining any advantage from this organization, over a library that procedes straight up to the calculation of the results.\\
