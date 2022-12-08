@@ -220,7 +220,7 @@ Before the actual computation, the dataset has been normalized again by subtract
 The purpose of this normalization is to present to the model data that possesses less noise, improving the training performance. Particularly in this scenario, where the model proposed is simple and not sophisticated enough to work well with data that are not normalized.
 
 \subsubsection{K Fold Cross Validation}
-After the dataset has been processed, the resulting data must be splitted into a \textbf{training} part and a \textbf{testing} part. To avoid bias towards specific parts of the dataset, the K-Fold Cross Validation (https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1974.tb00994.x) \cite{crossvalidation} was used.\\
+After the dataset has been processed, the resulting data must be splitted into a \textbf{training} part and a \textbf{testing} part. To avoid bias towards specific parts of the dataset, the K-Fold Cross Validation \cite{crossvalidation} was used.\\
 
 This technique consists on splitting the dataset into K equally distributed and sized parts called folds, and while K-1 folds will be used for the training, the other one will be used for testing. This process will be repeated for K time, using each time a differend fold for the testing (and consequently excluding it from the training)\\
 
@@ -399,15 +399,15 @@ The numbers represents seconds of execution.
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section               & Pandas    & PySpark    \\
+        Section             & Pandas    & PySpark   \\
         \hline
-        Data reading          & 198.27791 & 98.55025   \\
-        Null values removal   & 0.34007   & 279.05297  \\
-        Balancing             & 0.16137   & 64.49511   \\
-        Column conversions    & 0.87877   & 7.41825    \\
-        Normalization         & 0.32756   & 353.20140  \\
-        Folding               & 0.33897   & 670.85012  \\
-        Total                 & 200.32465 & 1473.5681  \\
+        Data reading        & 198.27791 & 98.55025  \\
+        Null values removal & 0.34007   & 279.05297 \\
+        Balancing           & 0.16137   & 64.49511  \\
+        Column conversions  & 0.87877   & 7.41825   \\
+        Normalization       & 0.32756   & 353.20140 \\
+        Folding             & 0.33897   & 670.85012 \\
+        Total               & 200.32465 & 1473.5681 \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
