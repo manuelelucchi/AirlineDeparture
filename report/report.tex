@@ -344,11 +344,17 @@ While the weights gradients formula becomes
 $$ \nabla w = \frac{1}{m}x^T(\hat{y} - y) \boldsymbol{+ \lambda w} $$
 
 \subsubsection{Hyperparameters}
-Descrivere gli iperparametri individuati
+To train a model, some parameters complementary to the dataset that influence the training should be individuated and their values tuned to try to find the global minimum of the function the user is trying to reproduce.\\
+In this case, there are 3 parameters:
+\begin{enumerate}
+    \item The number of iterations
+    \item The Learning Rate
+    \item The constant for the L2 Regulation
+\end{enumerate}
 
 \subsubsection{K-Fold Cross Validation}
 
-\subsection{Model Implementation}
+\subsubsection{Model Implementation}
 PARLARE DI MAP REDUCE
 
 \subsection{Differences with Pyspark ML Implementation}
@@ -357,7 +363,6 @@ PARLARE DI MAP REDUCE
 
 In the following chapters the presented model performances will be compared with the Sklearn implementation \cite{logisticsklearn}, that has quite some differences.\\
 First, the Sklearn version doesn't use the SGD solver, it uses \textbf{L-BFGS-B - Software for Large-scale Bound-constrained Optimization} \cite{lbfgsb} instead, by default.
-% http://users.iems.northwestern.edu/~nocedal/lbfgsb.html
 For this reason, the solver doesn't need any form of Learning Rate.\\
 Also, with this implementation, the L2 Regularization is enabled by default as well.
 
@@ -382,6 +387,14 @@ Similarly to the Logistic Regression library from Pyspark, the model accepts dir
 \section{Experiments}
 
 The first wave of experiments follows the performances and results of the techniques described and implemented in this research.
+
+\subsection{Test Hardware}
+
+To perform the experiments, two environments were setupped.
+\begin{enumerate}
+    \item A powerful and multicore execution context, represented by a last generation 8 core and 16 thread Ryzen CPU with 16GB of RAM and an high speed SSD, which the following results are based on.
+    \item A more accessible cloud environment represented by a Google Colab base instance, with a dual core virtual CPU and 2 GB of RAM
+\end{enumerate}
 
 \subsection{Preprocessing Performance}
 
@@ -501,8 +514,10 @@ conclusioni
 \subsection{Sequential Implementation}
 
 Since the Pyspark implementation is full of options and various optimizations, it's difficult to compare it in term of speed with the proposed implementation.\\
-Thus, a sequential version with the same algorithm has been implemented. The difference is not functional but just technical, since the computation is entirely done by numpy and not also by PySpark MapReduce
+Thus, a sequential version with the same algorithm has been implemented. The difference is not functional but just technical, since the computation is entirely done by numpy and not also by PySpark MapReduce.
 
+By default, numpy uses a single thread and it's optimized for sequential computation. While using a single core instead of all the available ones is tipically a disadvantage, Pyspark is built for distributed computation and for this readon it has a certain overhead.\\
+The test machine
 
 Time comparison
 
@@ -594,26 +609,6 @@ Both of the models probably converged to a local minimum, that would explain the
 
 \printbibliography % Output the bibliography
 
-% Logistic Regression
-% Spark/PySpark
-% Kaggle Dataset
-% Mini Batch
-% L2 Regularization
-% Normalization
-% SGD
-% Il solver di Sklearn
-% sklearn, numpy, pandas
-% binary cross entropy
-% sigmoid
-
 %----------------------------------------------------------------------------------------
 
 \end{document}
-
-% todo
-
-% DEFINIZIONI
-% ESPERIMENTI PREPROCESSING
-% Performances del modello
-% Add Bold words
-% README
