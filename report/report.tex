@@ -352,23 +352,19 @@ In this case, there are 3 parameters:
     \item The constant for the L2 Regulation
 \end{enumerate}
 
-\subsubsection{K-Fold Cross Validation}
-
 \subsubsection{Model Implementation}
-PARLARE DI MAP REDUCE
+As stated before, the parallel version of the model has been implemented using RDDs and the MapReduce paradigm. This is since SQL syntax is not suited for mathematical operations and at this stage of the execution, all the data has been converted to float, so there is no need for the DataFrame schema anymore.\\
+The MapReduce paradigm is the perfect way to parallelize bitwise operations followed by a reduction, like the dot product. And since most of the operations in training a machine learning model are matrix multiplications, that are a sequence of dot products, there should be a gain in performances.
 
-\subsection{Differences with Pyspark ML Implementation}
-
-\subsection{Differences with Sklearn implementation}
+\subsection{Differences with Pyspark ML and Sklearn implementation}
 
 In the following chapters the presented model performances will be compared with the Sklearn implementation \cite{logisticsklearn}, that has quite some differences.\\
-First, the Sklearn version doesn't use the SGD solver, it uses \textbf{L-BFGS-B - Software for Large-scale Bound-constrained Optimization} \cite{lbfgsb} instead, by default.
-For this reason, the solver doesn't need any form of Learning Rate.\\
-Also, with this implementation, the L2 Regularization is enabled by default as well.
+First, both the Pyspark and the Sklearn version doesn't use the SGD solver, where the first one doesn't appear to specify what approach it uses and the second one uses \textbf{L-BFGS-B - Software for Large-scale Bound-constrained Optimization} \cite{lbfgsb}, by default.
+In both case the solver doesn't need any form of Learning Rate.\\
+Also, with these implementations, the L2 Regularization is enabled by default as well.
 
 \subsection{Differences with other algorithms: Decision Tree}
-The Decision tree is a predictive model where each node represents a variable, each arc is a possible value for that property and each leaf is the predicted value for that variable based on the values of the other properties.
-ALTRO\\
+The Decision tree is a predictive model where each node represents a variable, each arc is a possible value for that property and each leaf is the predicted value for that variable based on the values of the other properties.\\
 To compare the previous results to a Decision Tree Classifier, the Pyspark ML implementation has been used. This version supports both binary and multiclass classification, as well as both continuous and categorical features.\\
 Due to the structure of the problem, only the binary classification is needed. Also, since the dataset is already converted from categorical to continuous data, there's no need for other conversions.\\
 Similarly to the Logistic Regression library from Pyspark, the model accepts directly a parallel DataFrame.
@@ -491,7 +487,7 @@ TEMPI
 \subsection{Mini Batch}
 
 Another technique described before is the use of Mini Batches, chunk of the train datasets after each one the parameters are updated that should result in a better convergence rate.\\
-However OCNTINUARE
+However not only there wasn't any noticeable difference in the quality of the model, as can be seen in the following table
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
@@ -504,12 +500,12 @@ However OCNTINUARE
     \captionof{table}{TODO}
 \end{center}
 
-The performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased by a factor of 10.\\
+but the performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased by a factor of 10.\\
 This can be reconducted on the overhead added by the exchange of messages, that increases with the fragmentation of the memory and computations.
 
 TEMPI
 
-conclusioni
+For this reason, the Mini Batch technique doesn't seem worth
 
 \subsection{Sequential Implementation}
 
@@ -523,7 +519,8 @@ Time comparison
 
 \subsection{Pyspark ML Logistic Regression}
 
-cose
+As stated before, the proposed model has been compared to the Pyspark ML implementation of the Logistic Regression Model.
+The following table represents the obtained results
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
