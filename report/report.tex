@@ -256,6 +256,12 @@ The library PySpark is also able to handle the csv file reading and writing, so 
 The preprocessing part of the solution uses the PySpark \textbf{Dataframe} structure, the main reason for this choice is to take advantage of the column notation. This makes the code cleaner and easier to read, than the standard RDD (Resilient Distributed Dataset) implementation. The dataframe SQL functions are also really handy to convert efficienlty the various columns of the dataframes.
 However, after the preprocessing, entering the training section of the project, we noticed that the RDD structure was better suited to accomplish the various calculations required by the model, so the folded dataframes were converted to RDDs before passing them to the next section.
 
+\subsubsection{Caching}
+
+The \textbf{cache} method has proven to be a fundamental piece to improve PySpark computation performances. This method saves in the main memory the reuslts of the transormations applied to a dataframe at the moment when its called. Caching after the data loading brought a significant reduction in computation time. Before the using of this method, folding part was almost unviable due to the huge amount of time required by the procedure.
+This method was also used in the parallel training part, by caching the various batches to process.
+
+
 %----------------------------------------------------------------------------------------
 %	MODEL
 %----------------------------------------------------------------------------------------
@@ -424,6 +430,7 @@ The numbers represents seconds of execution.
 
 
 Due to the limitations of the hardware used during the experiments, both locally and on Google Colab, there weren't significant improvements over preprocessing speed using PySpark, because of the lack of a high number of worker nodes.\\
+It's worth noticing though that Pyspark used correctly every core of the host, almost at maximum power, so the problem does not reside in the handling of the underlying hardware, the performance decrease must be caused by other factors.
 
 The only section where there is a noticeable improvement is the data reading section, in the remaining ones the performances gets worse, even significantly worse, especially in the splitting section, where PySpark takes an enormous amount of time, to perform
 an operation completed in less than one second by Pandas.\\
