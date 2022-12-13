@@ -12,3 +12,9 @@
 2022-12-10 18:15:41.695011 - Dataset reading concluded: 29.920199394226074 seconds
 2022-12-10 18:17:09.318408 - Null values removal concluded: 87.55143141746521 seconds
 2022-12-10 18:41:08.446321 - Dataset balancing concluded: 138.46434950828552 seconds
+2022-12-13 19:59:00.132589 - Pandas dataset acquisition concluded: 95.57987833023071 seconds
+2022-12-13 19:59:00.474590 - Pandas null values removal concluded: 0.3379096984863281 seconds
+2022-12-13 19:59:00.573072 - Pandas dataset balancing concluded: 0.09455633163452148 seconds
+2022-12-13 19:59:01.005007 - Pandas dataset conversions concluded: 0.4286165237426758 seconds
+2022-12-13 19:59:01.181189 - Pandas dataset normalization concluded: 0.17330288887023926 seconds
+2022-12-13 19:59:01.364301 - Pandas dataset folding concluded: 0.1804029941558838 seconds

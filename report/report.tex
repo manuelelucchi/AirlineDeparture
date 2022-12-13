@@ -394,7 +394,7 @@ The first wave of experiments follows the performances and results of the techni
 
 To perform the experiments, two environments were setupped.
 \begin{enumerate}
-    \item A powerful and multicore execution context, represented by a last generation 8 core and 16 thread Ryzen CPU with 16GB of RAM and an high speed SSD, which the following results are based on.
+    \item A powerful and multicore execution context, represented by device with a last generation 8 core and 16 thread Ryzen CPU with 16GB of RAM and an high speed SSD, which the following results are based on.
     \item A more accessible cloud environment represented by a Google Colab base instance, with a dual core virtual CPU and 12 GB of RAM
 \end{enumerate}
 
@@ -454,6 +454,7 @@ The model is then trained for each tuple and the losses compared, resulting on t
 
 \begin{center}
     \includegraphics[width=10cm]{../images/3d.png}
+    \captionof{figure}{Parameters Space for the model}
 \end{center}
 
 As can be seen in the 3D chart above, that represents the resulting losses for each different configuration of parameters (also called hyperparameters space), some values like a very small Learning Rate results in an high loss.\\
@@ -467,7 +468,7 @@ What follows are the values for the best configuration
         10         & 0.1 & 1  & 0.69314704 \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Parallel Logistic Regression best configuration}
 \end{center}
 
 For the same configuration
@@ -475,18 +476,19 @@ For the same configuration
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
         \hline
-        TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity \\
         \hline
-        0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Parallel Logistic Regression Metrics}
 \end{center}
 
 And the following ROC curve
 
 \begin{center}
     \includegraphics[width=10cm]{../images/parallel_roc.png}
+    \captionof{figure}{Parallel Logistic Regression ROC}
 \end{center}
 
 TEMPI
@@ -497,14 +499,14 @@ Another technique described before is the use of Mini Batches, chunk of the trai
 However not only there wasn't any noticeable difference in the quality of the model, as can be seen in the following table
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
         \hline
-        TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
         \hline
-        0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Mini Batch version of the algorithm}
 \end{center}
 
 but the performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased by a factor of 10.\\
@@ -530,26 +532,27 @@ As stated before, the proposed model has been compared to the Pyspark ML impleme
 The following table represents the obtained results
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
         \hline
-        0    & 0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        0    & 0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Pyspark ML Logistic Regression Metrics}
 \end{center}
 
 And the following ROC curve
 
 \begin{center}
     \includegraphics[width=10cm]{../images/ml_logistic.png}
+    \captionof{figure}{Pyspark ML Logistic Regression ROC}
 \end{center}
 
 To compare the quality of the custom trained model and the Pyspark model, weights value can be compared. The following table shows the values of each element of the weights for each model and their absolute difference
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
         Custom & Pyspark & Absolute difference \\
         \hline
@@ -562,7 +565,7 @@ To compare the quality of the custom trained model and the Pyspark model, weight
         0      & 0       & 0                   \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Comparison between models weights}
 \end{center}
 
 This comparison can also be easily done in the code using the \textbf{np.allclose}, that compares two vectors elementwise.
@@ -573,23 +576,26 @@ It's then clear that the Logistic Regression is not the correct choice for this 
 
 \subsection{Pyspark ML Decision Tree}
 
-For the same configuration
+As stated before, another algorithm has been used to compare the proposed solution to a completely different approach.\\
+The Decision Tree ended up having better results than the Logistic Regression, with a better Area Under the Curve.\\
+What follows are the complete metrics
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN & TP & FN & FP & Preicision & Recall & F1 & Accuracy & Specificity \\
+        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
         \hline
-        0    & 0  & 0  & 0  & 0  & 0          & 0      & 0  & 0        & 0           \\
+        0    & 0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
         \hline
     \end{tabular}
-    \captionof{table}{TODO}
+    \captionof{table}{Pyspark ML Decision Tree Metrics}
 \end{center}
 
-And the following ROC curve
+And the ROC curve
 
 \begin{center}
     \includegraphics[width=10cm]{../images/tree_roc.png}
+    \captionof{figure}{Pyspark ML Decision Tree ROC}
 \end{center}
 
 \section{Diverted Flights}
@@ -602,9 +608,8 @@ And the following ROC curve
 
 The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
 The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
-It's still important to notice that the parallelization overhead was strangely high even on a single worker configuration, leading to think part of it is by default in PySpark.\\
 
-Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy similar to the state-of-art Sklearn implementation.\\
+Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy close to the state-of-art Pyspark ML implementation.\\
 Both of the models probably converged to a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
 
 %----------------------------------------------------------------------------------------
