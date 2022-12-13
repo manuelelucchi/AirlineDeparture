@@ -133,7 +133,7 @@ possessed by the machine on which the tests have been performed.
 
 Multiple preprocessing techniques were used.\\
 
-The first operation consisted in the removal of the rows with null values, after counting them we concluded that the null values are really rare in the dataset, so it was possible to remove the rows entirely, without any significant loss of informations.\\
+The first operation consisted in the removal of the rows with null values, after counting them the conclusion was that the null values are really rare in the dataset, so it was possible to remove the rows entirely, without any significant loss of informations.\\
 
 \subsection{Data Analysis}
 After the null rows removal, some analysys have been performe using the charts of the MatPlotLib library, especially the bar charts.\\
@@ -142,12 +142,13 @@ The main objective of this analysis was to find an eventual correlation between 
 Unfortunately, none of the features showed significative patterns nor tendencies of the problematic flights to increase in relation to a particular value of a feature or a combination of features.\\
 
 \subsubsection{Problematic flights per carrier}
-The first chart we draw tried to correlate the carriers with an abnormal number of the cancelled flights, to make the chart more readable, we aggregated in one column every carrier with a percentage lower than the mean of all carriers, to show only the highest percentages.\\
+The first chart drawn tried to correlate the carriers with an abnormal number of the cancelled flights, to make the chart more readable, every carrier with a percentage lower than the mean of all carriers was aggregated into a single column, to show only the highest percentages.\\
 
 The result was a chart showing some carriers with a slightly-above-average number of cancelled flights, and a peak of 4\% of the flights  cancelled, but considering the huge number of distinct carriers in the dataset, the impact of this feature will probably be very low.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/cancelled_per_carrier.png}
+    \captionof{figure}{}
 \end{center}
 
 \subsubsection{Problematics flights per origin}
@@ -158,32 +159,36 @@ The result can be considered an improvement regarding the correlation between a 
 of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majoerity of the origins (at least two quartiles), show no evident correlation with this feature.
 
 \begin{center}
-    \includegraphics[width=10cm]{../images/cancelled_box_per_origin.png}
+    \includegraphics[width=9cm]{../images/cancelled_box_per_origin.png}
+    \captionof{figure}{}
 \end{center}
 
-To show a readable bar chart, the same technique as before has been applied, aggregating the values of the majority of origins inside one column. This time though it was not enough to aggregate columns aunder the mean of the values, so we used a fixed number to aggregate, which is switched based on the problem to solve,
+To show a readable bar chart, the same technique as before has been applied, aggregating the values of the majority of origins inside one column. This time though it was not enough to aggregate columns under the mean of the values, so a fixed number was used to aggregate, which is switched based on the problem to solve,
 because the diverted problem posesses lower percentages of problematic flights.
 
 \begin{center}
     \includegraphics[width=14cm]{../images/cancelled_per_origin.png}
+    \captionof{figure}{}
 \end{center}
 \newpage
 
 \subsubsection{Problematics flights per month}
-Trying to find a correlation between the year period and the problematic flights, we plotted a chart based on the month of the flight. The result was expectedly skewed towards the winter months, where the bad weather conditions can influence the flight departures, but even in this case, the difference was not so dramatic, always remaining in a few percentage points.
+Trying to find a correlation between the year period and the problematic flights, a chart based on the month of the flight have been plotted. The result was expectedly skewed towards the winter months, where the bad weather conditions can influence the flight departures, but even in this case, the difference was not so dramatic, always remaining in a few percentage points.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/cancelled_per_month.png}
+    \captionof{figure}{}
 \end{center}
 
 \subsubsection{Problematics flights per weekday}
 
-The last chart we plotted was based on the weekday of the flight, trying to see if there was a relation between particular days and the rise of problematic flights.\\
+The last chart was based on the weekday of the flight, trying to see if there was a relation between particular days and the rise of problematic flights.\\
 
 Unfortunately this was the more useless analysys performed, with every column of the chart being almost identical to each other, basically this information doesn't tell anything about the probability of a flight of being problematic or regular.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/cancelled_per_weekday.png}
+    \captionof{figure}{}
 \end{center}
 
 \subsection{Data conversions}
@@ -210,7 +215,7 @@ The converted values were also limited between 0 and 1, to avoid exploding value
 This was necessary since the diverted or cancelled flights are a really small percentage of the overall flights,
 this in the first tests has been proved to be a problem, because the trained model always responded that no flight would have been cancelled or diverted, since it has been trained on a dataset with basically zero problematic flights.\\
 
-To solve the problem, we used the \textbf{Undersampling} technique, matching the number of normal flights and problematic flights, limiting the amount of normal flights that has been kept.\\
+To solve the problem, the \textbf{Undersampling} technique has been used, matching the number of normal flights and problematic flights, limiting the amount of normal flights that has been kept.\\
 
 Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the recordsa remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
 
@@ -224,7 +229,7 @@ After the dataset has been processed, the resulting data must be splitted into a
 
 This technique consists on splitting the dataset into K equally distributed and sized parts called folds, and while K-1 folds will be used for the training, the other one will be used for testing. This process will be repeated for K time, using each time a differend fold for the testing (and consequently excluding it from the training)\\
 
-During the split, the percentages of positives and negatives cases have been kept costant for every partition, we also ensured that every fold has a different set of rows to avoid overlapping of any kind.
+During the split, the percentages of positives and negatives cases have been kept costant for every partition, it has been ensured that every fold has a different set of rows to avoid overlapping of any kind.
 
 $$ x' = \frac{x - \mu}{\sigma} $$
 
@@ -254,7 +259,7 @@ The library PySpark is also able to handle the csv file reading and writing, so 
 \subsubsection{Data structures}
 
 The preprocessing part of the solution uses the PySpark \textbf{Dataframe} structure, the main reason for this choice is to take advantage of the column notation. This makes the code cleaner and easier to read, than the standard RDD (Resilient Distributed Dataset) implementation. The dataframe SQL functions are also really handy to convert efficienlty the various columns of the dataframes.
-However, after the preprocessing, entering the training section of the project, we noticed that the RDD structure was better suited to accomplish the various calculations required by the model, so the folded dataframes were converted to RDDs before passing them to the next section.
+However, after the preprocessing, entering the training section of the project, it looked like the RDD structure was better suited to accomplish the various calculations required by the model, so the folded dataframes were converted to RDDs before passing them to the next section.
 
 \subsubsection{Caching}
 
@@ -399,7 +404,7 @@ To perform the experiments, two environments were setupped.
 \end{enumerate}
 
 \subsection{Preprocessing Performance}
-
+\subsubsection{Time}
 The table below summarizes the time required to complete various parts of the preprocessing section.\\
 All this tests have been performed on the same machine to avoid differences due to hardware performances.
 
@@ -416,13 +421,13 @@ The numbers represents seconds of execution.
         \hline
         Section             & Pandas    & PySpark   \\
         \hline
-        Data reading        & 198.27791 & 98.55025  \\
-        Null values removal & 0.34007   & 279.05297 \\
-        Balancing           & 0.16137   & 64.49511  \\
-        Column conversions  & 0.87877   & 7.41825   \\
-        Normalization       & 0.32756   & 353.20140 \\
-        Folding             & 0.33897   & 670.85012 \\
-        Total               & 200.32465 & 1473.5681 \\
+        Data reading        & 95.57988 & 17.09711  \\
+        Null values removal & 0.33791   & 60.71444 \\
+        Balancing           & 0.09456   & 25.36964  \\
+        Column conversions  & 0.42862   & 1.42960   \\
+        Normalization       & 0.17330   & 64.45151 \\
+        Folding             & 0.18040   & 181.06777 \\
+        Total               & 96.79467 & 350.13007 \\
         \hline
     \end{tabular}
     \captionof{table}{Performance comparison between Pandas preprocessing and distributed PySpark preprocessing}
@@ -446,6 +451,24 @@ This suggests that the PySpark processing procedure would gain advantage over Pa
 In this case instead, it seems that most of the time required by PySpark is wasted organizing the computation, without gaining any advantage from this organization, over a library that procedes straight up to the calculation of the results.\\
 
 It si also possible that the time required would go down if the execution took place on a more parallelized machine than the Colab enviroment, giving PySpark the opportunity to take advantage of work distribution on a higher number of nodes.
+\subsubsection{Memory}
+
+Another interesting comparison to make is the memory usage. This analysis would be more significative if Pysaprk could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.
+The peak of the memory usage is located right after the data reading, before the balancing removes the majority of data through undersampling.\\
+
+\begin{itemize}
+    \item \textbf{Pandas Memory Usage}
+    \begin{itemize}
+        \item Average: 1.2 GB
+        \item Peak: 1.6 GB
+    \end{itemize}
+    \item \textbf{PySpark Memory Usage}
+    \begin{itemize}
+        \item Average: DA INSERIRE
+        \item Peak: DA INSERIRE
+    \end{itemize}
+\end{itemize}
+
 
 \subsection{Hyperparameter Tuning}
 To choose the hyperparameters tuple $\theta$ such that the loss of the model trained using said hyperparameters is minimized, the \textbf{search grid}.
