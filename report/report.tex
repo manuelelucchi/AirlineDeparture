@@ -419,14 +419,14 @@ The numbers represents seconds of execution.
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section             & Pandas    & PySpark   \\
+        Section             & Pandas   & PySpark   \\
         \hline
         Data reading        & 95.57988 & 17.09711  \\
-        Null values removal & 0.33791   & 60.71444 \\
-        Balancing           & 0.09456   & 25.36964  \\
-        Column conversions  & 0.42862   & 1.42960   \\
-        Normalization       & 0.17330   & 64.45151 \\
-        Folding             & 0.18040   & 181.06777 \\
+        Null values removal & 0.33791  & 60.71444  \\
+        Balancing           & 0.09456  & 25.36964  \\
+        Column conversions  & 0.42862  & 1.42960   \\
+        Normalization       & 0.17330  & 64.45151  \\
+        Folding             & 0.18040  & 181.06777 \\
         Total               & 96.79467 & 350.13007 \\
         \hline
     \end{tabular}
@@ -458,15 +458,15 @@ The peak of the memory usage is located right after the data reading, before the
 
 \begin{itemize}
     \item \textbf{Pandas Memory Usage}
-    \begin{itemize}
-        \item Average: 1.2 GB
-        \item Peak: 1.6 GB
-    \end{itemize}
+          \begin{itemize}
+              \item Average: 1.2 GB
+              \item Peak: 1.6 GB
+          \end{itemize}
     \item \textbf{PySpark Memory Usage}
-    \begin{itemize}
-        \item Average: DA INSERIRE
-        \item Peak: DA INSERIRE
-    \end{itemize}
+          \begin{itemize}
+              \item Average: DA INSERIRE
+              \item Peak: DA INSERIRE
+          \end{itemize}
 \end{itemize}
 
 
@@ -547,19 +547,24 @@ Thus, a sequential version with the same algorithm has been implemented. The dif
 By default, numpy uses a single thread and it's optimized for sequential computation. While using a single core instead of all the available ones is tipically a disadvantage, Pyspark is built for distributed computation and for this readon it has a certain overhead.\\
 The test machine
 
+62 seconds
+
 Time comparison
 
 \subsection{Pyspark ML Logistic Regression}
 
 As stated before, the proposed model has been compared to the Pyspark ML implementation of the Logistic Regression Model.
+Since there's no learning rate, the hyperparameters grid is smaller, leading to less configurations to train.
+Temporal wise, the computation took 37 seconds, which is dozen of times faster than the proposed implementation even considering the fewest configurations.
+
 The following table represents the obtained results
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
+        Loss & TN  & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
         \hline
-        0    & 0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
+        0    & 834 & 906 & 591 & 720 & 0.5571    & 0.6052 & 0.5802 & 0.5703   & 0.5366      & 0.5709 \\
         \hline
     \end{tabular}
     \captionof{table}{Pyspark ML Logistic Regression Metrics}
@@ -600,15 +605,15 @@ It's then clear that the Logistic Regression is not the correct choice for this 
 \subsection{Pyspark ML Decision Tree}
 
 As stated before, another algorithm has been used to compare the proposed solution to a completely different approach.\\
-The Decision Tree ended up having better results than the Logistic Regression, with a better Area Under the Curve.\\
+The Decision Tree ended up having better results than the Logistic Regression, with a bigger Area Under the Curve.\\
 What follows are the complete metrics
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
+        Loss & TN   & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
         \hline
-        0    & 0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
+        0    & 1019 & 832 & 665 & 535 & 0.6086    & 0.5557 & 0.5810 & 0.6066   & 0.6557      & 0.6057 \\
         \hline
     \end{tabular}
     \captionof{table}{Pyspark ML Decision Tree Metrics}
@@ -621,7 +626,23 @@ And the ROC curve
     \captionof{figure}{Pyspark ML Decision Tree ROC}
 \end{center}
 
+The hyperparameters grid for this experiment is smaller, with just 2 hyperparameters leading to few different configurations and it just took \textbf{7.6 seconds}.
+
 \section{Diverted Flights}
+
+As specified at the start of the document, all the observations and implementations have been thought to be valid for both the initial problems and considering all the previous experiments, the overall results are similar with some differences.\\
+
+\subsection{Dataset & Preprocessing}
+The considerations on the dataset are the same, since both of the possible problems come up when there's too much delay before the start or bad climate conditions (often caused by the time of the year). In the same way, every tested aggregation didn't show any particular correlation between the data and the occourrence of the problem.\\
+The feature taken and the way they are processed are therefore the same, with the only exception being the results column, changed from the cancelled one to the diverted one.\\
+
+The only difference in this section is that the diverted flight are quite inferior to the cancelled ones, but not that less to be relevant in term of preprocessing times.
+
+TEMPI
+
+\subsection{Model & Training}
+Since the data is still represented by the same conceptual columns represented in the same way, the model remained the same.
+The execution of the experiments, starting with the hyperparameters search grid of the proposed implementation and again the problem seems to be too complex for a Logistic Regressiong model,
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
