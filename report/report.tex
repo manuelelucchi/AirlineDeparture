@@ -632,7 +632,7 @@ The hyperparameters grid for this experiment is smaller, with just 2 hyperparame
 
 As specified at the start of the document, all the observations and implementations have been thought to be valid for both the initial problems and considering all the previous experiments, the overall results are similar with some differences.\\
 
-\subsection{Dataset & Preprocessing}
+\subsection{Dataset \& Preprocessing}
 The considerations on the dataset are the same, since both of the possible problems come up when there's too much delay before the start or bad climate conditions (often caused by the time of the year). In the same way, every tested aggregation didn't show any particular correlation between the data and the occourrence of the problem.\\
 The feature taken and the way they are processed are therefore the same, with the only exception being the results column, changed from the cancelled one to the diverted one.\\
 
@@ -640,9 +640,12 @@ The only difference in this section is that the diverted flight are quite inferi
 
 TEMPI
 
-\subsection{Model & Training}
+\subsection{Model \& Training}
 Since the data is still represented by the same conceptual columns represented in the same way, the model remained the same.
-The execution of the experiments, starting with the hyperparameters search grid of the proposed implementation and again the problem seems to be too complex for a Logistic Regressiong model,
+The execution of the experiments, starting with the hyperparameters search grid of the proposed implementation, resulted once again on a problem too complex to solve with a decent precision by a Logistic Regressiong model.\\
+Even in this case the Decision Tree performed better, but not enough to be consistent.
+
+VALORI
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
