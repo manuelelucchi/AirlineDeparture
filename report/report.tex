@@ -454,18 +454,23 @@ It si also possible that the time required would go down if the execution took p
 \subsubsection{Memory}
 
 Another interesting comparison to make is the memory usage. This analysis would be more significative if Pysaprk could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.
-The peak of the memory usage is located right after the data reading, before the balancing removes the majority of data through undersampling.\\
 
 \begin{itemize}
-    \item \textbf{Pandas Memory Usage}
+    \item \textbf{Pandas Memory Usage}\\
+    In this case the RAM usage was stable around 1.2 GB, with some peaks.
           \begin{itemize}
               \item Average: 1.2 GB
               \item Peak: 1.6 GB
           \end{itemize}
-    \item \textbf{PySpark Memory Usage}
+    \item \textbf{PySpark Memory Usage}\\
+    PySpark doubled the space required, with every step adding the amount indicated below to the former one.
           \begin{itemize}
-              \item Average: DA INSERIRE
-              \item Peak: DA INSERIRE
+            \item Dataset reading: 1 GB
+            \item Null rows value dropping: 1.1 GB
+            \item Dataframe balancing: 0.4 GB
+            \item Columns conversion: 0.4 GB
+            \item Z score normalization: 0.3 GB
+            \item Splitting: 0.3 GB
           \end{itemize}
 \end{itemize}
 
