@@ -486,9 +486,9 @@ What follows are the values for the best configuration
 \begin{center}
     \begin{tabular}{ |c|c|c|c| }
         \hline
-        Iterations & LR  & L2 & Loss       \\
+        Iterations & LR  & L2 & Loss   \\
         \hline
-        10         & 0.1 & 1  & 0.69314704 \\
+        10         & 0.1 & 1  & 0.6931 \\
         \hline
     \end{tabular}
     \captionof{table}{Parallel Logistic Regression best configuration}
@@ -497,11 +497,11 @@ What follows are the values for the best configuration
 For the same configuration
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
         \hline
-        TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity \\
+        TN  & TP  & FN  & FP  & Precision & Recall & F1       & Accuracy & Specificity & AUROC  \\
         \hline
-        0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           \\
+        789 & 800 & 762 & 773 & 0.5085    & 0.5121 & 0.510367 & 0.5086   & 0.505122    & 0.5086 \\
         \hline
     \end{tabular}
     \captionof{table}{Parallel Logistic Regression Metrics}
@@ -514,7 +514,7 @@ And the following ROC curve
     \captionof{figure}{Parallel Logistic Regression ROC}
 \end{center}
 
-TEMPI
+It took \textbf{61 minutes} to compute all the 27 configurations, with the ones with 50 iterations taking most of the time.
 
 \subsection{Mini Batch}
 
@@ -537,7 +537,7 @@ This can be reconducted on the overhead added by the exchange of messages, that 
 
 TEMPI
 
-For this reason, the Mini Batch technique doesn't seem worth
+For this reason, the Mini Batch technique doesn't seem an option worth.
 
 \subsection{Sequential Implementation}
 
@@ -545,11 +545,7 @@ Since the Pyspark implementation is full of options and various optimizations, i
 Thus, a sequential version with the same algorithm has been implemented. The difference is not functional but just technical, since the computation is entirely done by numpy and not also by PySpark MapReduce.
 
 By default, numpy uses a single thread and it's optimized for sequential computation. While using a single core instead of all the available ones is tipically a disadvantage, Pyspark is built for distributed computation and for this readon it has a certain overhead.\\
-The test machine
-
-62 seconds
-
-Time comparison
+This overhaul resulted in a staggering difference, since the sequential implementation took about \textbf{2 minutes and 12 seconds}.
 
 \subsection{Pyspark ML Logistic Regression}
 
@@ -562,9 +558,9 @@ The following table represents the obtained results
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN  & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
+        Loss   & TN  & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
         \hline
-        0    & 834 & 906 & 591 & 720 & 0.5571    & 0.6052 & 0.5802 & 0.5703   & 0.5366      & 0.5709 \\
+        0.6108 & 834 & 906 & 591 & 720 & 0.5571    & 0.6052 & 0.5802 & 0.5703   & 0.5366      & 0.5709 \\
         \hline
     \end{tabular}
     \captionof{table}{Pyspark ML Logistic Regression Metrics}
@@ -582,22 +578,22 @@ To compare the quality of the custom trained model and the Pyspark model, weight
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Custom & Pyspark & Absolute difference \\
+        Custom  & Pyspark & Absolute difference \\
         \hline
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
-        0      & 0       & 0                   \\
+        -0.0950 & -0.0823 & 0.0127              \\
+        -0.0378 & 0.0445  & 0.0823              \\
+        0.0233  & 0.0343  & 0.0110              \\
+        -0.2209 & -0.2550 & 0.0359              \\
+        0.1156  & 0.0956  & 0.02                \\
+        0.0301  & -0.0072 & 0.0373              \\
+        -0.1946 & -0.1940 & 0.0006              \\
         \hline
     \end{tabular}
     \captionof{table}{Comparison between models weights}
 \end{center}
 
 This comparison can also be easily done in the code using the \textbf{np.allclose}, that compares two vectors elementwise.
-As can be seen the elements are close by INSERIRE VALORE, a very small value that implies for the same evaluation algorithm.\\
+As can be seen the elements are close by ~0.08, a very small value that implies similar expected results during the evaluation.\\
 
 It's worth notice the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
 It's then clear that the Logistic Regression is not the correct choice for this complex problem.
@@ -611,9 +607,9 @@ What follows are the complete metrics
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN   & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
+        Loss   & TN   & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
         \hline
-        0    & 1019 & 832 & 665 & 535 & 0.6086    & 0.5557 & 0.5810 & 0.6066   & 0.6557      & 0.6057 \\
+        0.5250 & 1019 & 832 & 665 & 535 & 0.6086    & 0.5557 & 0.5810 & 0.6066   & 0.6557      & 0.6057 \\
         \hline
     \end{tabular}
     \captionof{table}{Pyspark ML Decision Tree Metrics}
@@ -644,6 +640,22 @@ TEMPI
 Since the data is still represented by the same conceptual columns represented in the same way, the model remained the same.
 The execution of the experiments, starting with the hyperparameters search grid of the proposed implementation, resulted once again on a problem too complex to solve with a decent precision by a Logistic Regressiong model.\\
 Even in this case the Decision Tree performed better, but not enough to be consistent.
+
+
+\begin{center}
+    \begin{tabular}{ |c|c|c| }
+        \hline
+        Model & Time & Loss \\
+        \hline
+        0     & 1019 & Loss \\
+        \hline
+        0     & 1019 & Loss \\
+        \hline
+        0     & 1019 & Loss \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Values for }
+\end{center}
 
 VALORI
 
