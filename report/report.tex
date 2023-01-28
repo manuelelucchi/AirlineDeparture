@@ -380,13 +380,6 @@ To compare the previous results to a Decision Tree Classifier, the Pyspark ML im
 Due to the structure of the problem, only the binary classification is needed. Also, since the dataset is already converted from categorical to continuous data, there's no need for other conversions.\\
 Similarly to the Logistic Regression library from Pyspark, the model accepts directly a parallel DataFrame.
 
-
-% https://medium.com/@aditya97p/l1-and-l2-regularization-237438a9caa6
-% https://github.com/mag3141592/LogisticRegression/blob/master/L2RegularizedLogisticRegression.py
-% https://satishkumarmoparthi.medium.com/logistic-regression-with-l2-regularization-using-sgd-from-scratch-893692b48362
-% https://towardsdatascience.com/batch-mini-batch-and-stochastic-gradient-descent-for-linear-regression-9fe4eefa637c
-
-
 %----------------------------------------------------------------------------------------
 %	EXPERIMENTS
 %----------------------------------------------------------------------------------------
@@ -527,22 +520,21 @@ Another technique described before is the use of Mini Batches, chunk of the trai
 However not only there wasn't any noticeable difference in the quality of the model, as can be seen in the following table
 
 \begin{center}
-    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ c||c|c|c|c|c|c|c|c|c|c| }
         \hline
-        TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
+        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
         \hline
-        0  & 0  & 0  & 0  & 0         & 0      & 0  & 0        & 0           & 0     \\
+        0.6802 &814  & 945  & 617  & 748  & 0.5581         & 0.6049      & 0.5806  & 0.5630        & 0.5211           & 0.5630     \\
         \hline
     \end{tabular}
     \captionof{table}{Mini Batch version of the algorithm}
 \end{center}
 
-but the performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased by a factor of 10.\\
+but the performances of the parallel enviroment were greatly penalized by this different management of the datasets, resulting in processing time increased enough for it to not be completed by the available hardware.\\
 This can be reconducted on the overhead added by the exchange of messages, that increases with the fragmentation of the memory and computations.
+The sequential implementation has been used and it just took 2.4 seconds.
 
-TEMPI
-
-For this reason, the Mini Batch technique doesn't seem an option worth.
+For thse reasons, the Mini Batch technique doesn't seem an option worth for this specific experiment.
 
 \subsection{Sequential Implementation}
 
@@ -550,13 +542,13 @@ Since the Pyspark implementation is full of options and various optimizations, i
 Thus, a sequential version with the same algorithm has been implemented. The difference is not functional but just technical, since the computation is entirely done by numpy and not also by PySpark MapReduce.
 
 By default, numpy uses a single thread and it's optimized for sequential computation. While using a single core instead of all the available ones is tipically a disadvantage, Pyspark is built for distributed computation and for this readon it has a certain overhead.\\
-This overhaul resulted in a staggering difference, since the sequential implementation took about \textbf{2 minutes and 12 seconds}.
+This overhead resulted in a staggering difference, since the sequential implementation took about \textbf{2 minutes and 12 seconds}.
 
 \subsection{Pyspark ML Logistic Regression}
 
 As stated before, the proposed model has been compared to the Pyspark ML implementation of the Logistic Regression Model.
 Since there's no learning rate, the hyperparameters grid is smaller, leading to less configurations to train.
-Temporal wise, the computation took 37 seconds, which is dozen of times faster than the proposed implementation even considering the fewest configurations.
+Temporal wise, the computation took \textbf{37 seconds}, which is dozen of times faster than the proposed implementation even considering the fewest configurations.
 
 The following table represents the obtained results
 
@@ -598,10 +590,10 @@ To compare the quality of the custom trained model and the Pyspark model, weight
 \end{center}
 
 This comparison can also be easily done in the code using the \textbf{np.allclose}, that compares two vectors elementwise.
-As can be seen the elements are close by ~0.08, a very small value that implies similar expected results during the evaluation.\\
+As can be seen the elements are close by \textbf{~0.08}, a very small value that implies similar expected results during the evaluation.\\
 
 It's worth notice the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
-It's then clear that the Logistic Regression is not the correct choice for this complex problem.
+It's then clear that the Logistic Regression, at least on how has been used in these experiments, \textbf{is not the correct choice for this complex problem.}
 
 \subsection{Pyspark ML Decision Tree}
 
@@ -650,13 +642,13 @@ Even in this case the Decision Tree performed better, but not enough to be consi
 \begin{center}
     \begin{tabular}{ |c|c|c| }
         \hline
-        Model & Time & Loss \\
+        Model & Time(s) & Loss \\
         \hline
-        0     & 1019 & Loss \\
+        Custom     & 2538 & 0.6898 \\
         \hline
-        0     & 1019 & Loss \\
+        Pyspark     & 31.7 & 0.6139 \\
         \hline
-        0     & 1019 & Loss \\
+        Decision Tree     & 5.3 & 0.5673 \\
         \hline
     \end{tabular}
     \captionof{table}{Values for }
