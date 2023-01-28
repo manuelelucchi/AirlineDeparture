@@ -136,7 +136,7 @@ Multiple preprocessing techniques were used.\\
 The first operation consisted in the removal of the rows with null values, after counting them the conclusion was that the null values are really rare in the dataset, so it was possible to remove the rows entirely, without any significant loss of informations.\\
 
 \subsection{Data Analysis}
-After the null rows removal, some analysys have been performe using the charts of the MatPlotLib library, especially the bar charts.\\
+After the null rows removal, some analysis have been performed using the charts of the MatPlotLib library, especially the bar charts.\\
 The main objective of this analysis was to find an eventual correlation between the various features used and the probability that a flight would be cancelled dor diverted.\\
 
 Unfortunately, none of the features showed significative patterns nor tendencies of the problematic flights to increase in relation to a particular value of a feature or a combination of features.\\
@@ -156,7 +156,7 @@ The second analysis was performed on the origin feature.
 The first chart plotted was a box plot, because due to the high number of airports, the bar was overcrowded and diffcult to read.\\
 
 The result can be considered an improvement regarding the correlation between a feature and the result, because thre are some origins that posses a significant percentage
-of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majoerity of the origins (at least two quartiles), show no evident correlation with this feature.
+of problematic flights, with a peak of over 25\% of cancelled flights. This cannot be taken as a decisive factor though, because while the probability of those particular airports increase notably, the vast majority of the origins (at least two quartiles), show no evident correlation with this feature.
 
 \begin{center}
     \includegraphics[width=9cm]{../images/cancelled_box_per_origin.png}
@@ -164,7 +164,7 @@ of problematic flights, with a peak of over 25\% of cancelled flights. This cann
 \end{center}
 
 To show a readable bar chart, the same technique as before has been applied, aggregating the values of the majority of origins inside one column. This time though it was not enough to aggregate columns under the mean of the values, so a fixed number was used to aggregate, which is switched based on the problem to solve,
-because the diverted problem posesses lower percentages of problematic flights.
+because the diverted problem possesses lower percentages of problematic flights.
 
 \begin{center}
     \includegraphics[width=14cm]{../images/cancelled_per_origin.png}
@@ -173,7 +173,7 @@ because the diverted problem posesses lower percentages of problematic flights.
 \newpage
 
 \subsubsection{Problematics flights per month}
-Trying to find a correlation between the year period and the problematic flights, a chart based on the month of the flight have been plotted. The result was expectedly skewed towards the winter months, where the bad weather conditions can influence the flight departures, but even in this case, the difference was not so dramatic, always remaining in a few percentage points.
+Trying to find a correlation between the year period and the problematic flights, a chart based on the month of the flight has been plotted. The result was expectedly skewed towards the winter months, where the bad weather conditions can influence the flight departures, but even in this case, the difference was not so dramatic, always remaining in a few percentage points.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/cancelled_per_month.png}
@@ -184,7 +184,7 @@ Trying to find a correlation between the year period and the problematic flights
 
 The last chart was based on the weekday of the flight, trying to see if there was a relation between particular days and the rise of problematic flights.\\
 
-Unfortunately this was the more useless analysys performed, with every column of the chart being almost identical to each other, basically this information doesn't tell anything about the probability of a flight of being problematic or regular.
+Unfortunately this was the most useless analysys performed, with every column of the chart being almost identical to each other, basically this information doesn't tell anything about the probability of a flight of being problematic or regular.
 
 \begin{center}
     \includegraphics[width=10cm]{../images/cancelled_per_weekday.png}
@@ -193,7 +193,7 @@ Unfortunately this was the more useless analysys performed, with every column of
 
 \subsection{Data conversions}
 
-All the data not already represented as real numbers has been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
+All the data not already represented as real numbers have been converted; airports and carriers identifiers, that were alphanumeric codes, had a number assigned based on the code. Dates were splitted between the year and the rest, the former has been discarded, while the latter has been hashed.\\
 
 \subsubsection{Hashing}
 
@@ -208,7 +208,7 @@ The distance has been normalized by dividing it for the maximum value found in t
 
 At this point, the dataset has been balanced in regard of the evaluated property, be it being canceled or diverted, so that there are an equal number of uniformly drawn positives and negatives.\\
 
-The converted values were also limited between 0 and 1, to avoid exploding values during the training of the dataset.\\
+The converted values were also limited between 0 and 1, to avoid exploding values during the training of the model.\\
 
 \subsubsection{Balancing}
 
@@ -217,7 +217,7 @@ this in the first tests has been proved to be a problem, because the trained mod
 
 To solve the problem, the \textbf{Undersampling} technique has been used, matching the number of normal flights and problematic flights, limiting the amount of normal flights that has been kept.\\
 
-Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the recordsa remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
+Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the records remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
 
 \subsubsection{Z-Score Normalization}
 Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.\\
@@ -446,7 +446,7 @@ In this case instead, it seems that most of the time required by PySpark is wast
 It si also possible that the time required would go down if the execution took place on a more parallelized machine than the Colab enviroment, giving PySpark the opportunity to take advantage of work distribution on a higher number of nodes.
 \subsubsection{Memory}
 
-Another interesting comparison to make is the memory usage. This analysis would be more significative if Pysaprk could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.
+Another interesting comparison to make is the memory usage. This analysis would be more significative if Pysaprk could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.\\
 
 \begin{itemize}
     \item \textbf{Pandas Memory Usage}\\
@@ -631,7 +631,6 @@ The feature taken and the way they are processed are therefore the same, with th
 
 The only difference in this section is that the diverted flight are quite inferior to the cancelled ones, but not that less to be relevant in term of preprocessing times.
 
-TEMPI
 
 \subsection{Model \& Training}
 Since the data is still represented by the same conceptual columns represented in the same way, the model remained the same.
@@ -651,10 +650,9 @@ Even in this case the Decision Tree performed better, but not enough to be consi
         Decision Tree     & 5.3 & 0.5673 \\
         \hline
     \end{tabular}
-    \captionof{table}{Values for }
+    \captionof{table}{Times and loss values for every method used}
 \end{center}
 
-VALORI
 
 %----------------------------------------------------------------------------------------
 %	RESULTS AND CONCLUSIONS
