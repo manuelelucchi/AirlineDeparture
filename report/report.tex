@@ -450,20 +450,20 @@ Another interesting comparison to make is the memory usage. This analysis would 
 
 \begin{itemize}
     \item \textbf{Pandas Memory Usage}\\
-    In this case the RAM usage was stable around 1.2 GB, with some peaks.
+          In this case the RAM usage was stable around 1.2 GB, with some peaks.
           \begin{itemize}
               \item Average: 1.2 GB
               \item Peak: 1.6 GB
           \end{itemize}
     \item \textbf{PySpark Memory Usage}\\
-    PySpark doubled the space required, with every step adding the amount indicated below to the former one.
+          PySpark doubled the space required, with every step adding the amount indicated below to the former one.
           \begin{itemize}
-            \item Dataset reading: 1 GB
-            \item Null rows value dropping: 1.1 GB
-            \item Dataframe balancing: 0.4 GB
-            \item Columns conversion: 0.4 GB
-            \item Z score normalization: 0.3 GB
-            \item Splitting: 0.3 GB
+              \item Dataset reading: 1 GB
+              \item Null rows value dropping: 1.1 GB
+              \item Dataframe balancing: 0.4 GB
+              \item Columns conversion: 0.4 GB
+              \item Z score normalization: 0.3 GB
+              \item Splitting: 0.3 GB
           \end{itemize}
 \end{itemize}
 
@@ -520,11 +520,11 @@ Another technique described before is the use of Mini Batches, chunk of the trai
 However not only there wasn't any noticeable difference in the quality of the model, as can be seen in the following table
 
 \begin{center}
-    \begin{tabular}{ c||c|c|c|c|c|c|c|c|c|c| }
+    \begin{tabular}{ c|c|c|c|c|c|c|c|c|c|c| }
         \hline
-        Loss & TN & TP & FN & FP & Precision & Recall & F1 & Accuracy & Specificity & AUROC \\
+        Loss   & TN  & TP  & FN  & FP  & Precision & Recall & F1     & Accuracy & Specificity & AUROC  \\
         \hline
-        0.6802 &814  & 945  & 617  & 748  & 0.5581         & 0.6049      & 0.5806  & 0.5630        & 0.5211           & 0.5630     \\
+        0.6802 & 814 & 945 & 617 & 748 & 0.5581    & 0.6049 & 0.5806 & 0.5630   & 0.5211      & 0.5630 \\
         \hline
     \end{tabular}
     \captionof{table}{Mini Batch version of the algorithm}
@@ -593,7 +593,9 @@ This comparison can also be easily done in the code using the \textbf{np.allclos
 As can be seen the elements are close by \textbf{~0.08}, a very small value that implies similar expected results during the evaluation.\\
 
 It's worth notice the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
-It's then clear that the Logistic Regression, at least on how has been used in these experiments, \textbf{is not the correct choice for this complex problem.}
+It's then clear that the Logistic Regression, at least on how has been used in these experiments, \textbf{is not the correct choice for this complex problem.}\\
+
+Besides, reaching this local minimum after just 10 iterations means that a further number would not improve the situation in any case, creating a situation were repeating the tuning multiple times could produce a different best configuration.
 
 \subsection{Pyspark ML Decision Tree}
 
@@ -634,15 +636,15 @@ The only difference in this section is that the \texttt{DIVERTED} flight number 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
         \hline
-        Section             & Time in seconds   \\
+        Section             & Time in seconds \\
         \hline
-        Data reading        & 18.5  \\
-        Null values removal & 67   \\
-        Balancing           & 5.5   \\
-        Column conversions  & 0.4   \\
-        Normalization       & 18.3   \\
-        Folding             & 9.9   \\
-        Total               & 119.6  \\
+        Data reading        & 18.5            \\
+        Null values removal & 67              \\
+        Balancing           & 5.5             \\
+        Column conversions  & 0.4             \\
+        Normalization       & 18.3            \\
+        Folding             & 9.9             \\
+        Total               & 119.6           \\
         \hline
     \end{tabular}
     \captionof{table}{Preprocessing performance using PySpark for \texttt{DIVERTED} flights}
@@ -657,13 +659,13 @@ Even in this case the Decision Tree performed better, but not enough to be consi
 \begin{center}
     \begin{tabular}{ |c|c|c| }
         \hline
-        Model & Time(s) & Loss \\
+        Model         & Time(s) & Loss   \\
         \hline
-        Custom     & 2538 & 0.6898 \\
+        Custom        & 2538    & 0.6898 \\
         \hline
-        Pyspark     & 31.7 & 0.6139 \\
+        Pyspark       & 31.7    & 0.6139 \\
         \hline
-        Decision Tree     & 5.3 & 0.5673 \\
+        Decision Tree & 5.3     & 0.5673 \\
         \hline
     \end{tabular}
     \captionof{table}{Times and loss values for every method used}
