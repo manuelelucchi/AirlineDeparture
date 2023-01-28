@@ -629,8 +629,24 @@ As specified at the start of the document, all the observations and implementati
 The considerations on the dataset are the same, since both of the possible problems come up when there's too much delay before the start or bad climate conditions (often caused by the time of the year). In the same way, every tested aggregation didn't show any particular correlation between the data and the occourrence of the problem.\\
 The feature taken and the way they are processed are therefore the same, with the only exception being the results column, changed from the cancelled one to the diverted one.\\
 
-The only difference in this section is that the diverted flight are quite inferior to the cancelled ones, but not that less to be relevant in term of preprocessing times.
+The only difference in this section is that the \texttt{DIVERTED} flight number is quite inferior than the \texttt{CANCELLED} one, this play a significant role in reducing the preprocessing time required.
 
+\begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c| }
+        \hline
+        Section             & Time in seconds   \\
+        \hline
+        Data reading        & 18.5  \\
+        Null values removal & 67   \\
+        Balancing           & 5.5   \\
+        Column conversions  & 0.4   \\
+        Normalization       & 18.3   \\
+        Folding             & 9.9   \\
+        Total               & 119.6  \\
+        \hline
+    \end{tabular}
+    \captionof{table}{Preprocessing performance using PySpark for \texttt{DIVERTED} flights}
+\end{center}
 
 \subsection{Model \& Training}
 Since the data is still represented by the same conceptual columns represented in the same way, the model remained the same.
