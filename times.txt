@@ -47,3 +47,8 @@
 2023-01-28 22:58:28.191682 - Z score normalization concluded: 18.41797947883606 seconds
 2023-01-28 23:10:36.638860 - Dataset reading concluded: 17.415223598480225 seconds
 2023-01-28 23:11:58.779352 - Null values removal concluded: 82.10083341598511 seconds
+2023-01-29 12:12:23.996306 - Dataset reading concluded: 23.165120363235474 seconds
+2023-01-29 12:13:36.615684 - Null values removal concluded: 72.55735087394714 seconds
+2023-01-29 12:17:24.742669 - Dataset reading concluded: 23.028849124908447 seconds
+2023-01-29 12:18:24.443504 - Null values removal concluded: 59.63709306716919 seconds
+2023-01-29 12:21:56.164053 - Dataset reading concluded: 16.59259271621704 seconds
