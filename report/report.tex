@@ -217,7 +217,20 @@ this in the first tests has been proved to be a problem, because the trained mod
 
 To solve the problem, the \textbf{Undersampling} technique has been used, matching the number of normal flights and problematic flights, limiting the amount of normal flights that has been kept.\\
 
-Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the records remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.
+Since less than 0.1\% of the dataset are positive cases (for both the tasks) after the oversampling, the records remained are just some tens of thousands, instead of hundreds of thousands, half with positive outcomes and half with negative ones.\\
+
+The following charts show the \texttt{REGULAR} and \texttt{CANCELLED} flights before and after balancing:\\
+
+\begin{figure}[!htb]
+    \centering
+    \minipage{0.5\textwidth}
+      \includegraphics[width=\linewidth]{../images/cancelled_unbalanced.png}
+    \endminipage\hfill
+    \minipage{0.5\textwidth}
+      \includegraphics[width=\linewidth]{../images/cancelled_balanced.png}
+    \endminipage\hfill
+    \captionof{figure}{}
+\end{figure}
 
 \subsubsection{Z-Score Normalization}
 Before the actual computation, the dataset has been normalized again by subtracting the \textbf{mean} and dividing by the \textbf{standard deviation}. This is called \textbf{Standard Score} \cite{normalization} or Z-Score Normalization.\\
@@ -632,6 +645,18 @@ The considerations on the dataset are the same, since both of the possible probl
 The feature taken and the way they are processed are therefore the same, with the only exception being the results column, changed from the cancelled one to the diverted one.\\
 
 The only difference in this section is that the \texttt{DIVERTED} flight number is quite inferior than the \texttt{CANCELLED} one, this play a significant role in reducing the preprocessing time required.
+The shown in the following balancing charts:\\
+
+\begin{figure}[!htb]
+    \centering
+    \minipage{0.5\textwidth}
+      \includegraphics[width=\linewidth]{../images/diverted_unbalanced.png}
+    \endminipage\hfill
+    \minipage{0.5\textwidth}
+      \includegraphics[width=\linewidth]{../images/diverted_balanced.png}
+    \endminipage\hfill
+    \captionof{figure}{}
+\end{figure}
 
 \begin{center}
     \begin{tabular}{ |c|c|c|c|c|c| }
