@@ -137,9 +137,9 @@ The first operation consisted in the removal of the rows with null values, after
 
 \subsection{Data Analysis}
 After the null rows removal, some analysis have been performed using the charts of the MatPlotLib library, especially the bar charts.\\
-The main objective of this analysis was to find an eventual correlation between the various features used and the probability that a flight would be cancelled dor diverted.\\
+The main objective of this analysis was to find an eventual relationship between the various features used and the probability that a flight would be cancelled or diverted.\\
 
-Unfortunately, none of the features showed significative patterns nor tendencies of the problematic flights to increase in relation to a particular value of a feature or a combination of features.\\
+None of the features showed significative patterns nor tendencies of the problematic flights to increase in relation to a particular value of a feature or a combination of features both the analysis of the dataset and the actual model costruction, probably because the dataset doesn't include informations on events that usually leads to this outcomes.\\
 
 \subsubsection{Problematic flights per carrier}
 The first chart drawn tried to correlate the carriers with an abnormal number of the cancelled flights, to make the chart more readable, every carrier with a percentage lower than the mean of all carriers was aggregated into a single column, to show only the highest percentages.\\
@@ -491,7 +491,7 @@ The model is then trained for each tuple and the losses compared, resulting on t
     \captionof{figure}{Parameters Space for the model}
 \end{center}
 
-As can be seen in the 3D chart above, that represents the resulting losses for each different configuration of parameters (also called hyperparameters space), some values like a very small Learning Rate results in an high loss.\\
+As can be seen in the 3D chart above, that represents the resulting losses for each different configuration of parameters (also called \textbf{hyperparameters space}), some values like a very small Learning Rate results in an high loss.\\
 What follows are the values for the best configuration
 
 \begin{center}
@@ -703,11 +703,15 @@ Even in this case the Decision Tree performed better, but not enough to be consi
 
 \section{Results and Conclusions}
 
-The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to classify flights data.\\
-The dataset preprocessing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
+The reason of this experiments was to reproduce a complete flow to create and train a Logistic Regression model to find a relationship between flights data and flights being cancelled or diverted.\\
+The initial dataset didn't show any particular tendency that could connect some of the columns to influence the outcome, but it was (of course) really unbalanced towards flights without issues, making it essential to balance the dataset.\\
+The features were normalized and separated into stratified folds to enforce the K-Fold Cross Validation and the processing has been successfully parallelized using PySpark, but the lack of a proper distributed system to test on lead to worse performances compared to the pandas implementation.\\
 
-Instead, the model built using SGD, L2 Regularization, Normalization and Batching (properly tuned) resulted in an accuracy close to the state-of-art Pyspark ML implementation.\\
-Both of the models probably converged to a local minimum, that would explain the high loss, and this could be explained by the Logistic Regression being a weak model for a real world complex problem like the one taken in consideration.
+The model was instead built using different techniques and implementations, starting with the Logistic Regression SGD version (both in pyspark and numpy and properly tuned), going throught the mini batch version (that resulted in a disappointment) and ending with the Pyspark ML implementations of both the Logistic Regression and the Decision Tree.
+None of the models had decent performances, however the Decision Tree had the best results (on all the indicators) by quite a margin. The disappointing results are probably associated with the scarce correlation between the data and the labels, since most of the problematic flights are connected to unexpected events, like exceptional weather (that is not strongly connected to seasons) or some kind of security concerns.
+The computation took a considerable amount of time on the custom PySpark implementation, while faster in Pyspark ML and much faster in the sequential implementation, that doesn't have the overhead of the parallelization on an inadequate hardware and dataset size.\\
+
+In conclusion, the experiment lead to considering the Logistic Regression and simple models in general to not be performant enough to be able to solve this complex real world problem and Pyspark a tool too much complex to be used in a non distributed environment, when it performs significantly worse than a sequential implementation.
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
