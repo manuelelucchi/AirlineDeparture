@@ -279,7 +279,7 @@ However, after the preprocessing, entering the training section of the project, 
 
 \subsubsection{Caching}
 
-The \textbf{cache} method has proven to be a fundamental piece to improve PySpark computation performances. This method saves in the main memory the reuslts of the transormations applied to a dataframe at the moment when its called. Caching after the data loading brought a significant reduction in computation time. Before the using of this method, folding part was almost unviable due to the huge amount of time required by the procedure.
+The \textbf{cache} method has proven to be a fundamental piece to improve PySpark computation performances. This method saves in the main memory the results of the transformations applied to a dataframe at the moment when its called. Caching after the data loading brought a significant reduction in computation time. Before the usage of this method, folding part was almost unviable due to the huge amount of time required by the procedure.
 This method was also used in the parallel training part, by caching the various batches to process.
 
 
@@ -316,7 +316,7 @@ In the code implementation, \texttt{np.dot} and \texttt{np.mean} were used.
 
 \subsubsection{Update}
 
-Gradient Descent \cite{sgd} is a technique that allows to find maximus e minimum in a multi-variable function, like the model taken in consideration.\\
+Gradient Descent \cite{sgd} is a technique that allows to find maximum and minimum in a multi-variable function, like the model taken in consideration.\\
 Once the gradients are calculated, the parameters (weights and bias in this case) will be updated with the gradient value properly mitigated with the \textbf{Learning Rate}
 
 $$ w' = w - \mu \nabla w $$
@@ -453,16 +453,15 @@ The differences found are not stable between the various phases of preprocessing
 forcing it to waste more time than others to organize the parallel computation, even if they appear as simpler processes.
 This could be explained by the big overhead the distributed enviroment creates that cannot be transformed into an advantage given the inadequate hardware.\\
 
-It's also worth noticing that the Google Colab enviroment was really unstable, with the same sequence of operations taking different times in the order of \textbf{30-40\%} of difference.
 \textbf{As a result, this data does not really provide any valuable conclusion regarding the preprocessing phase analysis.}\\
 
 This suggests that the PySpark processing procedure would gain advantage over Pandas only over a really large dataset, where the time used to put up the processing infrastructure is justified by the huge amount of data to be processed.
 In this case instead, it seems that most of the time required by PySpark is wasted organizing the computation, without gaining any advantage from this organization, over a library that procedes straight up to the calculation of the results.\\
 
-It si also possible that the time required would go down if the execution took place on a more parallelized machine than the Colab enviroment, giving PySpark the opportunity to take advantage of work distribution on a higher number of nodes.
+It si also possible that the time required would go down if the execution took place on a more parallelized machine, giving PySpark the opportunity to take advantage of work distribution on a higher number of nodes.
 \subsubsection{Memory}
 
-Another interesting comparison to make is the memory usage. This analysis would be more significative if Pysaprk could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.\\
+Another interesting comparison to make is the memory usage. This analysis would be more significative if Pyspark could use more than one machine to distribute the workload over multiple nodes, but it will be reported anyway.\\
 
 \begin{itemize}
     \item \textbf{Pandas Memory Usage}\\
@@ -485,7 +484,7 @@ Another interesting comparison to make is the memory usage. This analysis would 
 
 
 \subsection{Hyperparameter Tuning}
-To choose the hyperparameters tuple $\theta$ such that the loss of the model trained using said hyperparameters is minimized, the \textbf{search grid}.
+To choose the hyperparameters tuple $\theta$ such that the loss of the model trained using said hyperparameters is minimized, the \textbf{search grid} has been used.
 This technique consists on the choice of multiple different values for each parameter and the creation of a permutation that leaves a set of tuples with all possible combinations.\\
 The model is then trained for each tuple and the losses compared, resulting on the best model the one with the lowest loss.
 
@@ -532,7 +531,7 @@ It took \textbf{61 minutes} to compute all the 27 configurations, with the ones 
 
 \subsection{Mini Batch}
 
-Another technique described before is the use of Mini Batches, chunk of the train datasets after each one the parameters are updated that should result in a better convergence rate.\\
+Another technique described before is the use of Mini Batches, chunks of the train datasets, after each one the parameters are updated, this should result in a better convergence rate.\\
 However not only there wasn't any noticeable difference in the quality of the model, as can be seen in the following table
 
 \begin{center}
@@ -550,7 +549,7 @@ but the performances of the parallel enviroment were greatly penalized by this d
 This can be reconducted on the overhead added by the exchange of messages, that increases with the fragmentation of the memory and computations.
 The sequential implementation has been used and it just took 2.4 seconds.
 
-For thse reasons, the Mini Batch technique doesn't seem an option worth for this specific experiment.
+For these reasons, the Mini Batch technique doesn't seem an option worth for this specific experiment.
 
 \subsection{Sequential Implementation}
 
@@ -608,7 +607,7 @@ To compare the quality of the custom trained model and the Pyspark model, weight
 This comparison can also be easily done in the code using the \textbf{np.allclose}, that compares two vectors elementwise.
 As can be seen the elements are close by \textbf{~0.08}, a very small value that implies similar expected results during the evaluation.\\
 
-It's worth notice the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
+It's worth noticing that the weights absolute values are very small, meaning that for both the implementations, none of the corresponding features are impactful on the prediction.\\
 It's then clear that the Logistic Regression, at least on how has been used in these experiments, \textbf{is not the correct choice for this complex problem.}\\
 
 Besides, reaching this local minimum after just 10 iterations means that a further number would not improve the situation in any case, creating a situation were repeating the tuning multiple times could produce a different best configuration.
