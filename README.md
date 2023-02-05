@@ -3,10 +3,8 @@
 ## Colab
 
 The colab version of this repository can be found [here](https://colab.research.google.com/github/manuelelucchi/AirlineDeparture/blob/develop/AirlineDeparture.ipynb)
+NB: The first cell sometime doesn't work at the first try, you have to relaunch it. Also some cells give error even if they are completed correctly
 
 ## Local
 
-The local version can be executed throught the file main.py executed from the root of the repository. It will automatically download the dataset if not exists and execute all the experiments.
-You can install the required packages throught
-
-``pip install -r requirements.txt``
+The local version just requires to configure the constants and launch the cells. 
