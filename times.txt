@@ -58,3 +58,6 @@
 2023-02-05 12:04:49.287978 - Dataset reading concluded: 16.61877703666687 seconds
 2023-02-05 12:07:32.861869 - Null values removal concluded: 163.5359809398651 seconds
 2023-02-05 12:14:41.472966 - Dataset reading concluded: 21.68639850616455 seconds
+2023-02-05 14:33:12.506993 - Dataset reading concluded: 21.952812433242798 seconds
+2023-02-05 14:34:16.850389 - Null values removal concluded: 61.67118453979492 seconds
+2023-02-05 14:34:24.502756 - Dataset balancing concluded: 6.195776462554932 seconds
