@@ -61,3 +61,9 @@
 2023-02-05 14:33:12.506993 - Dataset reading concluded: 21.952812433242798 seconds
 2023-02-05 14:34:16.850389 - Null values removal concluded: 61.67118453979492 seconds
 2023-02-05 14:34:24.502756 - Dataset balancing concluded: 6.195776462554932 seconds
+2023-02-06 21:10:33.968575 - Dataset reading concluded: 22.557281970977783 seconds
+2023-02-06 21:11:34.481130 - Null values removal concluded: 60.47316646575928 seconds
+2023-02-06 21:12:35.940249 - Dataset balancing concluded: 25.287168979644775 seconds
+2023-02-06 21:12:40.616125 - Columns conversion concluded: 1.4590425491333008 seconds
+2023-02-06 21:13:42.178257 - Z score normalization concluded: 61.52575612068176 seconds
+2023-02-06 21:14:36.637962 - Dataset splitting concluded: 49.96994233131409 seconds
